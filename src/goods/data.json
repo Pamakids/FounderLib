@@ -1,0 +1,6 @@
+{
+	"goods":[
+		{"id":"apple", "name":"苹果", "inPrice":"1", "outPrice":"3"},
+		{"id":"banana", "name":"香蕉", "inPrice":"2", "outPrice":"10"}
+	]
+}

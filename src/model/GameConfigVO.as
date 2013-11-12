@@ -6,7 +6,7 @@ package model
 	{
 		public function GameConfigVO()
 		{
-			required.push('name', 'type', 'startupMoney', 'prepareTime', 'roundTime', 'minShopVisitors', 'minShopRent', 'visitorsAscendingRatio', 'rentAscendingRatio');
+			required.push('name', 'type', 'startupMoney', 'prepareTime', 'roundTime', 'minShopVisitors', 'minShopRent', 'visitorsAscendingRatio', 'rentAscendingRatio', 'goodsSaleMax');
 		}
 
 		override public function isValidate():Boolean
@@ -25,6 +25,8 @@ package model
 					invalidMessage='最低人流增长率不可低于1%';
 				else if (rentAscendingRatio < 1)
 					invalidMessage='最低租金增长率不可低于1%';
+				else if (goodsSaleMax < 10)
+					invalidMessage='物品售价不可低于进货价的10%';
 				else
 					return true;
 				return false;
@@ -32,6 +34,10 @@ package model
 			return false;
 		}
 
+		/**
+		 * 物品售价最大倍数
+		 */
+		public var goodsSaleMax:int;
 		public var name:String;
 		public var isDefault:Boolean;
 		public var type:int;
