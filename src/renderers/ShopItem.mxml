@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false">
+
+	<s:BitmapImage source="@Embed('/assets/3d/itemBG.png')"/>
+
+	<s:Label horizontalCenter="0"
+			 text="{data.name}"
+			 fontSize="16"
+			 color="0x832600"
+			 y="8"/>
+
+	<s:HGroup verticalAlign="middle"
+			  gap="0"
+			  width="100%"
+			  paddingLeft="18"
+			  y="75"
+			  paddingRight="22">
+		<s:Label text="租金："
+				 color="0xffffff"
+				 fontSize="16"/>
+		<s:Label width="100%"
+				 text="{data.rent}"
+				 color="0x8b331f"
+				 textAlign="right"
+				 fontSize="24"/>
+		<s:Label text="/回合"
+				 color="0xffffff"
+				 fontSize="24"/>
+
+	</s:HGroup>
+
+	<s:HGroup verticalAlign="middle"
+			  gap="0"
+			  y="110"
+			  paddingLeft="18"
+			  width="100%"
+			  paddingRight="22">
+		<s:Label text="人流："
+				 color="0xffffff"
+				 fontSize="16"/>
+		<s:Label width="100%"
+				 text="{data.visit}"
+				 textAlign="right"
+				 color="0x8b331f"
+				 fontSize="24"/>
+		<s:Label text="/回合"
+				 color="0xffffff"
+				 fontSize="24"/>
+
+	</s:HGroup>
+
+	<s:Button label="租赁"
+			  horizontalCenter="0"
+			  buttonMode="true"
+			  bottom="30"
+			  skinClass="skins.DefaultButtonSkin"/>
+
+
+</s:ItemRenderer>

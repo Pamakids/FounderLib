@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:s="library://ns.adobe.com/flex/spark"
+			 xmlns:mx="library://ns.adobe.com/flex/mx"
+			 itemRenderer="renderers.ShopItem"
+			 horizontalCenter="0"
+			 creationComplete="datagroup1_creationCompleteHandler(event)">
+	<s:layout>
+		<s:HorizontalLayout gap="0"/>
+	</s:layout>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			import controller.ServiceController;
+
+			import model.GameConfigVO;
+
+			protected function datagroup1_creationCompleteHandler(event:FlexEvent):void
+			{
+				var ac:ArrayCollection=new ArrayCollection();
+				var c:GameConfigVO=ServiceController.instance.config;
+
+				var mr2:Number=c.rentAscendingRatio;
+				var mr:Number=c.minShopRent;
+				var mv:Number=c.minShopVisitors;
+				var mv2:Number=c.visitorsAscendingRatio;
+				for (var i:int=1; i <= 4; i++)
+				{
+					ac.addItem({name: i + '号便利店', rent: int(mr * (1 + (i - 1) * mr2 / 100)), visit: int(mv * (1 + (i - 1) * mv2 / 100))});
+				}
+
+				dataProvider=ac;
+			}
+		]]>
+	</fx:Script>
+</s:DataGroup>

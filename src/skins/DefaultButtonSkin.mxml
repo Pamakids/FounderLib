@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkButtonSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+				   minWidth="21"
+				   minHeight="21"
+				   alpha.disabled="0.5"
+				   creationComplete="hostComponent.buttonMode=true">
+
+	<fx:Metadata>
+		<![CDATA[ 
+        /** 
+         * @copy spark.skins.spark.ApplicationSkin#hostComponent
+         */
+        [HostComponent("spark.components.Button")]
+        ]]>
+	</fx:Metadata>
+
+	<!-- states -->
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+
+	<s:BitmapImage source="@Embed('/assets/3d/buttonUp.png', 
+				   scaleGridTop=5,  
+				   scaleGridLeft=5,  
+				   scaleGridBottom=6,  
+				   scaleGridRight=6)"
+				   includeIn="down"
+				   left="0"
+				   right="0"/>
+	<s:BitmapImage source="@Embed('/assets/3d/buttonUp.png', 
+				   scaleGridTop=5,  
+				   scaleGridLeft=5,  
+				   scaleGridBottom=6,  
+				   scaleGridRight=6)"
+				   alpha.disabled="0.5"
+				   includeIn="up, disabled"
+				   left="0"
+				   right="0"/>
+	<s:BitmapImage source="@Embed('/assets/3d/buttonOver.png', 
+				   scaleGridTop=5,  
+				   scaleGridLeft=5,  
+				   scaleGridBottom=6,  
+				   scaleGridRight=6)"
+				   includeIn="over"
+				   left="0"
+				   right="0"/>
+
+	<s:Label id="labelDisplay"
+			 textAlign="center"
+			 maxDisplayedLines="1"
+			 fontSize="14"
+			 horizontalCenter="0"
+			 color="0x8b331f"
+			 verticalAlign="middle"
+			 left="13"
+			 right="13"
+			 top="0"
+			 bottom="0">
+	</s:Label>
+
+</s:SparkButtonSkin>
