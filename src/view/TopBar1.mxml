@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 horizontalCenter="0"
+		 y="20"
+		 creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			import controller.ServiceController;
+
+			import model.PlayerVO;
+
+			[Bindable]
+			private var player:PlayerVO;
+
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				player=ServiceController.instance.player1;
+			}
+		]]>
+	</fx:Script>
+
+	<s:BitmapImage source="@Embed('/assets/3d/bar1.png')"
+				   id="bi"/>
+
+	<s:Label fontSize="24"
+			 color="0x8b331f"
+			 width="{bi.width/2}"
+			 textAlign="center"
+			 verticalCenter="0"
+			 text="{'现金： '+player.cash}"
+			 id="cash"/>
+
+	<s:Label fontSize="24"
+			 color="0x8b331f"
+			 width="{bi.width/2}"
+			 textAlign="center"
+			 text="{'贷款： '+player.loan}"
+			 x="{bi.width/2}"
+			 verticalCenter="0"
+			 id="loan"/>
+
+</s:Group>
