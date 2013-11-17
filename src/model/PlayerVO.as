@@ -1,6 +1,7 @@
 package model
 {
 
+	[Bindable]
 	public class PlayerVO
 	{
 		public function PlayerVO()
@@ -26,5 +27,20 @@ package model
 		 * 货物
 		 */
 		public var goods:Array;
+
+		public var shop:ShopVO;
+
+		private var _money:int;
+
+		public function get money():int
+		{
+			return cash + loan;
+		}
+
+		public function set money(value:int):void
+		{
+			_money=value;
+		}
+
 	}
 }

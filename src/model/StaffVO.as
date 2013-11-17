@@ -1,6 +1,10 @@
 package model
 {
 
+	/**
+	 * 员工VO
+	 * @author mani
+	 */
 	public class StaffVO
 	{
 		public function StaffVO()
@@ -31,5 +35,12 @@ package model
 		 * 能力
 		 */
 		public var ability:Number;
+
+		/**
+		 * 1 采购员
+		 * 2 收银员
+		 * 3 理货员
+		 */
+		public var type:int;
 	}
 }

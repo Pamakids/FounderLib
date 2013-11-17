@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<components:PopupBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:components="com.pamakids.components.*"
+					 skinClass="skins.GMPopupBoxSkin"
+					 title="批发市场"
+					 creationComplete="popupbox1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.pamakids.components.PAlert;
+			import com.pamakids.utils.CloneUtil;
+
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			import spark.components.Group;
+			import spark.events.IndexChangeEvent;
+
+			import controller.ServiceController;
+
+			import events.ODataEvent;
+
+			import model.BoughtGoodsVO;
+
+			private var purchaseAC:ArrayCollection;
+			private var sc:ServiceController;
+
+			protected function popupbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				addEventListener('close', closeHandler);
+				sc=ServiceController.instance;
+
+				var ac:ArrayCollection=new ArrayCollection(['水果', '饮料', '蔬菜', '日用品']);
+				goodsTypes.dataProvider=ac;
+				goods=new ArrayCollection(sc.goodsDic['水果']);
+
+				sc.addEventListener('selectedGoods', selectedHandler);
+				sc.addEventListener('removeGoods', removeHandler);
+				sc.addEventListener('quantityChanged', changedHandler);
+
+				boughtGoods=new ArrayCollection();
+			}
+
+			[Bindable]
+			private var goods:ArrayCollection;
+
+			protected function closeHandler(event:Event):void
+			{
+				if (parent)
+					(parent as Group).removeElement(this);
+			}
+
+			protected function goodsTypes_changeHandler(event:IndexChangeEvent):void
+			{
+				goods=new ArrayCollection(sc.goodsDic[goodsTypes.selectedItem]);
+			}
+
+			protected function selectedHandler(event:ODataEvent):void
+			{
+				var bo:BoughtGoodsVO=CloneUtil.convertObject(event.data, BoughtGoodsVO) as BoughtGoodsVO;
+				var added:Boolean;
+				for each (var vo:BoughtGoodsVO in boughtGoods)
+				{
+					if (vo.id == bo.id)
+					{
+						added=true;
+						break;
+					}
+				}
+				if (!added)
+					boughtGoods.addItem(bo);
+				else
+					vo.quantity++;
+				caculate();
+			}
+
+			[Bindable]
+			public var shopCartTotal:int;
+
+			private function caculate():void
+			{
+				var total:int;
+				for each (var vo:BoughtGoodsVO in boughtGoods)
+				{
+					total+=vo.inPrice * vo.quantity;
+				}
+				shopCartTotal=total;
+			}
+
+			protected function removeHandler(event:ODataEvent):void
+			{
+				boughtGoods.removeItem(event.data);
+				caculate();
+			}
+
+			[Bindable]
+			private var boughtGoods:ArrayCollection;
+
+			protected function changedHandler(event:Event):void
+			{
+				caculate();
+			}
+
+			protected function buy_clickHandler(event:MouseEvent):void
+			{
+				if (shopCartTotal > sc.player1.money)
+				{
+					PAlert.show('现金不足');
+				}
+				else
+				{
+					sc.checkOut(boughtGoods.source, shopCartTotal);
+					closeHandler(null);
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<s:ButtonBar skinClass="skins.DefaultButtonBarSkin"
+				 horizontalCenter="0"
+				 requireSelection="true"
+				 change="goodsTypes_changeHandler(event)"
+				 y="35	"
+				 id="goodsTypes"/>
+
+	<s:HGroup width="100%"
+			  paddingLeft="30"
+			  paddingRight="30"
+			  y="90">
+		<s:List id="goodsList"
+				skinClass="skins.DefaultListSkin"
+				width="240"
+				itemRenderer="renderers.GoodsItem"
+				height="240"
+				dataProvider="{goods}"/>
+		<s:VGroup horizontalAlign="center"
+				  width="100%">
+			<s:Label text="购物车"
+					 fontSize="18"
+					 color="0x975c25"/>
+			<s:List id="shopCart"
+					dataProvider="{boughtGoods}"
+					skinClass="skins.DefaultListSkin"
+					itemRenderer="renderers.ShopCartRenderer"
+					width="280"
+					height="165"/>
+			<s:BitmapImage source="@Embed('/assets/boxes/cartLine.png')"/>
+
+			<s:HGroup verticalAlign="middle"
+					  gap="18">
+				<s:Label id="total"
+						 text="{'总金额：'+ shopCartTotal}"
+						 color="0xfe840c"
+						 fontSize="20"/>
+				<s:Button skinClass="skins.DefaultButtonBigSkin"
+						  id="buy"
+						  click="buy_clickHandler(event)"
+						  label="结算"/>
+			</s:HGroup>
+
+		</s:VGroup>
+	</s:HGroup>
+
+</components:PopupBox>

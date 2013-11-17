@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="190"
+				autoDrawBackground="false"
+				buttonMode="true"
+				xmlns:views="views.*"
+				removedFromStage="itemrenderer1_removedHandler(event)"
+				addedToStage="itemrenderer1_addedToStageHandler(event)"
+				click="sign_clickHandler(event)"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)"
+				xmlns:components="view.components.*">
+
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center"
+						  gap="10"/>
+	</s:layout>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			import spark.primitives.BitmapImage;
+
+			import controller.ServiceController;
+
+			import events.ODataEvent;
+
+			import model.StaffVO;
+
+			[Embed(source="/assets/boxes/star.png")]
+			private var star:Class;
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				fillData();
+			}
+
+			private function fillData():void
+			{
+				var vo:StaffVO=data as StaffVO;
+				if (vo)
+				{
+					starGroup.removeAllElements();
+					for (var i:int; i < vo.level; i++)
+					{
+						var b:BitmapImage=new BitmapImage();
+						b.source=new star();
+						starGroup.addElement(b);
+					}
+
+					if (data.type == 1)
+						ability.text='采购量： ' + vo.ability + ' 件/回合';
+					else if (data.type == 2)
+						ability.text='收银时间： ' + vo.ability + ' 秒/次';
+					else
+						ability.text='补货时间： ' + vo.ability + ' 秒/次';
+
+					salary.text='工资： ' + vo.salary + ' /回合';
+					sign.selected=ServiceController.instance.isSeletected(vo);
+				}
+			}
+
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				fillData();
+				ServiceController.instance.addEventListener('selectedStaff', selectedHandler);
+			}
+
+			protected function sign_clickHandler(event:MouseEvent):void
+			{
+				ServiceController.instance.selectStaff(data as StaffVO);
+			}
+
+			protected function selectedHandler(event:ODataEvent):void
+			{
+				if (event.data.level == data.level)
+					sign.selected=true;
+				else
+					sign.selected=false;
+			}
+
+			protected function itemrenderer1_removedHandler(event:Event):void
+			{
+				ServiceController.instance.removeEventListener('selectedStaff', selectedHandler);
+			}
+
+			protected function itemrenderer1_addedToStageHandler(event:Event):void
+			{
+				ServiceController.instance.addEventListener('selectedStaff', selectedHandler);
+			}
+		]]>
+	</fx:Script>
+
+	<components:GPortrait/>
+	<s:HGroup id="starGroup">
+	</s:HGroup>
+
+	<s:Label id="ability"
+			 fontSize="14"
+			 color="0x975c25"/>
+	<s:Label id="salary"
+			 fontSize="14"
+			 color="0x975c25"/>
+	<s:ToggleButton skinClass="skins.DefaultToggleButtonSkin"
+					id="sign"
+					label="签约"/>
+
+</s:ItemRenderer>

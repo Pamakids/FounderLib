@@ -13,6 +13,7 @@ package model
 		public var name:String;
 		public var inPrice:Number;
 		public var outPrice:Number;
+		public var type:String;
 
 		public function validate(saleMax:int):Boolean
 		{

@@ -2,7 +2,37 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
-				autoDrawBackground="false">
+				autoDrawBackground="false"
+				buttonMode="true"
+				click="itemrenderer1_mouseDownHandler(event)"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			import controller.ServiceController;
+
+			import events.ODataEvent;
+
+			protected function itemrenderer1_mouseDownHandler(event:MouseEvent):void
+			{
+				ServiceController.instance.selectShop(data);
+				ServiceController.instance.navigateTo(data.id);
+			}
+
+			protected function selectedHandler(event:ODataEvent):void
+			{
+				tb.selected=event.data.id == data.id;
+			}
+
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				ServiceController.instance.addEventListener('selectdShop', selectedHandler);
+			}
+		]]>
+	</fx:Script>
+
 
 	<s:BitmapImage source="@Embed('/assets/3d/itemBG.png')"/>
 
@@ -52,11 +82,11 @@
 
 	</s:HGroup>
 
-	<s:Button label="租赁"
-			  horizontalCenter="0"
-			  buttonMode="true"
-			  bottom="30"
-			  skinClass="skins.DefaultButtonSkin"/>
+	<s:ToggleButton label="租赁"
+					horizontalCenter="0"
+					bottom="30"
+					id="tb"
+					skinClass="skins.DefaultToggleButtonSkin"/>
 
 
 </s:ItemRenderer>

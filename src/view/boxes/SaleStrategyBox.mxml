@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<components:PopupBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:components="com.pamakids.components.*"
+					 skinClass="skins.GMPopupBoxSkin"
+					 title="销售方案"
+					 creationComplete="popupbox1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.pamakids.components.PAlert;
+			import com.pamakids.utils.CloneUtil;
+
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			import spark.components.Group;
+			import spark.events.IndexChangeEvent;
+
+			import controller.ServiceController;
+
+			import events.ODataEvent;
+
+			import model.BoughtGoodsVO;
+			import model.SaleStrategyVO;
+
+			private var purchaseAC:ArrayCollection;
+			private var sc:ServiceController;
+
+			private var boughtGoodsDic:Dictionary;
+
+			protected function popupbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				addEventListener('close', closeHandler);
+				sc=ServiceController.instance;
+
+				initData();
+			}
+
+			[Bindable]
+			private var goods:ArrayCollection;
+
+			protected function closeHandler(event:Event):void
+			{
+				if (parent)
+					(parent as Group).removeElement(this);
+			}
+
+			[Bindable]
+			private var saleStrategy:ArrayCollection;
+
+			protected function buy_clickHandler(event:MouseEvent):void
+			{
+				var vo:SaleStrategyVO=new SaleStrategyVO();
+				vo.name='方案 ' + sc.saleStrategies.length;
+
+				var goods:Array=[];
+				var arr:Array;
+				for each (arr in boughtGoodsDic)
+				{
+					for each (var bvo:BoughtGoodsVO in arr)
+					{
+						goods.push(bvo);
+					}
+				}
+
+				vo.goods=goods;
+
+				sc.saleStrategies.push(vo);
+				initData();
+			}
+
+			private function initData():void
+			{
+				var ac:ArrayCollection=new ArrayCollection(['水果', '饮料', '蔬菜', '日用品']);
+				goodsTypes.dataProvider=ac;
+				boughtGoodsDic=sc.getBoughtGoodsDic();
+				goods=new ArrayCollection(boughtGoodsDic['水果']);
+
+				saleStrategy=new ArrayCollection();
+				if (sc.saleStrategies)
+				{
+					saleStrategy.source=sc.saleStrategies;
+				}
+				else
+				{
+					var so:SaleStrategyVO=new SaleStrategyVO();
+					so.name='默认方案';
+					so.goods=sc.boughtGoods;
+					saleStrategy.addItem(so);
+					sc.saleStrategies=saleStrategy.source;
+				}
+			}
+
+			protected function goodsTypes_changeHandler(event:IndexChangeEvent):void
+			{
+				goods=new ArrayCollection(boughtGoodsDic[goodsTypes.selectedItem]);
+			}
+		]]>
+	</fx:Script>
+
+	<s:ButtonBar skinClass="skins.DefaultButtonBarSkin"
+				 horizontalCenter="0"
+				 requireSelection="true"
+				 change="goodsTypes_changeHandler(event)"
+				 y="35	"
+				 id="goodsTypes"/>
+
+	<s:HGroup width="100%"
+			  paddingLeft="30"
+			  paddingRight="30"
+			  y="90">
+		<s:List id="goodsList"
+				skinClass="skins.DefaultListSkin"
+				width="250"
+				itemRenderer="renderers.GoodsItemForSaleStrategy"
+				height="240"
+				dataProvider="{goods}"/>
+		<s:VGroup horizontalAlign="center"
+				  width="100%">
+			<s:Label text="方案列表"
+					 fontSize="18"
+					 color="0x975c25"/>
+			<s:List id="cases"
+					dataProvider="{saleStrategy}"
+					skinClass="skins.DefaultListSkin"
+					itemRenderer="renderers.SaleStrategyRenderer"
+					width="280"
+					height="165">
+				<s:layout>
+					<s:VerticalLayout gap="10"/>
+				</s:layout>
+			</s:List>
+			<s:BitmapImage source="@Embed('/assets/boxes/cartLine.png')"/>
+
+			<s:Button skinClass="skins.DefaultButtonBigSkin"
+					  id="buy"
+					  click="buy_clickHandler(event)"
+					  label="保存"/>
+		</s:VGroup>
+	</s:HGroup>
+
+</components:PopupBox>

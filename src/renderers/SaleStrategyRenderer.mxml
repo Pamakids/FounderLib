@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false">
+
+	<s:layout>
+		<s:HorizontalLayout verticalAlign="middle"
+							paddingRight="10"
+							gap="10"/>
+	</s:layout>
+
+	<fx:Script>
+		<![CDATA[
+			import controller.ServiceController;
+
+			import model.BoughtGoodsVO;
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				ServiceController.instance.removeGoods(data as BoughtGoodsVO);
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label fontSize="14"
+			 color="0x975c25"
+			 width="100%"
+			 text="{data.name}"/>
+	<s:Button skinClass="skins.GMCloseButtonSkin"
+			  buttonMode="true"
+			  visible="{data.name != '默认方案'}"
+			  click="button1_clickHandler(event)"
+			  scaleX=".6"
+			  scaleY=".6"/>
+</s:ItemRenderer>

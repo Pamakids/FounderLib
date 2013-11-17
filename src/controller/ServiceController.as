@@ -7,14 +7,21 @@ package controller
 	import com.pamakids.utils.CloneUtil;
 	import com.pamakids.utils.Singleton;
 
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.net.URLRequestMethod;
 	import flash.utils.Dictionary;
+	import flash.utils.getDefinitionByName;
 
 	import events.ODataEvent;
 
+	import model.BoughtGoodsVO;
 	import model.GameConfigVO;
+	import model.GoodsVO;
 	import model.PlayerVO;
+	import model.SaleStrategyVO;
+	import model.ShopVO;
+	import model.StaffVO;
 	import model.UserVO;
 
 	import org.idream.pomelo.Pomelo;
@@ -36,7 +43,6 @@ package controller
 
 			serviceDic=new Dictionary();
 			callingDic=new Dictionary();
-
 		}
 
 		public var http:String;
@@ -45,6 +51,34 @@ package controller
 		public function init():void
 		{
 			LoadManager.instance.loadText('assets/config.json', loadedHandler);
+			LoadManager.instance.loadText('goods/data.json', loadGoodsHandler);
+			LoadManager.instance.loadSWF('goods/assets.swf');
+		}
+
+		public var goodsDic:Dictionary;
+
+		private function loadGoodsHandler(s:String):void
+		{
+			var data:Object=JSON.parse(s);
+			var goods:Array=CloneUtil.convertArrayObjects(data.goods, GoodsVO);
+			goodsDic=new Dictionary();
+			for (var i:int; i < goods.length; i++)
+			{
+				var vo:GoodsVO=goods[i] as GoodsVO;
+				var arr:Array=goodsDic[vo.type];
+				if (!arr)
+				{
+					arr=[];
+					goodsDic[vo.type]=arr;
+				}
+				arr.push(vo);
+			}
+		}
+
+		public function getGoods(id:String):Sprite
+		{
+			var c:Class=getDefinitionByName('sprite_' + id) as Class;
+			return new c;
 		}
 
 		private function loadedHandler(t:String):void
@@ -86,6 +120,8 @@ package controller
 			}
 		}
 
+		public var saleStrategies:Array;
+
 		public static const USER_SIGN_IN:String="user/signIn";
 		public static const GET_DEFAULT_CONFIG:String="gc/default";
 
@@ -96,6 +132,7 @@ package controller
 		/**
 		 * 自己
 		 */
+		[Bindable]
 		public var player1:PlayerVO;
 		/**
 		 * 对手
@@ -153,6 +190,51 @@ package controller
 
 		}
 
+		public var boughtGoods:Array;
+
+		public function removeGoods(goods:GoodsVO):void
+		{
+			dispatchEvent(new ODataEvent(goods, 'removeGoods'));
+		}
+
+		public function remoteSaleStrategy(vo:SaleStrategyVO):void
+		{
+			dispatchEvent(new ODataEvent(vo, 'removeSS'));
+		}
+
+		public function addSaleStrategy(vo:SaleStrategyVO):void
+		{
+
+		}
+
+		public function selectGoods(goods:GoodsVO):void
+		{
+			dispatchEvent(new ODataEvent(goods, 'selectedGoods'));
+		}
+
+		private var selectedShop:ShopVO;
+
+		public function selectShop(shop:Object):void
+		{
+			dispatchEvent(new ODataEvent(shop, 'selectdShop'));
+			selectedShop=CloneUtil.convertObject(shop, ShopVO);
+		}
+
+		private var staffs:Dictionary=new Dictionary();
+
+		public function selectStaff(staff:StaffVO):void
+		{
+			staffs[staff.type]=staff;
+			dispatchEvent(new ODataEvent(staff, 'selectedStaff'));
+		}
+
+		public function isSeletected(staff:StaffVO):Boolean
+		{
+			if (staffs[staff.type] && staffs[staff.type].level == staff.level)
+				return true;
+			return false;
+		}
+
 		protected function addUserHandler(event:PomeloEvent):void
 		{
 			trace('onAdded', event.message.user);
@@ -166,6 +248,11 @@ package controller
 		{
 			return Singleton.getInstance(ServiceController);
 		}
+
+		/**
+		 * 定位到某个建筑，传参ID
+		 */
+		public var navigateTo:Function;
 
 		public var me:UserVO;
 		public var other:UserVO;
@@ -186,6 +273,83 @@ package controller
 
 		private var serviceDic:Dictionary;
 		private var callingDic:Dictionary;
+		private var goodsValue:int;
 
+		public function selectShopComplete():void
+		{
+			player1.shop=selectedShop;
+		}
+
+		/**
+		 * 总资产
+		 */
+		public function totalAssets():int
+		{
+			caculate();
+			return player1.cash + goodsValue;
+		}
+
+		private function caculate():void
+		{
+			var total:int;
+			for each (var vo:BoughtGoodsVO in boughtGoods)
+			{
+				total+=vo.inPrice * vo.quantity;
+			}
+			goodsValue=int(total / 2);
+		}
+
+		public var boughtGoodsDic:Dictionary;
+
+		/**
+		 * 购物车结算
+		 * @param goods 购物车里的物品列表
+		 * @param total 购物车总价格
+		 */
+		public function checkOut(goods:Array, total:Number):void
+		{
+			player1.cash-=total;
+			if (!boughtGoods)
+			{
+				boughtGoods=goods;
+			}
+			else
+			{
+				for each (var bg:BoughtGoodsVO in goods)
+				{
+					var has:Boolean;
+					for each (var bg2:BoughtGoodsVO in boughtGoods)
+					{
+						if (bg2.id == bg.id)
+						{
+							bg2.quantity+=bg.quantity;
+							has=true;
+							break;
+						}
+					}
+					if (!has)
+						boughtGoods.push(bg);
+				}
+			}
+
+
+		}
+
+		public function getBoughtGoodsDic():Dictionary
+		{
+			boughtGoodsDic=new Dictionary();
+			for (var i:int; i < boughtGoods.length; i++)
+			{
+				var vo:GoodsVO=boughtGoods[i] as BoughtGoodsVO;
+				var arr:Array=boughtGoodsDic[vo.type];
+				if (!arr)
+				{
+					arr=[];
+					boughtGoodsDic[vo.type]=arr;
+				}
+				arr.push(CloneUtil.convertObject(vo, BoughtGoodsVO));
+			}
+			return boughtGoodsDic;
+		}
 	}
 }

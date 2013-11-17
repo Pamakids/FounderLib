@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<components:PopupBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:components="com.pamakids.components.*"
+					 skinClass="skins.GMPopupBoxSkin"
+					 title="银行"
+					 creationComplete="popupbox1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.pamakids.components.PAlert;
+
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			import spark.components.Group;
+
+			import controller.ServiceController;
+
+			import model.GameConfigVO;
+			import model.PlayerVO;
+
+			private var purchaseAC:ArrayCollection;
+			private var sc:ServiceController;
+
+			private var maxLoan:int;
+
+			[Bindable]
+			private var player:PlayerVO;
+
+			[Bindable]
+			private var config:GameConfigVO;
+
+			protected function popupbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sc=ServiceController.instance;
+				player=sc.player1;
+				config=sc.config;
+				addEventListener('close', closeHandler);
+				maxLoan=int(sc.totalAssets() / 3);
+				info.text='贷款额度：总资产 x 30% = ' + maxLoan;
+			}
+
+			protected function closeHandler(event:Event):void
+			{
+				if (parent)
+					(parent as Group).removeElement(this);
+			}
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				var a:int=int(ti.text);
+				if (!a)
+				{
+					PAlert.show('请输入金额');
+				}
+				else if (a > maxLoan)
+				{
+					PAlert.show('超出最大贷款额度，请重新输入');
+				}
+				else
+				{
+					player.loan+=a;
+					PAlert.show('贷款成功!');
+				}
+			}
+
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				var a:int=int(ti2.text);
+				if (!a)
+				{
+					PAlert.show('请输入金额');
+				}
+				else if (a > player.loan)
+				{
+					PAlert.show('超出贷款额度，请重新输入');
+				}
+				else
+				{
+					player.cash-=a;
+					player.loan-=a;
+					PAlert.show('还贷成功!');
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label id="info"
+			 color="0xfe840c"
+			 fontSize="20"
+			 horizontalCenter="0"
+			 y="42"/>
+
+	<s:VGroup width="608"
+			  y="90"
+			  gap="15"
+			  paddingLeft="66"
+			  paddingRight="66">
+		<s:VGroup>
+			<s:Label text="{'贷款金额： '+player.loan}"
+					 fontSize="14"
+					 color="0x975c25"/>
+			<s:Label text="{'当前利率： '+config.loanRate+'%'}"
+					 fontSize="14"
+					 color="0x975c25"/>
+			<s:Label text="{'每回合利息： '+player.loan*config.loanRate/100}"
+					 fontSize="14"
+					 color="0x975c25"/>
+		</s:VGroup>
+
+		<s:BitmapImage source="@Embed('/assets/boxes/bankLine.png')"/>
+		<s:HGroup verticalAlign="middle"
+				  width="100%">
+			<s:VGroup width="100%">
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="增加贷款"
+							 fontSize="14"
+							 color="0x975c25"/>
+					<s:TextInput skinClass="skins.textinput.DefaultTextInputSkin"
+								 restrict="0-9"
+								 prompt="输入贷款金额"
+								 id="ti"/>
+				</s:HGroup>
+				<s:Label text="{'利息增加： '+int(int(ti.text)*config.loanRate/100)+'/回合'}"
+						 fontSize="14"
+						 color="0x975c25"/>
+			</s:VGroup>
+			<s:Button label="确认"
+					  buttonMode="true"
+					  click="button1_clickHandler(event)"
+					  skinClass="skins.DefaultButtonSkin"/>
+		</s:HGroup>
+
+		<s:BitmapImage source="@Embed('/assets/boxes/bankLine.png')"/>
+		<s:HGroup verticalAlign="middle"
+				  width="100%">
+			<s:VGroup width="100%">
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="偿还贷款"
+							 fontSize="14"
+							 color="0x975c25"/>
+					<s:TextInput skinClass="skins.textinput.DefaultTextInputSkin"
+								 restrict="0-9"
+								 prompt="输入还贷金额"
+								 id="ti2"/>
+				</s:HGroup>
+				<s:Label text="{'利息减少： '+int(int(ti2.text)*config.loanRate/100)+'/回合'}"
+						 fontSize="14"
+						 color="0x975c25"/>
+			</s:VGroup>
+			<s:Button label="确认"
+					  buttonMode="true"
+					  click="button2_clickHandler(event)"
+					  skinClass="skins.DefaultButtonSkin"/>
+		</s:HGroup>
+	</s:VGroup>
+
+</components:PopupBox>

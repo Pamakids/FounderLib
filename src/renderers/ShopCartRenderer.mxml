@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false">
+
+	<s:layout>
+		<s:HorizontalLayout verticalAlign="middle"
+							paddingRight="10"
+							gap="10"/>
+	</s:layout>
+
+	<fx:Script>
+		<![CDATA[
+			import controller.ServiceController;
+
+			import model.BoughtGoodsVO;
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				ServiceController.instance.removeGoods(data as BoughtGoodsVO);
+			}
+
+			protected function textinput1_textInputHandler(event:TextEvent):void
+			{
+				data.quantity=int(quantity.text + event.text);
+				ServiceController.instance.dispatchEvent(new Event('quantityChanged'));
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label fontSize="14"
+			 color="0x975c25"
+			 text="{data.name+' X '}"/>
+
+	<s:TextInput skinClass="skins.textinput.DefaultTextInputSkin"
+				 width="60"
+				 fontSize="14"
+				 id="quantity"
+				 restrict="0-9"
+				 textInput="textinput1_textInputHandler(event)"
+				 color="0xfe840c"
+				 text="{data.quantity}"/>
+
+	<s:Label width="100%"
+			 fontSize="14"
+			 color="0xfe840c"
+			 textAlign="right"
+			 text="{data.inPrice*data.quantity}"/>
+	<s:Button skinClass="skins.GMCloseButtonSkin"
+			  buttonMode="true"
+			  click="button1_clickHandler(event)"
+			  scaleX=".6"
+			  scaleY=".6"/>
+</s:ItemRenderer>

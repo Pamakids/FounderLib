@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  creationComplete="vgroup1_creationCompleteHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import com.pamakids.components.PAlert;
+			import com.pamakids.components.PopupBox;
+
+			import mx.events.FlexEvent;
+
+			import spark.components.Group;
+
+			import controller.ServiceController;
+
+			import view.boxes.BankBox;
+			import view.boxes.GoodsMarketBox;
+			import view.boxes.SaleStrategyBox;
+			import view.boxes.TalentMarketBox;
+
+			private var sc:ServiceController;
+			private var currentBox:PopupBox;
+			private var switching:Boolean;
+
+			protected function talentMarket_clickHandler(event:MouseEvent):void
+			{
+//				if (switching)
+//					return;
+//				switching=true;
+				if (currentBox && currentBox.parent)
+				{
+					(currentBox.parent as Group).removeElement(currentBox);
+					currentBox=null;
+				}
+				var id:String;
+				switch (event.currentTarget)
+				{
+					case talentMarket:
+						id='rencaishichang';
+						currentBox=new TalentMarketBox();
+						break;
+					case goodsMarket:
+						id='pifashichang';
+						currentBox=new GoodsMarketBox();
+						break;
+					case bank:
+						id='____02';
+						currentBox=new BankBox();
+						break;
+					case salesStrategy:
+						if (!sc.boughtGoods)
+						{
+							PAlert.show('您尚未采购物品');
+							return;
+						}
+						currentBox=new SaleStrategyBox();
+						break;
+				}
+				if (id)
+					sc.navigateTo(id);
+				if (currentBox)
+				{
+					currentBox.addEventListener(FlexEvent.CREATION_COMPLETE, createdHandler);
+					(parent as Group).addElement(currentBox);
+				}
+			}
+
+			protected function ok_clickHandler(event:MouseEvent):void
+			{
+
+			}
+
+			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sc=ServiceController.instance;
+			}
+
+			protected function createdHandler(event:FlexEvent):void
+			{
+				currentBox.removeEventListener(FlexEvent.CREATION_COMPLETE, createdHandler);
+				currentBox.x=parent.width / 2 - currentBox.width / 2;
+				currentBox.y=parent.height / 2 - currentBox.height / 2;
+			}
+		]]>
+	</fx:Script>
+
+
+	<s:Button id="talentMarket"
+			  label="人才市场"
+			  click="talentMarket_clickHandler(event)"
+			  skinClass="skins.DefaultButtonBigSkin"
+			  buttonMode="true"/>
+
+	<s:Button id="goodsMarket"
+			  label="批发市场"
+			  skinClass="skins.DefaultButtonBigSkin"
+			  click="talentMarket_clickHandler(event)"
+			  buttonMode="true"/>
+
+	<s:Button id="bank"
+			  label="银行"
+			  click="talentMarket_clickHandler(event)"
+			  skinClass="skins.DefaultButtonBigSkin"
+			  buttonMode="true"/>
+
+	<s:Button id="salesStrategy"
+			  label="销售策略"
+			  skinClass="skins.DefaultButtonBigSkin"
+			  click="talentMarket_clickHandler(event)"
+			  buttonMode="true"/>
+
+	<s:Spacer height="30"/>
+	<s:Button label="准备好了"
+			  id="ok"
+			  click="ok_clickHandler(event)"
+			  skinClass="skins.DefaultButtonBigSkin"
+			  buttonMode="true"/>
+
+</s:VGroup>

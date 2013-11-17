@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sample author="flashlizi">
+	<project>ZipArchive</project>
+	<desc>ZipArchive是一个Zip档案处理类，可读写各种zip格式文件。</desc>
+	<blog>www.riaidea.com</blog>
+</sample>

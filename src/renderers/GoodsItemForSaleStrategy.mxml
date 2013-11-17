@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false"
+				buttonMode="true"
+				click="itemrenderer1_clickHandler(event)"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import com.pamakids.components.PAlert;
+			import com.pamakids.managers.PopupBoxManager;
+
+			import mx.events.FlexEvent;
+
+			import controller.ServiceController;
+
+			import model.BoughtGoodsVO;
+			import model.GoodsVO;
+			private var sc:ServiceController;
+
+			[Bindable]
+			private var vo:BoughtGoodsVO;
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				vo=value as BoughtGoodsVO;
+				fillData();
+			}
+
+			private function fillData():void
+			{
+				if (initialized && vo)
+				{
+					if (goodsUI.numChildren)
+						goodsUI.removeChildAt(0);
+					var s:Sprite=sc.getGoods(vo.id);
+					goodsUI.addChild(s);
+					s.x=bi.width / 2 - 1;
+					s.y=bi.height / 2 - 5;
+				}
+			}
+
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sc=ServiceController.instance;
+				fillData();
+			}
+
+			protected function itemrenderer1_clickHandler(event:MouseEvent):void
+			{
+				sc.selectGoods(vo);
+			}
+
+			protected function ti_textInputHandler(event:TextEvent):void
+			{
+				if (PopupBoxManager.hasPopupBox)
+					return;
+				var p:int=int(ti.text + event.text);
+				if (p == 0)
+				{
+					PAlert.show('售价不能为0');
+					ti.text=vo.outPrice.toString();
+				}
+				else if (p > vo.inPrice * sc.config.goodsSaleMax / 100)
+				{
+					PAlert.show('售价不能超出进货价的 ' + sc.config.goodsSaleMax + '%');
+					ti.text=vo.outPrice.toString();
+				}
+				else
+				{
+					vo.outPrice=p;
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<s:HGroup gap="18">
+		<s:Group>
+			<s:BitmapImage id="bi"
+						   source="@Embed('/assets/boxes/goodsBG.png')"/>
+			<mx:UIComponent id="goodsUI"/>
+		</s:Group>
+
+		<s:VGroup gap="8"
+				  paddingTop="5"
+				  paddingBottom="5">
+			<s:Label text="{vo.name +' x '+vo.quantity}"
+					 fontSize="14"
+					 color="0x975c25"/>
+			<s:HGroup verticalAlign="middle">
+				<s:Label fontSize="14"
+						 color="0x975c25"
+						 width="58"
+						 text="{'进价：'+vo.inPrice}"/>
+				<s:Label fontSize="14"
+						 color="0x975c25"
+						 text="{'售价：'}"/>
+				<s:TextInput skinClass="skins.textinput.DefaultTextInputSkin"
+							 width="60"
+							 id="ti"
+							 restrict="0-9"
+							 textInput="ti_textInputHandler(event)"
+							 text="{vo.outPrice}"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>
+
+</s:ItemRenderer>

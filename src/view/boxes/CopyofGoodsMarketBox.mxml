@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<components:PopupBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:components="com.pamakids.components.*"
+					 skinClass="skins.GMPopupBoxSkin"
+					 title="批发"
+					 creationComplete="popupbox1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			import spark.components.Group;
+
+			private var purchaseAC:ArrayCollection;
+
+			protected function popupbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				addEventListener('close', closeHandler);
+			}
+
+			protected function closeHandler(event:Event):void
+			{
+				if (parent)
+					(parent as Group).removeElement(this);
+			}
+		]]>
+	</fx:Script>
+
+	<s:ButtonBar skinClass="skins.DefaultButtonBarSkin"
+				 id="goodsTypes"/>
+
+	<s:DataGroup id="staffGroup"
+				 y="90"
+				 horizontalCenter="0"
+				 itemRenderer="renderers.StaffItem">
+		<s:layout>
+			<s:HorizontalLayout gap="0"/>
+		</s:layout>
+	</s:DataGroup>
+
+</components:PopupBox>

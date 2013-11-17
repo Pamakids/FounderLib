@@ -11,14 +11,27 @@
 
 			import controller.ServiceController;
 
+			import events.ODataEvent;
+
 			import model.PlayerVO;
 
 			[Bindable]
 			private var player:PlayerVO;
 
+			private var defaultCash:Number;
+
 			protected function group1_creationCompleteHandler(event:FlexEvent):void
 			{
 				player=ServiceController.instance.player1;
+				defaultCash=player.cash;
+
+				ServiceController.instance.addEventListener('selectdShop', selectedHandler);
+			}
+
+			protected function selectedHandler(event:ODataEvent):void
+			{
+				var shop:Object=event.data;
+				player.cash=defaultCash - shop.rent;
 			}
 		]]>
 	</fx:Script>
