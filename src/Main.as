@@ -2,19 +2,14 @@ package
 {
 	import com.pamakids.components.base.UIComponent;
 	
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
+	import flash.events.Event;
 	
 	import controller.ServiceController;
 	
-	[SWF(width="1024", height="768", frameRate="30", backgroundColor="0x333333")]
 	public class Main extends UIComponent
 	{
 		public function Main()
 		{
-			stage.align = StageAlign.TOP_LEFT;
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			
 			super(1024, 768);
 		}
 
@@ -22,6 +17,11 @@ package
 		{
 			super.init();
 			ServiceController.instance.init();
+			ServiceController.instance.addEventListener(ServiceController.GAME_CONFIG_GOT, addGameDemo);
+		}
+		
+		protected function addGameDemo(event:Event):void
+		{
 			this.addChild( new GameDemo() );
 		}
 	}

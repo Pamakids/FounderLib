@@ -82,7 +82,7 @@ package view.component
 		private function parseMapXml():void
 		{
 			//解析地图通行数据
-			var source:String = DC.instance().mapXML.tiles.toString();
+			var source:Object = DC.instance().mapObj;
 			const max:uint = source.length;
 			var char:String;
 			var arr:Array = [];

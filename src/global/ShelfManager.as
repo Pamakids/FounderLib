@@ -26,14 +26,12 @@ package global
 		private var datas:Vector.<ShelfVO>;
 		private function parseXML():void
 		{
-			var xml:XMLList = DC.instance().mapXML.shelf;
+			var obj:Array = DC.instance().shelfObj as Array;
 			datas = new Vector.<ShelfVO>();
-			for(var i:int = 1;i<int.MAX_VALUE;i++)
+			for(var i:int = 1;i<obj.length;i++)
 			{
-				if(!xml.hasOwnProperty("s"+i))
-					break;
 				var vo:ShelfVO = new ShelfVO(i.toString());
-				vo.parseByXmlContent(xml["s"+i].toString());
+				vo.parseByXmlContent(obj[i]);
 				datas.push( vo );
 			}
 		}
