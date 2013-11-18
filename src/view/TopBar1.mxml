@@ -11,7 +11,7 @@
 
 			import controller.ServiceController;
 
-			import events.ODataEvent;
+			import com.pamakids.events.ODataEvent;
 
 			import model.PlayerVO;
 

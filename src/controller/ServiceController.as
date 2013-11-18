@@ -1,5 +1,6 @@
 package controller
 {
+	import com.pamakids.events.ODataEvent;
 	import com.pamakids.manager.LoadManager;
 	import com.pamakids.models.ResultVO;
 	import com.pamakids.services.ServiceBase;
@@ -12,8 +13,6 @@ package controller
 	import flash.net.URLRequestMethod;
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
-
-	import events.ODataEvent;
 
 	import model.BoughtGoodsVO;
 	import model.GameConfigVO;
@@ -331,8 +330,6 @@ package controller
 						boughtGoods.push(bg);
 				}
 			}
-
-
 		}
 
 		public function getBoughtGoodsDic():Dictionary

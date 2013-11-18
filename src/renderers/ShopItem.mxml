@@ -13,7 +13,7 @@
 
 			import controller.ServiceController;
 
-			import events.ODataEvent;
+			import com.pamakids.events.ODataEvent;
 
 			protected function itemrenderer1_mouseDownHandler(event:MouseEvent):void
 			{
