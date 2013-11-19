@@ -28,7 +28,7 @@ package global
 		{
 			var obj:Array = DC.instance().shelfObj as Array;
 			datas = new Vector.<ShelfVO>();
-			for(var i:int = 1;i<obj.length;i++)
+			for(var i:int = 0;i<obj.length;i++)
 			{
 				var vo:ShelfVO = new ShelfVO(i.toString());
 				vo.parseByXmlContent(obj[i]);

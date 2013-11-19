@@ -22,7 +22,7 @@ package view.unit
 		
 		private function initAction():void
 		{
-			action = AssetsManager.instance().getResByName("remover") as MovieClip;
+			action = AssetsManager.instance().getResByName("shopper_0") as MovieClip;
 			this.addChild( action );
 			action.gotoAndStop(ACTION_STAY_LEFT);
 			action.mouseEnabled = action.mouseChildren = false;
