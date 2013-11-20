@@ -4,6 +4,7 @@ package view.unit
 	import com.astar.expand.ItemTile;
 	
 	import flash.display.MovieClip;
+	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
@@ -16,6 +17,11 @@ package view.unit
 	 */	
 	public class Walker extends BasicUnit
 	{
+		/**
+		 * 抵达目标时派发
+		 */		
+		public static const ARRIVED:String = "arrived";
+		
 		/**
 		 * 动作状态：0静止，1行走
 		 */		
@@ -49,11 +55,12 @@ package view.unit
 		 * 沿指定路线移动
 		 * @param path
 		 */		
-		public function startMove(path:Vector.<IAstarTile>):void
+		public function startMove(_path:Vector.<IAstarTile>):void
 		{
-			if(!this.path)	this.path = new Vector.<IAstarTile>();
-			path.splice(0,1);
-			this.path = this.path.concat(path);
+			if(!this.path)
+				this.path = new Vector.<IAstarTile>();
+			_path.splice(0,1);
+			this.path = this.path.concat(_path);
 			if(!timer)
 				creatTimer();
 			timer.start();
@@ -69,17 +76,16 @@ package view.unit
 		
 		/**
 		 * 朝向:
-		 * 1:	左上
-		 * 2:	左下
-		 * 3:	右上
-		 * 4:	右下
+		 * 1:	 上
+		 * 2:	下
+		 * 3:	左
+		 * 4:	右
 		 */		
 		private var direction:int = 0;
 		
 		protected function onTimer(event:TimerEvent):void
 		{
 			var tile:ItemTile = path[0] as ItemTile;
-			
 			//确定方向
 			var tp:Point = tile.getPosition();
 			var cp:Point = crtTile.getPosition();
@@ -99,7 +105,6 @@ package view.unit
 			if(action.currentFrame != direction+4)
 				action.gotoAndStop( 4+direction );
 			
-			
 			const X:int = tile.rect.x;
 			const Y:int = tile.rect.y;
 			vx = X - crtTile.rect.x >> 1;
@@ -113,32 +118,20 @@ package view.unit
 				{
 					timer.stop();
 					action.gotoAndStop(direction);
+					dispatchEvent(new Event(ARRIVED));
 				}
 			}
-		}
-		
-		public function getCrtTile():ItemTile
-		{
-			return crtTile;
 		}
 		
 		public function pause():void
 		{
 			if(this.path)
 			{
-//				timer.stop();
-				if(path.length > 2)
-				{
-					path.splice(2, -1);
-				}
-//				if(crtTile.rect.x == x &&　crtTile.rect.y == y)
-//				{
-//					path.splice(0, path.length);
-//				}
-//				else
-//				{
-//					path.splice(1, path.length-1);
-//				}
+				timer.stop();
+				if(crtTile.rect.x == x &&　crtTile.rect.y == y)
+					path.splice(0, path.length);
+				else
+					path.splice(1, path.length-1);
 			}
 		}
 		

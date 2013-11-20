@@ -1,9 +1,10 @@
 package global
 {
 	import flash.display.Sprite;
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
+	import flash.utils.Timer;
 	
 	import model.ShopperVO;
 	
@@ -31,12 +32,23 @@ package global
 		
 		private function init():void
 		{
-			this.addEventListener("creatShopper", creatShopper);
+			this.map = LogicalMap.getInstance();
+			timer = new Timer(500);
+			timer.addEventListener(TimerEvent.TIMER, onTimer);
+//			timer.start();
 		}
+		
+		protected function onTimer(e:TimerEvent):void
+		{
+			if(Math.random()*100 < 25)
+				creatShopper();
+		}
+		private var timer:Timer;
+		
 		private var time:uint;
 		private const Interval:uint = 1000;
 		
-		private function creatShopper(e:Event):void
+		public function creatShopper():void
 		{
 			var vo:ShopperVO = new ShopperVO(0, [[101, 5], [102, 5]]);
 			var shopper:Shopper = new Shopper(vo);
@@ -49,7 +61,6 @@ package global
 		public function setContainer(container:Sprite):void
 		{
 			this.container = container;
-			this.map = LogicalMap.getInstance();
 		}
 	}
 }

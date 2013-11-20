@@ -63,12 +63,11 @@ package controller
 			
 			var data:Object=JSON.parse(s);
 			var goods:Array=CloneUtil.convertArrayObjects(data.goods, GoodsVO);
+			
 			DC.instance().mapObj = data.map;
 			DC.instance().shelfObj = data.shelf;
 			DC.instance().propObj = data.goods;
-			//			DC.instance().mapXML = new XML( zipArchive.getFileByName("map.xml").data );
-			//			DC.instance().sampleXML = new XML( zipArchive.getFileByName("sample.xml").data );
-			//			DC.instance().propXML = new XML( zipArchive.getFileByName("prop.xml").data );
+			
 			goodsDic=new Dictionary();
 			for (var i:int; i < goods.length; i++)
 			{

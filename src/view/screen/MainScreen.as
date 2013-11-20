@@ -43,7 +43,7 @@ package view.screen
 			
 			tileMap = LogicalMap.getInstance();
 			this.addChild( tileMap );
-//			tileMap.visible = false;
+			tileMap.visible = false;
 			tileMap.mouseEnabled = tileMap.mouseChildren = false;
 		}
 		

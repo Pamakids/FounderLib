@@ -1,17 +1,20 @@
 package global
 {
 	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	
 	import model.ShelfVO;
 	
 	import view.component.LogicalMap;
+	import view.unit.Remover;
 	import view.unit.Shelf;
 
 	/**
 	 * 货架管理器
 	 * @author Administrator
 	 */	
-	public class ShelfManager
+	public class ShelfManager extends EventDispatcher
 	{
 		public function ShelfManager()
 		{
@@ -21,6 +24,17 @@ package global
 		private function init():void
 		{
 			parseXML();
+			this.addEventListener(Event.ENTER_FRAME, onEventFrame);
+		}
+		
+		protected function onEventFrame(event:Event):void
+		{
+			if(vecWait.length > 0)
+			{
+				var remover:Remover = WorkerManager.getInstance().getFreeRomover();
+				if(remover)
+					remover.replenish(vecWait.shift());
+			}
 		}
 		
 		private var datas:Vector.<ShelfVO>;
@@ -59,7 +73,62 @@ package global
 			{
 				container.addChild( vecShelf[i] );
 			}
+			
+			setGoods();
 		}
+		
+		//将物品放入货架
+		private function setGoods():void
+		{
+			var arr:Array = [
+				{id: 101, num: 20},
+				{id: 102, num: 500},
+				{id: 103, num: 500},
+				{id: 104, num: 500},
+				{id: 105, num: 500},
+				{id: 201, num: 500},
+				{id: 202, num: 500},
+				{id: 203, num: 500},
+				{id: 204, num: 500},
+				{id: 301, num: 500},
+				{id: 302, num: 500},
+				{id: 303, num: 500},
+				{id: 304, num: 500},
+				{id: 305, num: 500}
+			];
+			var shelf:Shelf;
+			var index:int = 0;
+			parent:
+			for(var j:int = 0;j<vecShelf.length;j++)
+			{
+				shelf = vecShelf[j];
+				for (var k:int = 0; k < shelf.vo.count; k++) 
+				{
+					if(arr[index])
+					{
+						shelf.putInProp(k, arr[index].id, arr[index].num);
+						index ++;
+					}else
+					{
+						if(k == 0)
+							shelf.visible = false;
+						continue parent;
+					}
+				}
+			}
+		}
+		
+		/**
+		 * 需要补货的货架队列
+		 */		
+		private var vecWait:Vector.<Shelf> = new Vector.<Shelf>();
+		public function addToWait(shelf:Shelf):void
+		{
+			if(vecWait.indexOf( shelf ) == -1)
+				vecWait.push( shelf );
+		}
+		
+		
 		
 		private static var _instance:ShelfManager;
 		public static function getInstance():ShelfManager
@@ -68,5 +137,6 @@ package global
 				_instance = new ShelfManager();
 			return _instance;
 		}
+		
 	}
 }

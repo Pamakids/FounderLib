@@ -50,8 +50,6 @@ package view.component
 			astar.addEventListener(AstarEvent.PATH_NOT_FOUND, onPathNotFound);
 		}
 		
-//		private const positionX:uint = 32;
-//		private const positionY:uint = 32;
 		private var map:Map;
 		private function creatMap():void
 		{
@@ -70,8 +68,6 @@ package view.component
 					map.setTile(tile);
 					item = new LogicalRect(tile);
 					item.setPositionText(x, y);
-//					item.x = positionX - y*w/2 + x*w/2;
-//					item.y = positionY + y*h/2 + x*h/2;
 					item.x = w/2 + x*w;
 					item.y = h/2 + y*h;
 					this.addChild( item );

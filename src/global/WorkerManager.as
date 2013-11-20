@@ -37,6 +37,11 @@ package global
 			container.addChild( remover );
 		}
 		
+		public function getFreeRomover():Remover
+		{
+			return (remover.isFree)?remover:null;
+		}
+		
 		private static var _instance:WorkerManager;
 		public static function getInstance():WorkerManager
 		{
@@ -44,5 +49,6 @@ package global
 				_instance = new WorkerManager();
 			return _instance;
 		}
+		
 	}
 }
