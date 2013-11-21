@@ -35,7 +35,7 @@ package global
 			this.map = LogicalMap.getInstance();
 			timer = new Timer(500);
 			timer.addEventListener(TimerEvent.TIMER, onTimer);
-//			timer.start();
+			timer.start();
 		}
 		
 		protected function onTimer(e:TimerEvent):void
@@ -48,11 +48,17 @@ package global
 		private var time:uint;
 		private const Interval:uint = 1000;
 		
+		private const creatPosition:Point = new Point(3, 8);
+		/** 等待队列起始位置 */		
+		private const queuePosition:Point = new Point(8, 7);
+		private var vecShopper:Vector.<Shopper>;
+		private var waitForPay:Vector.<Shopper>;
+		
 		public function creatShopper():void
 		{
-			var vo:ShopperVO = new ShopperVO(0, [[101, 5], [102, 5]]);
+			var vo:ShopperVO = new ShopperVO(0, [[101, 5], [102, 5], [103, 5]]);
 			var shopper:Shopper = new Shopper(vo);
-			shopper.setCrtTile( map.getTileByPosition(new Point(3,4)) );
+			shopper.setCrtTile( map.getTileByPosition( creatPosition ) );
 			container.addChild( shopper );
 		}
 		

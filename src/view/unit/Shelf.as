@@ -180,5 +180,19 @@ package view.unit
 			}
 			return num;
 		}
+		
+		/**
+		 * 货物补充
+		 */		
+		public function resplenish():void
+		{
+			var id:String;
+			for (var i:int = 0; i < props.length; i++) 
+			{
+				id = props[i][0];
+				this.putInProp(i, id, StoreManager.getInstance().getPropNumByID(id));
+			}
+			
+		}
 	}
 }

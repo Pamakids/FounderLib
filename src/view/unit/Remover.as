@@ -35,8 +35,8 @@ package view.unit
 			probar = AssetsManager.instance().getResByName("probar") as MovieClip;
 			this.addChild( probar );
 			probar.y = - action.height - 10;
-//			probar.gotoAndStop(1);
-//			probar.visible = false;
+			probar.gotoAndStop(1);
+			probar.visible = false;
 		}
 		
 		protected function onArrived(event:Event):void
@@ -48,6 +48,16 @@ package view.unit
 		private function replenishHandler():void
 		{
 			trace("开始补货");
+			probar.gotoAndPlay(1);
+			probar.addFrameScript(probar.totalFrames, replenishComplete);
+		}
+		
+		private function replenishComplete():void
+		{
+			probar.gotoAndStop(1);
+			probar.visible = false;
+			targetShelf.resplenish();
+			isFree = true;
 		}
 		
 		private function initAction():void
