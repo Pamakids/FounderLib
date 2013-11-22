@@ -41,5 +41,9 @@ package view.unit
 		{
 			return crtTile;
 		}
+		
+		public function dispose():void
+		{
+		}
 	}
 }

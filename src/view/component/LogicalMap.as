@@ -153,8 +153,6 @@ package view.component
 		{
 			var w:uint = LogicalRect.ITEM_WIDTH;
 			var h:uint = LogicalRect.ITEM_HEIGHT;
-//			var tx:Number = (point.y - positionY)/h + (point.x - positionX)/w;
-//			var ty:Number = (positionX + tx*w/2 - point.x)*2/w;
 			var tx:int = point.x / w;
 			var ty:int = point.y / h;
 			var p:Point = new Point(Math.round(tx), Math.round(ty));
@@ -167,6 +165,22 @@ package view.component
 			if(!_instance)
 				_instance = new LogicalMap();
 			return _instance;
+		}
+		
+		public static const POSITION_INTO_SHOP:Point = new Point(3, 5);
+		public static const POSITION_OUT_SHOP:Point = new Point(3, 5);
+		public static const POSITION_PAY:Point = new Point(8, 7);
+		public function get TITLE_INTO_SHOP():ItemTile
+		{
+			return _instance.getTileByPosition( POSITION_INTO_SHOP );
+		}
+		public function get TITLE_OUT_SHOP():ItemTile
+		{
+			return _instance.getTileByPosition( POSITION_OUT_SHOP );
+		}
+		public function get TITLE_PAY():ItemTile
+		{
+			return _instance.getTileByPosition( POSITION_PAY );
 		}
 	}
 }

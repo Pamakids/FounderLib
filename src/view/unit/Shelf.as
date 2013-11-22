@@ -6,6 +6,7 @@ package view.unit
 	import flash.events.MouseEvent;
 	
 	import global.AssetsManager;
+	import global.ShelfManager;
 	import global.StoreManager;
 	
 	import model.ShelfVO;
@@ -75,8 +76,6 @@ package view.unit
 		public function putInProp(place:int, propId:String, num:uint):void
 		{
 			var arr:Array;
-			if(!props)
-				props = [];
 			arr = props[place];
 			if(!arr)		//货架为空
 			{
@@ -108,14 +107,14 @@ package view.unit
 		public function delProp(propId:String, num:uint):void
 		{
 			var arr:Array;
-			for(var i:int = props.length-1;i>=0;i++)
+			for(var i:int = props.length-1;i>=0;i--)
 			{
 				arr = props[i];
 				if(arr[0] == propId)
 				{
 					if(arr[1] >= num)
 					{
-						trace("货品充足");
+//						trace("货品充足");
 						arr[1] -= num;
 						updatePropIcon(i);
 						break;
@@ -125,6 +124,7 @@ package view.unit
 					}
 				}
 			}
+			ShelfManager.getInstance().addToWait( this );
 		}
 		
 		private function updatePropIcon(place:int):void
@@ -167,18 +167,15 @@ package view.unit
 		 * 		[id, num]
 		 * ]
 		 */		
-		public var props:Array;
+		public var props:Array = [];
 		
-		private function gettPropNumByID(propID:String):uint
+		public function getPropNumByID(propID:String):uint
 		{
-			var num:uint = 0;
-			if(!props)
-				return num;
-			for(var arr:Array in props)
+			for each(var arr:Array in props)
 			{
 				if(arr[0] == propID)	return arr[1];
 			}
-			return num;
+			return 0;
 		}
 		
 		/**
@@ -193,6 +190,16 @@ package view.unit
 				this.putInProp(i, id, StoreManager.getInstance().getPropNumByID(id));
 			}
 			
+		}
+		
+		public function ifPropIn(propID:String):Boolean
+		{
+			for each(var arr:Array in props)
+			{
+				if(arr[0] == propID)
+					return true;
+			}
+			return false;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package global
 {
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.geom.Point;
 	
 	import view.component.LogicalMap;
@@ -50,5 +51,9 @@ package global
 			return _instance;
 		}
 		
+		public function getCashier():Cashier
+		{
+			return cashier;
+		}
 	}
 }

@@ -41,6 +41,7 @@ package model
 		public var type:uint;
 		/**
 		 * [
+		 * 		[id, num, crtPrice, catched],
 		 * 		[id, num, crtPrice, catched]
 		 * ]
 		 */		

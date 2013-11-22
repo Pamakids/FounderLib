@@ -26,7 +26,6 @@ package view.unit
 		{
 			initAction();
 			initProbar();
-			this.addEventListener(Walker.ARRIVED, onArrived);
 		}
 		
 		private var probar:MovieClip;
@@ -39,8 +38,9 @@ package view.unit
 			probar.visible = false;
 		}
 		
-		protected function onArrived(event:Event):void
+		override protected function onArrived(e:Event):void
 		{
+			trace("arrived");
 			replenishHandler();
 		}
 		

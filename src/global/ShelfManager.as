@@ -1,8 +1,9 @@
 package global
 {
 	import flash.display.Sprite;
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	import model.ShelfVO;
 	
@@ -24,16 +25,27 @@ package global
 		private function init():void
 		{
 			parseXML();
-			this.addEventListener(Event.ENTER_FRAME, onEventFrame);
+			initTimer();
 		}
 		
-		protected function onEventFrame(event:Event):void
+		private var timer:Timer;
+		private function initTimer():void
+		{
+			timer = new Timer(50);
+			timer.addEventListener(TimerEvent.TIMER, onTimer);
+		}
+		
+		protected function onTimer(event:TimerEvent):void
 		{
 			if(vecWait.length > 0)
 			{
 				var remover:Remover = WorkerManager.getInstance().getFreeRomover();
 				if(remover)
-					remover.replenish(vecWait.shift());
+					remover.replenish(vecWait[0]);
+			}
+			else
+			{
+				timer.stop();
 			}
 		}
 		
@@ -126,6 +138,8 @@ package global
 		{
 			if(vecWait.indexOf( shelf ) == -1)
 				vecWait.push( shelf );
+			if(!timer.running)
+				timer.start();
 		}
 		
 		
@@ -138,5 +152,14 @@ package global
 			return _instance;
 		}
 		
+		public function getShelfByPropID(propID:String):Shelf
+		{
+			for each(var shelf:Shelf in vecShelf)
+			{
+				if(shelf.ifPropIn(propID))
+					return shelf;
+			}
+			return null;
+		}
 	}
 }

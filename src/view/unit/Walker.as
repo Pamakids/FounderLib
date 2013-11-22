@@ -39,6 +39,11 @@ package view.unit
 		public function Walker()
 		{
 			init();
+			this.addEventListener(Walker.ARRIVED, onArrived);
+		}
+		
+		protected function onArrived(e:Event):void
+		{
 		}
 		
 		override protected function init():void
