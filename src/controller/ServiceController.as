@@ -7,13 +7,15 @@ package controller
 	import com.pamakids.utils.BrowserUtil;
 	import com.pamakids.utils.CloneUtil;
 	import com.pamakids.utils.Singleton;
-
+	
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.net.URLRequestMethod;
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
-
+	
+	import global.DC;
+	
 	import model.BoughtGoodsVO;
 	import model.GameConfigVO;
 	import model.GoodsVO;
@@ -22,7 +24,7 @@ package controller
 	import model.ShopVO;
 	import model.StaffVO;
 	import model.UserVO;
-
+	
 	import org.idream.pomelo.Pomelo;
 	import org.idream.pomelo.PomeloEvent;
 
@@ -58,8 +60,14 @@ package controller
 
 		private function loadGoodsHandler(s:String):void
 		{
+			
 			var data:Object=JSON.parse(s);
 			var goods:Array=CloneUtil.convertArrayObjects(data.goods, GoodsVO);
+			
+			DC.instance().mapObj = data.map;
+			DC.instance().shelfObj = data.shelf;
+			DC.instance().propObj = data.goods;
+			
 			goodsDic=new Dictionary();
 			for (var i:int; i < goods.length; i++)
 			{
@@ -92,11 +100,13 @@ package controller
 			}
 			else
 			{
-				ServiceBase.HOST=o.local;
+				ServiceBase.HOST=o.remote;
 				socket=o.socket_remote;
 				http=o.remoteHttp;
 			}
 			var query:Object=BrowserUtil.getQuery();
+			if(!query)
+				query = {u: 1, p:1, t:2};
 			if (!query || !query.u || !query.p)
 			{
 				alert('请先登录后再试');
@@ -156,7 +166,7 @@ package controller
 				else
 					alert('获取游戏配置失败');
 				delete callingDic[s];
-			}, {type: BrowserUtil.getQuery().t});
+			}, {type: BrowserUtil.getQuery()?BrowserUtil.getQuery().t:2});
 		}
 
 		public function userSignIn(account:String, password:String, callback:Function):void

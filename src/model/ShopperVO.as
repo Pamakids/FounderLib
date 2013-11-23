@@ -21,6 +21,11 @@ package model
 		
 		private function init():void
 		{
+			catchCrtPrice();
+		}
+		
+		private function catchCrtPrice():void
+		{
 			var price:Number;
 			for(var i:int = shopperList.length-1;i>=0;i--)
 			{
@@ -36,6 +41,7 @@ package model
 		public var type:uint;
 		/**
 		 * [
+		 * 		[id, num, crtPrice, catched],
 		 * 		[id, num, crtPrice, catched]
 		 * ]
 		 */		

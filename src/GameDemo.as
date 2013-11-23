@@ -1,8 +1,6 @@
 package
 {
 	import flash.display.Sprite;
-	import flash.display.StageAlign;
-	import flash.display.StageScaleMode;
 	
 	import global.AssetsManager;
 	import global.MC;
@@ -14,31 +12,28 @@ package
 		
 		public function GameDemo()
 		{
-			stage.align = StageAlign.TOP_LEFT;
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			
 			init();
 		}
 		private function init():void
 		{
 			initData();
-			loadAssets();
+			startGame();
+//			loadAssets();
 		}
 		
 		private function initData():void
 		{
-			
 		}
 		
 		private function loadAssets():void
 		{
-			assets = AssetsManager.instance();
-			assets.loadZip("assets/assets.zip", startGame);
+//			assets = AssetsManager.instance();
+//			assets.loadZip("assets/assets.zip", startGame);
 		}
 		
 		private function startGame():void
 		{
-			AssetsManager.instance().parse();
+//			AssetsManager.instance().parse();
 			MC.instance().setMainContainer(this);
 			MC.instance().openScreen(MC.MAIN_MAP);
 		}

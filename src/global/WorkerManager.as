@@ -1,6 +1,7 @@
 package global
 {
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.geom.Point;
 	
 	import view.component.LogicalMap;
@@ -37,12 +38,22 @@ package global
 			container.addChild( remover );
 		}
 		
+		public function getFreeRomover():Remover
+		{
+			return (remover.isFree)?remover:null;
+		}
+		
 		private static var _instance:WorkerManager;
 		public static function getInstance():WorkerManager
 		{
 			if(!_instance)
 				_instance = new WorkerManager();
 			return _instance;
+		}
+		
+		public function getCashier():Cashier
+		{
+			return cashier;
 		}
 	}
 }

@@ -75,23 +75,5 @@ package view.screen
 		private var workerManager:WorkerManager;
 		private var shopperManager:ShopperManager;
 		
-		private var state:Boolean = false;
-		/**
-		 * true:	开店营业， false:	筹备
-		 * 切换状态
-		 */		
-		public function changeState(boo:Boolean):void
-		{
-			if(state == boo)
-				return;
-			if(state)
-			{
-				
-			}
-			else
-			{
-				
-			}
-		}
 	}
 }

@@ -30,15 +30,13 @@ package global
 		{
 			plans = new Vector.<Dictionary>();
 			
-			var xml:XML;
-			var id:String;
+			var obj:Object;
 			var dic:Dictionary = new Dictionary();
-			var xl:XMLList = DC.instance().propXML.children();
-			for(var i:int = xl.length()-1;i>=0;i--)
+			var arr:Array = DC.instance().propObj as Array;
+			for(var i:int = arr.length-1;i>=0;i--)
 			{
-				xml = xl[i];
-				id = xml.name().toString().split("_")[1];
-				dic[id] = uint(xml.toString().split("●")[1]);
+				obj = arr[i];
+				dic[obj.id] = uint(obj.outPrice);
 			}
 			plans.push( dic );
 		}

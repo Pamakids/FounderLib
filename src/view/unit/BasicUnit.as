@@ -36,5 +36,14 @@ package view.unit
 			this.x = tile.rect.x;
 			this.y = tile.rect.y;
 		}
+		
+		public function getCrtTile():ItemTile
+		{
+			return crtTile;
+		}
+		
+		public function dispose():void
+		{
+		}
 	}
 }

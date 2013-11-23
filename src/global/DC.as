@@ -14,8 +14,11 @@ package global
 		{
 		}
 		
-		public var sampleXML:XML;
-		public var mapXML:XML;
-		public var propXML:XML;
+		public var shelfObj:Object;
+		public var mapObj:Object;
+		public var propObj:Object;
+//		public var sampleXML:XML;
+//		public var mapXML:XML;
+//		public var propXML:XML;
 	}
 }
