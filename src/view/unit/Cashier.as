@@ -16,9 +16,10 @@ package view.unit
 		public function Cashier()
 		{
 			super();
+			init();
 		}
 		
-		override protected function init():void
+		private function init():void
 		{
 			initAction();
 			initProbar();
@@ -40,6 +41,7 @@ package view.unit
 		{
 			action = AssetsManager.instance().getResByName("cashier") as MovieClip;
 			this.addChild( action );
+			action.gotoAndStop(1);
 			this.mouseEnabled = this.mouseChildren = false;
 		}
 		

@@ -1,15 +1,19 @@
 package view.unit
 {
+	import com.astar.expand.ItemTile;
+	
 	import flash.display.MovieClip;
-	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	
 	import global.AssetsManager;
 	import global.ShelfManager;
 	import global.StoreManager;
 	
 	import model.ShelfVO;
+	
+	import view.component.LogicalMap;
 
 	public class Shelf extends BasicUnit
 	{
@@ -20,51 +24,24 @@ package view.unit
 		{
 			this.vo = vo;
 			super();
+			init();
 		}
 		
 		public var vo:ShelfVO;
 		private var type:int;
-		override protected function init():void
+		private function init():void
 		{
 			type = int(vo.icon);
 			action = AssetsManager.instance().getResByName("shelf_"+vo.icon) as MovieClip;
 			this.addChild( action );
 			
-//			creatBtns();
 			this.addEventListener(MouseEvent.CLICK, onClick);
 		}
 		
-//		private var btns:Vector.<SimpleButton>;
-//		private function creatBtns():void
-//		{
-//			var btn:SimpleButton;
-//			btns = new Vector.<SimpleButton>();
-//			for(var i:int = 0;i<vo.count;i++)
-//			{
-//				var mc:MovieClip = action["sprite_"+i];
-//				btn = AssetsManager.instance().getResByName("button_add") as SimpleButton;
-//				action.addChild( btn );
-//				btn.x = mc.x + (mc.width - btn.width >> 1);
-//				btn.y = mc.y;
-//				btn.addEventListener(MouseEvent.CLICK, onClick);
-//				btns.push( btn );
-//			}
-//		}
 		
 		protected function onClick(e:MouseEvent):void
 		{
-//			if(e.target is SimpleButton)		//摆放物品
-//			{
-//				e.stopImmediatePropagation();
-//				var btn:SimpleButton = e.currentTarget as SimpleButton;
-//				var i:int = btns.indexOf( btn );
-//				trace(i);
-//				
-//			}
-//			else		//货架商品补全
-//			{
-				trace("shelf");
-//			}
+			trace("shelf");
 		}
 		
 		/**
@@ -190,6 +167,7 @@ package view.unit
 				this.putInProp(i, id, StoreManager.getInstance().getPropNumByID(id));
 			}
 			
+			ShelfManager.getInstance().delFromWait( this );
 		}
 		
 		public function ifPropIn(propID:String):Boolean
@@ -200,6 +178,13 @@ package view.unit
 					return true;
 			}
 			return false;
+		}
+		
+		public function getTargetTile():ItemTile
+		{
+			var points:Vector.<Point> = vo.target;
+			var point:Point = points[ Math.floor( Math.random()*points.length ) ];
+			return LogicalMap.getInstance().getTileByPosition( point );
 		}
 	}
 }

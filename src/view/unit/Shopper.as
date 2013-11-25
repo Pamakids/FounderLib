@@ -6,7 +6,6 @@ package view.unit
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
-	import flash.geom.Point;
 	import flash.utils.Timer;
 	
 	import global.AssetsManager;
@@ -42,12 +41,13 @@ package view.unit
 		{
 			this.vo = vo;
 			super();
+			init();
 		}
 		
-		override protected function init():void
+		private function init():void
 		{
 			initAction();
-			updateIcon();
+			initIcon();
 			this.mouseChildren = this.mouseEnabled = false;
 		}
 		
@@ -61,14 +61,11 @@ package view.unit
 				if(arr[3])	continue;
 				crtIndex = i;
 				targetShelf = ShelfManager.getInstance().getShelfByPropID( arr[0] );
-				var points:Vector.<Point> = targetShelf.vo.target;
-				var point:Point = points[ Math.floor( Math.random()*points.length ) ];
-				var tile:ItemTile = LogicalMap.getInstance().getTileByPosition( point );
+				var tile:ItemTile = targetShelf.getTargetTile();
 				(tile == crtTile) ? shopHandler() : LogicalMap.getInstance().moveBody(this, tile);
 				return;
 			}
 			isFinish = true;
-			this.title.visible = false;
 			dispatchEvent(new Event(Shopper.SHOP_FINISHED));
 		}
 		/**
@@ -154,44 +151,64 @@ package view.unit
 			}
 		}
 		
-		private var vecIcon:Vector.<Sprite> = new Vector.<Sprite>();
+		private var vecIcon:Vector.<Sprite>;
+		
 		private function updateIcon():void
 		{
-			const gap:uint = 10;
-			const w:uint = 20;
-			const padding:uint = 5;
-			var num:uint = vo.shopperList.length;
-			//清除旧图标
-			title.removeChildren(1);
-			vecIcon.splice(0, vecIcon.length);
-			
 			var arr:Array;
 			var icon:Sprite;
-			for(var i:int = 0;i<num;i++)
+			var icons:Array = [];
+			var num:uint = vo.shopperList.length;
+			for(var i:int = vo.shopperList.length-1;i>=0;i--)
 			{
 				arr = vo.shopperList[i];
-				if(arr[3])		continue;
-				icon = AssetsManager.instance().getResByName("sprite_"+arr[0]) as Sprite;
-				title.addChild( icon );
-				icon.x = padding + i*(w+gap) - title.width/2;
-				icon.y = -30;
-				vecIcon.push( icon );
+				icon = vecIcon[i];
+				if(arr[3])		
+				{
+					if(icon)
+					{
+						this.removeChild( icon );
+						vecIcon[i] = null;
+					}
+				}else
+				{
+					icons.push( icon );
+				}
 			}
-			
-			num = vecIcon.length;
-			title.bg.width = (num-1)*gap + w*num + padding*2;
+			//重新排列位置
+			var kinds:uint = icons.length;
+			for(i=0;i<kinds;i++)
+			{
+				icon = icons[i];
+				icon.x = -(kinds-1)*gap/2 + i*gap;
+			}
 		}
 		
-		private var title:MovieClip;
 		private function initAction():void
 		{
 			action = AssetsManager.instance().getResByName("shopper_"+vo.type) as MovieClip;
 			action.gotoAndStop(ACTION_STAY_RIGHT);
 			this.addChild( action );
-			
-			title = AssetsManager.instance().getResByName("title") as MovieClip;
-			title.y = -action.height;
-			this.addChild( title );
+			action.scaleX = action.scaleY = .4;
+		}
+		private const gap:uint = 40;
+		private function initIcon():void
+		{
+			var icon:Sprite;
+			var id:String;
+			var num:uint;
+			const kinds:uint = vo.shopperList.length;
+			vecIcon = new Vector.<Sprite>(kinds);
+			for(var i:int = kinds-1;i>=0;i--)
+			{
+				id = vo.shopperList[i][0];
+				num = vo.shopperList[i][1];
+				icon = AssetsManager.instance().getResByName("sprite_"+id) as Sprite;
+				this.addChild( icon );
+				icon.x = -(kinds-1)*gap/2 + i*gap;
+				icon.y = -action.height-10;
+				vecIcon[i] = icon;
+			}
 		}
 		
 		public function getShoppingList():Array
@@ -201,6 +218,7 @@ package view.unit
 		
 		override public function dispose():void
 		{
+			
 		}
 	}
 }

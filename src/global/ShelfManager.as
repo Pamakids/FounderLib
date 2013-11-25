@@ -1,21 +1,17 @@
 package global
 {
 	import flash.display.Sprite;
-	import flash.events.EventDispatcher;
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
 	
 	import model.ShelfVO;
 	
 	import view.component.LogicalMap;
-	import view.unit.Remover;
 	import view.unit.Shelf;
 
 	/**
 	 * 货架管理器
 	 * @author Administrator
 	 */	
-	public class ShelfManager extends EventDispatcher
+	public class ShelfManager
 	{
 		public function ShelfManager()
 		{
@@ -25,28 +21,6 @@ package global
 		private function init():void
 		{
 			parseXML();
-			initTimer();
-		}
-		
-		private var timer:Timer;
-		private function initTimer():void
-		{
-			timer = new Timer(50);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-		}
-		
-		protected function onTimer(event:TimerEvent):void
-		{
-			if(vecWait.length > 0)
-			{
-				var remover:Remover = WorkerManager.getInstance().getFreeRomover();
-				if(remover)
-					remover.replenish(vecWait[0]);
-			}
-			else
-			{
-				timer.stop();
-			}
 		}
 		
 		private var datas:Vector.<ShelfVO>;
@@ -138,11 +112,20 @@ package global
 		{
 			if(vecWait.indexOf( shelf ) == -1)
 				vecWait.push( shelf );
-			if(!timer.running)
-				timer.start();
+		}
+		public function delFromWait(shelf:Shelf):void
+		{
+			var i:int = vecWait.indexOf( shelf );
+			if(i != -1)
+				vecWait.splice( i, 1 );
 		}
 		
-		
+		public function getWaitShelf():Shelf
+		{
+			if(vecWait.length > 0)
+				return vecShelf[0];
+			return null;
+		}
 		
 		private static var _instance:ShelfManager;
 		public static function getInstance():ShelfManager
@@ -161,5 +144,6 @@ package global
 			}
 			return null;
 		}
+		
 	}
 }

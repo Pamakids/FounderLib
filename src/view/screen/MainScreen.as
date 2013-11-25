@@ -1,6 +1,9 @@
 package view.screen
 {
+	import com.greensock.TweenLite;
+	
 	import flash.display.Sprite;
+	import flash.geom.Point;
 	
 	import global.AssetsManager;
 	import global.PlansManager;
@@ -31,7 +34,6 @@ package view.screen
 		private function init():void
 		{
 			initMap();
-			
 			initManager();
 		}
 		
@@ -64,9 +66,25 @@ package view.screen
 			//雇员管理器
 			workerManager = WorkerManager.getInstance();
 			workerManager.creatWorker(container);
+			
 			//顾客管理器
 			shopperManager = ShopperManager.getInstance();
 			shopperManager.setContainer(container);
+			
+			test();
+		}
+		
+		private function test():void
+		{
+			shopperManager.creatShopper();
+//			shopperManager.creatShopper();
+//			shopperManager.creatShopper();
+//			
+//			TweenLite.delayedCall(5, shopperManager.creatShopper);
+//			TweenLite.delayedCall(6, shopperManager.creatShopper);
+//			TweenLite.delayedCall(7, shopperManager.creatShopper);
+			
+//			tileMap.moveBody( workerManager.getFreeRomover(), tileMap.getTileByPosition(new Point( 5,19 )));
 		}
 		
 		private var store:StoreManager;

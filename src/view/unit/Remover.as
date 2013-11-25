@@ -1,5 +1,7 @@
 package view.unit
 {
+	import com.astar.expand.ItemTile;
+	
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	
@@ -20,9 +22,10 @@ package view.unit
 		public function Remover()
 		{
 			super();
+			init();
 		}
 		
-		override protected function init():void
+		private function init():void
 		{
 			initAction();
 			initProbar();
@@ -48,13 +51,15 @@ package view.unit
 		private function replenishHandler():void
 		{
 			trace("开始补货");
+			probar.visible = true;
+			action.gotoAndStop(ACTION_STAY_UP);
 			probar.gotoAndPlay(1);
-			probar.addFrameScript(probar.totalFrames, replenishComplete);
+			probar.addFrameScript(probar.totalFrames-1, replenishComplete);
 		}
 		
 		private function replenishComplete():void
 		{
-			probar.gotoAndStop(1);
+			probar.stop();
 			probar.visible = false;
 			targetShelf.resplenish();
 			isFree = true;
@@ -62,10 +67,11 @@ package view.unit
 		
 		private function initAction():void
 		{
-			action = AssetsManager.instance().getResByName("shopper_0") as MovieClip;
+			action = AssetsManager.instance().getResByName("remover") as MovieClip;
 			this.addChild( action );
 			action.gotoAndStop(ACTION_STAY_LEFT);
 			action.mouseEnabled = action.mouseChildren = false;
+			action.scaleX = action.scaleY = .5;
 		}
 		
 		/**
@@ -76,7 +82,11 @@ package view.unit
 		{
 			isFree = false;
 			targetShelf = shelf;
-			LogicalMap.getInstance().moveBody(this, shelf.getCrtTile());
+			var tile:ItemTile = targetShelf.getTargetTile();
+			if(tile == crtTile)
+				replenishHandler();
+			else
+				LogicalMap.getInstance().moveBody(this, tile);
 		}
 	}
 }

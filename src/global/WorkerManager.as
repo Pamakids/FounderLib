@@ -1,12 +1,14 @@
 package global
 {
 	import flash.display.Sprite;
-	import flash.events.Event;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
+	import flash.utils.Timer;
 	
 	import view.component.LogicalMap;
 	import view.unit.Cashier;
 	import view.unit.Remover;
+	import view.unit.Shelf;
 
 	/**
 	 * 员工管理类
@@ -17,6 +19,15 @@ package global
 	{
 		public function WorkerManager()
 		{
+			initTimer();
+		}
+		
+		private var timer:Timer;
+		private function initTimer():void
+		{
+			timer = new Timer(500);
+			timer.addEventListener(TimerEvent.TIMER, onTimer);
+			timer.start();
 		}
 		
 		private var container:Sprite;
@@ -36,6 +47,7 @@ package global
 			remover = new Remover();
 			remover.setCrtTile(map.getTileByPosition(new Point(28,6)));
 			container.addChild( remover );
+			
 		}
 		
 		public function getFreeRomover():Remover
@@ -54,6 +66,21 @@ package global
 		public function getCashier():Cashier
 		{
 			return cashier;
+		}
+		
+		public function replenish(shelf:Shelf):void
+		{
+			remover.replenish( shelf );
+		}
+		
+		public function onTimer(e:TimerEvent):void
+		{
+			if(remover.isFree)
+			{
+				var shelf:Shelf = ShelfManager.getInstance().getWaitShelf();
+				if(shelf)
+					remover.replenish( shelf );
+			}
 		}
 	}
 }

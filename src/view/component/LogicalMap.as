@@ -38,7 +38,6 @@ package view.component
 			initAstar();
 		}
 		
-		
 		private var astar:Astar;
 		private var req:PathRequest;
 		private function initAstar():void

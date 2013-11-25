@@ -20,11 +20,6 @@ package view.unit
 		{
 			this.buttonMode = true;
 			this.useHandCursor = true;
-			init();
-		}
-		
-		protected function init():void
-		{
 		}
 		
 		protected var crtTile:ItemTile;

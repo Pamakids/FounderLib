@@ -3,13 +3,10 @@ package view.unit
 	import com.astar.core.IAstarTile;
 	import com.astar.expand.ItemTile;
 	
-	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Timer;
-	
-	import global.AssetsManager;
 
 	/**
 	 * 可移动的
@@ -38,20 +35,11 @@ package view.unit
 		
 		public function Walker()
 		{
-			init();
 			this.addEventListener(Walker.ARRIVED, onArrived);
 		}
 		
 		protected function onArrived(e:Event):void
 		{
-		}
-		
-		override protected function init():void
-		{
-			action = AssetsManager.instance().getResByName("role") as MovieClip;
-			action.gotoAndStop(ACTION_STAY_RIGHT);
-			this.addChild( action );
-			this.mouseChildren = this.mouseEnabled = false;
 		}
 		
 		private var vx:int;
@@ -86,7 +74,7 @@ package view.unit
 		 * 3:	左
 		 * 4:	右
 		 */		
-		private var direction:int = 0;
+		protected var direction:int = 0;
 		
 		protected function onTimer(event:TimerEvent):void
 		{
@@ -146,7 +134,7 @@ package view.unit
 		public function isCrtPathEnd(tile:IAstarTile):Boolean
 		{
 			if(path && path.length>0 && tile == path[path.length-1])
-				return true
+				return true;
 			return false;
 		}
 		

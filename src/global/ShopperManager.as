@@ -47,9 +47,13 @@ package global
 		
 		public function creatShopper():void
 		{
-			var arr:Array = [[101, 5], [102, 5], [201, 5], [301, 5], [302, 5]];
+			var arr:Array = [
+//				[[101, 5], [102, 5]], 
+//				[[201, 5], [301, 5]], 
+				[[302, 5]]
+			];
 			
-			var vo:ShopperVO = new ShopperVO(0, [arr[int(Math.random()*arr.length)]]);
+			var vo:ShopperVO = new ShopperVO(0, arr[int(Math.random()*arr.length)]);
 			var shopper:Shopper = new Shopper(vo);
 			shopper.setCrtTile( map.getTileByPosition( LogicalMap.POSITION_INTO_SHOP ) );
 			container.addChild( shopper );
@@ -86,20 +90,6 @@ package global
 		public function setContainer(container:Sprite):void
 		{
 			this.container = container;
-			
-			test();
-		}
-		
-		private function test():void
-		{
-			creatShopper();
-			creatShopper();
-			creatShopper();
-			creatShopper();
-			
-			TweenLite.delayedCall(5, creatShopper);
-			TweenLite.delayedCall(6, creatShopper);
-			TweenLite.delayedCall(7, creatShopper);
 		}
 		
 		public function insertQueue(shopper:Shopper):void
