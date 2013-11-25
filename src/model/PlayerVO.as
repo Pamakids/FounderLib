@@ -28,7 +28,14 @@ package model
 		 */
 		public var goods:Array;
 
+		/**
+		 * 销售策略
+		 */
+		public var saleStrategies:Array;
+
 		public var shop:ShopVO;
+
+		public var user:UserVO;
 
 		private var _money:int;
 

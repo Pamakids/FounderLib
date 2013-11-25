@@ -1,5 +1,6 @@
 package controller
 {
+	import com.pamakids.components.PAlert;
 	import com.pamakids.events.ODataEvent;
 	import com.pamakids.manager.LoadManager;
 	import com.pamakids.models.ResultVO;
@@ -7,15 +8,21 @@ package controller
 	import com.pamakids.utils.BrowserUtil;
 	import com.pamakids.utils.CloneUtil;
 	import com.pamakids.utils.Singleton;
-	
+
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.TimerEvent;
+	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
+	import flash.net.navigateToURL;
 	import flash.utils.Dictionary;
+	import flash.utils.Timer;
 	import flash.utils.getDefinitionByName;
-	
+
+	import mx.collections.ArrayCollection;
+
 	import global.DC;
-	
+
 	import model.BoughtGoodsVO;
 	import model.GameConfigVO;
 	import model.GoodsVO;
@@ -24,7 +31,7 @@ package controller
 	import model.ShopVO;
 	import model.StaffVO;
 	import model.UserVO;
-	
+
 	import org.idream.pomelo.Pomelo;
 	import org.idream.pomelo.PomeloEvent;
 
@@ -40,10 +47,57 @@ package controller
 			pomelo=Pomelo.getIns();
 			pomelo.addEventListener('onAdd', addUserHandler);
 			pomelo.addEventListener('onLeave', removeUserHandler);
+			pomelo.addEventListener('onReady', onReadyHandler);
+			pomelo.addEventListener('onGame', onGameHandler);
 			pomelo.addEventListener(Event.CLOSE, closeHandler);
-
 			serviceDic=new Dictionary();
 			callingDic=new Dictionary();
+		}
+
+		protected function onGameHandler(event:PomeloEvent):void
+		{
+			trace(event.message);
+		}
+
+		protected function onReadyHandler(event:PomeloEvent):void
+		{
+			trace('onReady');
+			for each (var o:Object in users)
+			{
+				if (o.user == event.message.user)
+				{
+					var user:Object=event.message;
+					users[users.getItemIndex(o)]=user;
+					dispatchEvent(new ODataEvent(user, USER_READY));
+					isBothReady(user);
+					break;
+				}
+			}
+		}
+
+		public var showReadyBox:Function;
+
+		private function isBothReady(user:Object):void
+		{
+			var b:Boolean=true;
+
+			for each (var u:Object in users)
+			{
+				if (!u.ready)
+					b=false;
+			}
+
+			if (b)
+			{
+				trace('both ready');
+				SO.i.setKV('player', player1);
+//				SO.i.setKV('p2', player2);
+				navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
+			}
+			else if (user.user == me.company_name && user.ready)
+			{
+				showReadyBox();
+			}
 		}
 
 		public var http:String;
@@ -56,18 +110,124 @@ package controller
 			LoadManager.instance.loadSWF('goods/assets.swf');
 		}
 
+		private var timer:Timer=new Timer(3000);
+
+		/**
+		 * 开始游戏，自动计时，同步现金数
+		 */
+		public function startGame():void
+		{
+			timer.start();
+			timer.addEventListener(TimerEvent.TIMER, sendGameMessageHandler);
+		}
+
+		public static const GAME_PAUSE:String="GAME_PAUSE";
+
+		/**
+		 * 暂停游戏，进入筹备阶段
+		 */
+		public function pauseGame():void
+		{
+			timer.stop();
+			dispatchEvent(new Event(GAME_PAUSE));
+		}
+
+		protected function sendGameMessageHandler(event:TimerEvent):void
+		{
+			pomelo.request(sendGameMessage, {target: other.company_name, data: player1.cash}, function(data:Object):void
+			{
+				trace('sent data:', data);
+			});
+		}
+
+		private var queryEntry:String="gate.gateHandler.queryEntry";
+		private var enter:String='connector.entryHandler.enter';
+		private var readyRoute:String='connector.entryHandler.ready';
+		private var cancelReadyRoute:String='connector.entryHandler.cancelReady';
+		private var sendGameMessage:String='game.gameHandler.send';
+
+		public static const USER_READY:String="USER_READY";
+		public static const ENTERED:String="ENTERED";
+		public static const USER_CANCEL_READY:String="USER_CANCEL_READY";
+
+		public var users:ArrayCollection;
+
+		/**
+		 * 房间ID
+		 */
+		private var rid:String;
+
+		public function connect(room:String):void
+		{
+			rid=room;
+			trace('connect game server', room, socket);
+			pomelo.init(socket, 3014, null, function(res:Object):void
+			{
+				if (res.code == 200)
+				{
+					trace('connected');
+					pomelo.request(queryEntry, {uid: me._id}, function(response:Object):void
+					{
+						trace("response host:", response.host, " port:", response.port);
+						if (response.code == '500')
+						{
+							trace('500 user signed in');
+							PAlert.show(response.message, '提示', null, null, 'normal', '', '', true);
+							return;
+						}
+						pomelo.init(socket, response.port, null, function(response:Object):void
+						{
+							trace(response);
+							pomelo.request(enter, {username: me.company_name, rid: room}, function(data:Object):void
+							{
+								if (data.error)
+								{
+									PAlert.show(data.message, '提示', null, null, 'normal', '', '', true);
+								}
+								else
+								{
+									users=new ArrayCollection();
+									for each (var o:String in data.users)
+									{
+										var uo:Object=JSON.parse(o);
+										if (uo.user != me.company_name)
+										{
+											other=new UserVO();
+											other.company_name=uo.user;
+										}
+										else if (uo.user == me.company_name)
+										{
+
+										}
+										users.addItem(uo);
+									}
+									if (users.length == 2)
+										startGame();
+									dispatchEvent(new Event(ENTERED));
+								}
+							});
+						});
+					});
+				}
+				else
+				{
+					PAlert.show('游戏服务器连接失败');
+				}
+			});
+		}
+
 		public var goodsDic:Dictionary;
 
 		private function loadGoodsHandler(s:String):void
 		{
-			
+
 			var data:Object=JSON.parse(s);
 			var goods:Array=CloneUtil.convertArrayObjects(data.goods, GoodsVO);
-			
-			DC.instance().mapObj = data.map;
-			DC.instance().shelfObj = data.shelf;
-			DC.instance().propObj = data.goods;
-			
+
+			DC.instance().mapObj=data.map;
+			DC.instance().shelfObj=data.shelf;
+			DC.instance().propObj=data.goods;
+
 			goodsDic=new Dictionary();
 			for (var i:int; i < goods.length; i++)
 			{
@@ -105,8 +265,16 @@ package controller
 				http=o.remoteHttp;
 			}
 			var query:Object=BrowserUtil.getQuery();
-			if(!query)
-				query = {u: 1, p:1, t:2};
+			var uo:Object=SO.i.getKV('user');
+			if (uo)
+			{
+				me=CloneUtil.convertObject(uo, UserVO);
+				getDefaultConfig();
+				dispatchEvent(new Event(SINGED_IN));
+				return;
+			}
+			if (!query || !query.u)
+				query={u: 1, p: 1, t: 2};
 			if (!query || !query.u || !query.p)
 			{
 				alert('请先登录后再试');
@@ -118,6 +286,7 @@ package controller
 					if (result.status)
 					{
 						me=CloneUtil.convertObject(result.results, UserVO);
+						SO.i.setKV('user', me);
 						getDefaultConfig();
 						dispatchEvent(new Event(SINGED_IN));
 					}
@@ -143,10 +312,11 @@ package controller
 		 */
 		[Bindable]
 		public var player1:PlayerVO;
-		/**
-		 * 对手
-		 */
-		public var player2:PlayerVO;
+
+//		/**
+//		 * 对手
+//		 */
+//		public var player2:PlayerVO;
 
 		private function getDefaultConfig():void
 		{
@@ -159,14 +329,32 @@ package controller
 				if (result.status)
 				{
 					config=CloneUtil.convertObject(result.results, GameConfigVO);
-					player1=new PlayerVO();
-					player1.cash=config.startupMoney;
+					var pvo:Object=SO.i.getKV('player');
+					if (!pvo)
+					{
+						player1=new PlayerVO();
+						player1.cash=config.startupMoney;
+						player1.user=me;
+					}
+					else
+					{
+						pvo.goods=CloneUtil.convertArrayObjects(pvo.goods, BoughtGoodsVO);
+						pvo.staffes=CloneUtil.convertArrayObjects(pvo.staffes, StaffVO);
+						pvo.saleStrategies=CloneUtil.convertArrayObjects(pvo.saleStrategies, SaleStrategyVO);
+						pvo.shop=CloneUtil.convertObject(pvo.shop, ShopVO);
+						pvo.user=CloneUtil.convertObject(pvo.user, UserVO);
+						player1=CloneUtil.convertObject(pvo, PlayerVO);
+					}
+					var fr:String=SO.i.getKV('fightRoom') as String;
+					if (!fr)
+						fr='FIGHT';
+					connect(fr);
 					dispatchEvent(new Event(GAME_CONFIG_GOT));
 				}
 				else
 					alert('获取游戏配置失败');
 				delete callingDic[s];
-			}, {type: BrowserUtil.getQuery()?BrowserUtil.getQuery().t:2});
+			}, {type: BrowserUtil.getQuery() && BrowserUtil.getQuery().t ? BrowserUtil.getQuery().t : 2});
 		}
 
 		public function userSignIn(account:String, password:String, callback:Function):void
@@ -248,7 +436,8 @@ package controller
 		{
 			trace('onAdded', event.message.user);
 			other=new UserVO();
-			other.company_name=event.message.user.user;
+			other.company_name=event.message.user;
+			startGame();
 		}
 
 		private var pomelo:Pomelo;
@@ -357,6 +546,55 @@ package controller
 				arr.push(CloneUtil.convertObject(vo, BoughtGoodsVO));
 			}
 			return boughtGoodsDic;
+		}
+
+		public function readyToStart():ResultVO
+		{
+			var k:String;
+			var v:Object;
+			var err:String;
+			var temp:Array=[];
+
+			var arr:Array=[];
+			for each (var vo:StaffVO in staffs)
+			{
+				temp.push(vo.type);
+				arr.push(vo);
+			}
+			if (arr.length != 3)
+			{
+				if (temp.indexOf(1) == -1)
+					err='您尚未签约采购员';
+				else if (temp.indexOf(2) == -1)
+					err='您尚未签约收银员';
+				else
+					err='您尚未签约理货员';
+				return new ResultVO(false, err);
+			}
+			else
+			{
+				player1.staffes=arr;
+			}
+
+			if (!boughtGoods || boughtGoods.length == 0)
+				return new ResultVO(false, '您尚未采购物品');
+			else
+				player1.goods=boughtGoods;
+
+			if (saleStrategies)
+				player1.saleStrategies=saleStrategies;
+
+			pomelo.request(readyRoute, {user: me.company_name, rid: rid}, function(result:Boolean):void
+			{
+				trace('is ready', result);
+			});
+
+			return new ResultVO(true);
+		}
+
+		public function cancelReady(callback:Function):void
+		{
+			pomelo.request(cancelReadyRoute, {user: me.company_name, rid: rid}, callback);
 		}
 	}
 }
