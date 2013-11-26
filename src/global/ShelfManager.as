@@ -1,10 +1,9 @@
 package global
 {
-	import flash.display.Sprite;
-	
 	import model.ShelfVO;
 	
 	import view.component.LogicalMap;
+	import view.screen.MainScreen;
 	import view.unit.Shelf;
 
 	/**
@@ -36,13 +35,13 @@ package global
 			}
 		}
 		
-		private var container:Sprite;
+		private var main:MainScreen;
 		private var map:LogicalMap;
 		private var vecShelf:Array;
-		public function creatShelf(container:Sprite):void
+		public function setMainStage(main:MainScreen):void
 		{
 			vecShelf = [];
-			this.container = container;
+			this.main = main;
 			this.map = LogicalMap.getInstance();
 			var shelf:Shelf;
 			var vo:ShelfVO;
@@ -54,10 +53,10 @@ package global
 				vecShelf[i] = shelf;
 			}
 			
-			vecShelf.sortOn("y");		//按y坐标大小排序
+			vecShelf.sortOn("y");
 			for(i = 0;i<vecShelf.length;i++)
 			{
-				container.addChild( vecShelf[i] );
+				main.addUnit( vecShelf[i] );
 			}
 			
 			setGoods();
@@ -66,24 +65,9 @@ package global
 		//将物品放入货架
 		private function setGoods():void
 		{
-			var arr:Array = [
-				{id: 101, num: 20},
-				{id: 102, num: 500},
-				{id: 103, num: 500},
-				{id: 104, num: 500},
-				{id: 105, num: 500},
-				{id: 201, num: 500},
-				{id: 202, num: 500},
-				{id: 203, num: 500},
-				{id: 204, num: 500},
-				{id: 301, num: 500},
-				{id: 302, num: 500},
-				{id: 303, num: 500},
-				{id: 304, num: 500},
-				{id: 305, num: 500}
-			];
 			var shelf:Shelf;
 			var index:int = 0;
+			var arr:Array = StoreManager.getInstance().getPropList();
 			parent:
 			for(var j:int = 0;j<vecShelf.length;j++)
 			{
@@ -92,7 +76,7 @@ package global
 				{
 					if(arr[index])
 					{
-						shelf.putInProp(k, arr[index].id, arr[index].num);
+						shelf.putInProp(k, arr[index][0], arr[index][1]);
 						index ++;
 					}else
 					{
@@ -107,7 +91,8 @@ package global
 		/**
 		 * 需要补货的货架队列
 		 */		
-		private var vecWait:Vector.<Shelf> = new Vector.<Shelf>();
+//		private var vecWait:Vector.<Shelf> = new Vector.<Shelf>();
+		private var vecWait:Array = [];
 		public function addToWait(shelf:Shelf):void
 		{
 			if(vecWait.indexOf( shelf ) == -1)
@@ -123,7 +108,7 @@ package global
 		public function getWaitShelf():Shelf
 		{
 			if(vecWait.length > 0)
-				return vecShelf[0];
+				return vecWait[0];
 			return null;
 		}
 		

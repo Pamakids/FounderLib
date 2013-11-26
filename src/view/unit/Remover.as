@@ -7,6 +7,8 @@ package view.unit
 	
 	import global.AssetsManager;
 	
+	import model.StaffVO;
+	
 	import view.component.LogicalMap;
 
 	/**
@@ -19,9 +21,11 @@ package view.unit
 		 * 是否空闲
 		 */		
 		public var isFree:Boolean = true;
-		public function Remover()
+		private var vo:StaffVO;
+		public function Remover(vo:StaffVO)
 		{
 			super();
+			this.vo = vo;
 			init();
 		}
 		
@@ -61,7 +65,9 @@ package view.unit
 		{
 			probar.stop();
 			probar.visible = false;
+			action.gotoAndStop(ACTION_STAY_DOWN);
 			targetShelf.resplenish();
+			targetShelf = null;
 			isFree = true;
 		}
 		
@@ -87,6 +93,20 @@ package view.unit
 				replenishHandler();
 			else
 				LogicalMap.getInstance().moveBody(this, tile);
+		}
+		
+		override public function dispose():void
+		{
+			super.dispose();
+			this.removeChild( action );
+			action = null;
+			this.removeChild( probar );
+			probar = null;
+		}
+		
+		public function getAbility():Number
+		{
+			return vo.ability;
 		}
 	}
 }

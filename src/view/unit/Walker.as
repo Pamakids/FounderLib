@@ -44,6 +44,7 @@ package view.unit
 		
 		private var vx:int;
 		private var vy:int;
+		private var speed:uint = 8;
 		/**
 		 * 沿指定路线移动
 		 * @param path
@@ -98,10 +99,10 @@ package view.unit
 			if(action.currentFrame != direction+4)
 				action.gotoAndStop( 4+direction );
 			
-			const X:int = tile.rect.x;
-			const Y:int = tile.rect.y;
-			vx = X - crtTile.rect.x >> 1;
-			vy = Y - crtTile.rect.y >> 1;
+			const X:int = tile.place.x;
+			const Y:int = tile.place.y;
+			vx = X - crtTile.place.x >> 2;
+			vy = Y - crtTile.place.y >> 2;
 			this.x += vx;
 			this.y += vy;
 			if(this.x == X && this.y == Y)
@@ -121,7 +122,7 @@ package view.unit
 			if(this.path)
 			{
 				timer.stop();
-				if(crtTile.rect.x == x &&　crtTile.rect.y == y)
+				if(crtTile.place.x == x &&　crtTile.place.y == y)
 					path.splice(0, path.length);
 				else
 					path.splice(1, path.length-1);
@@ -143,6 +144,19 @@ package view.unit
 			if(path && path.length > 0)
 				return path[path.length-1];
 			return crtTile;
+		}
+		
+		override public function dispose():void
+		{
+			this.removeEventListener(Walker.ARRIVED, onArrived);
+			if(timer)
+			{
+				timer.stop();
+				timer.removeEventListener(TimerEvent.TIMER, onTimer);
+				timer=null;
+			}
+			if(path)	path = null;
+			super.dispose();
 		}
 	}
 }

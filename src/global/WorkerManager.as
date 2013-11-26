@@ -1,11 +1,13 @@
 package global
 {
-	import flash.display.Sprite;
-	import flash.events.TimerEvent;
 	import flash.geom.Point;
-	import flash.utils.Timer;
+	
+	import controller.ServiceController;
+	
+	import model.StaffVO;
 	
 	import view.component.LogicalMap;
+	import view.screen.MainScreen;
 	import view.unit.Cashier;
 	import view.unit.Remover;
 	import view.unit.Shelf;
@@ -17,50 +19,54 @@ package global
 	 */	
 	public class WorkerManager
 	{
-		public function WorkerManager()
-		{
-			initTimer();
-		}
-		
-		private var timer:Timer;
-		private function initTimer():void
-		{
-			timer = new Timer(500);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-			timer.start();
-		}
-		
-		private var container:Sprite;
-		private var map:LogicalMap;
-		
-		private var cashier:Cashier;
-		private var remover:Remover;
-		public function creatWorker(container:Sprite):void
-		{
-			this.container = container;
-			this.map = LogicalMap.getInstance();
-			
-			cashier = new Cashier();
-			cashier.setCrtTile(map.getTileByPosition(new Point(7,6)));
-			container.addChildAt(cashier, 0);
-			
-			remover = new Remover();
-			remover.setCrtTile(map.getTileByPosition(new Point(28,6)));
-			container.addChild( remover );
-			
-		}
-		
-		public function getFreeRomover():Remover
-		{
-			return (remover.isFree)?remover:null;
-		}
-		
 		private static var _instance:WorkerManager;
 		public static function getInstance():WorkerManager
 		{
 			if(!_instance)
 				_instance = new WorkerManager();
 			return _instance;
+		}
+		
+		public function WorkerManager()
+		{
+			init();
+		}
+		
+		private function init():void
+		{
+			StatusManager.instance().addFunc( onTimer );
+		}
+		
+		private var map:LogicalMap;
+		
+		private var cashier:Cashier;
+		private var remover:Remover;
+		private var main:MainScreen;
+		public function setMainStage(main:MainScreen):void
+		{
+			this.main = main;
+			this.map = LogicalMap.getInstance();
+			
+			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+			//test
+			var vo:StaffVO = new StaffVO();
+			vo.ability = 2;
+			//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+			
+			//var vo:StaffVO = getStaffVO(2);
+			cashier = new Cashier(vo);
+			cashier.setCrtTile(map.getTileByPosition(new Point(7,6)));
+			this.main.addUnit( cashier );
+			
+			//vo = getStaffVO(3);
+			remover = new Remover(vo);
+			remover.setCrtTile(map.getTileByPosition(new Point(28,6)));
+			this.main.addUnit( remover );
+		}
+		
+		public function getFreeRomover():Remover
+		{
+			return (remover.isFree)?remover:null;
 		}
 		
 		public function getCashier():Cashier
@@ -73,7 +79,7 @@ package global
 			remover.replenish( shelf );
 		}
 		
-		public function onTimer(e:TimerEvent):void
+		private function onTimer():void
 		{
 			if(remover.isFree)
 			{
@@ -81,6 +87,24 @@ package global
 				if(shelf)
 					remover.replenish( shelf );
 			}
+		}
+		
+		public function getWaitTime():uint
+		{
+			return cashier.getAbility();
+		}
+		
+		/**
+		 * 1 采购员 2 收银员 3 理货员
+		 */		
+		private function getStaffVO(i:int):StaffVO
+		{
+			for each(var vo:StaffVO in ServiceController.instance.player1.staffes)
+			{
+				if(vo.type == i)
+					return vo;
+			}
+			return null;
 		}
 	}
 }

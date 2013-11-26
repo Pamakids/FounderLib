@@ -1,11 +1,15 @@
 package view.unit
 {
 	import flash.display.MovieClip;
+	import flash.utils.getTimer;
 	
 	import controller.ServiceController;
 	
 	import global.AssetsManager;
 	import global.ShopperManager;
+	import global.StatusManager;
+	
+	import model.StaffVO;
 
 	/**
 	 * 收银员
@@ -13,9 +17,11 @@ package view.unit
 	 */	
 	public class Cashier extends BasicUnit
 	{
-		public function Cashier()
+		private var vo:StaffVO;
+		public function Cashier(vo:StaffVO)
 		{
 			super();
+			this.vo = vo;
 			init();
 		}
 		
@@ -24,6 +30,7 @@ package view.unit
 			initAction();
 			initProbar();
 		}
+		
 		
 		private var probar:MovieClip;
 		private function initProbar():void
@@ -54,20 +61,32 @@ package view.unit
 			crtShopper = shopper;
 			probar.visible = true;
 			probar.gotoAndPlay(1);
-			trace(probar.totalFrames);
-			probar.addFrameScript(probar.totalFrames-1, onComplete);
+			start = getTimer();
+			StatusManager.instance().addFunc( onTimer, 0.05 );
 		}
-		
+		private var start:uint;
 		private var crtShopper:Shopper;
+		private function onTimer():void
+		{
+			var time:uint = getTimer();
+			trace(time - start);
+			trace(crtShopper);
+			var i:int = Math.floor( Math.min( (time-start)/(vo.ability*1000) , 1)*100 );
+			probar.gotoAndStop( i );
+			if(time - start >= vo.ability*1000)
+			{
+				StatusManager.instance().delFunc( onTimer );
+				probar.gotoAndStop( 1 );
+				probar.visible = false;
+				
+				var list:Array = crtShopper.getShoppingList();
+				ServiceController.instance.player1.cash += liquidation(list);		//现金结算
+				ShopperManager.getInstance().outShop( crtShopper );
+//				crtShopper = null;
+			}
+		}
 		private function onComplete():void
 		{
-			probar.gotoAndStop( 1 );
-			probar.visible = false;
-			
-			var list:Array = crtShopper.getShoppingList();
-			ServiceController.instance.player1.cash += liquidation(list);		//现金结算
-			ShopperManager.getInstance().outShop( crtShopper );
-			crtShopper = null;
 		}
 		
 		/**
@@ -82,6 +101,11 @@ package view.unit
 				num += arr[1]*arr[2];
 			}
 			return num;
+		}
+		
+		public function getAbility():uint
+		{
+			return vo.ability;
 		}
 	}
 }

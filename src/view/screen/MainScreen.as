@@ -1,18 +1,17 @@
 package view.screen
 {
-	import com.greensock.TweenLite;
-	
 	import flash.display.Sprite;
-	import flash.geom.Point;
+	import flash.events.MouseEvent;
 	
 	import global.AssetsManager;
-	import global.PlansManager;
 	import global.ShelfManager;
 	import global.ShopperManager;
-	import global.StoreManager;
+	import global.StatusManager;
 	import global.WorkerManager;
 	
 	import view.component.LogicalMap;
+	import view.unit.BasicUnit;
+	import view.unit.Shopper;
 	import view.unit.Walker;
 
 	/**
@@ -35,6 +34,7 @@ package view.screen
 		{
 			initMap();
 			initManager();
+			
 		}
 		
 		private var bg:Sprite;
@@ -53,45 +53,56 @@ package view.screen
 		private var role:Walker;
 		private function initManager():void
 		{
-			//初始化仓库
-			store = StoreManager.getInstance();
 			//销售方案管理
-			plansManager = PlansManager.getInstance();
-			
 			container = new Sprite();
 			this.addChild( container );
 			//货架管理器
 			shelfManager = ShelfManager.getInstance();
-			shelfManager.creatShelf(container);
+			shelfManager.setMainStage( this );
 			//雇员管理器
 			workerManager = WorkerManager.getInstance();
-			workerManager.creatWorker(container);
-			
+			workerManager.setMainStage( this );
 			//顾客管理器
 			shopperManager = ShopperManager.getInstance();
-			shopperManager.setContainer(container);
+			shopperManager.setMainStage( this );
+			
+			StatusManager.instance().addFunc( resetViewLevel, 0.5 );
 			
 			test();
 		}
 		
 		private function test():void
 		{
-			shopperManager.creatShopper();
-//			shopperManager.creatShopper();
-//			shopperManager.creatShopper();
-//			
-//			TweenLite.delayedCall(5, shopperManager.creatShopper);
-//			TweenLite.delayedCall(6, shopperManager.creatShopper);
-//			TweenLite.delayedCall(7, shopperManager.creatShopper);
-			
-//			tileMap.moveBody( workerManager.getFreeRomover(), tileMap.getTileByPosition(new Point( 5,19 )));
+			this.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void{
+				shopperManager.creatShopper();
+			});
 		}
 		
-		private var store:StoreManager;
-		private var plansManager:PlansManager;
 		private var shelfManager:ShelfManager;
 		private var workerManager:WorkerManager;
 		private var shopperManager:ShopperManager;
 		
+		private function resetViewLevel():void
+		{
+			arrUnit.sortOn("y");
+			for(var i:int = 0;i<arrUnit.length;i++)
+			{
+				container.setChildIndex(arrUnit[i], i);
+			}
+		}
+		
+		private var arrUnit:Array = [];
+		public function addUnit(uint:BasicUnit):void
+		{
+			container.addChild( uint );
+			arrUnit.push( uint );
+		}
+		
+		public function delUnit(shopper:Shopper):void
+		{
+			container.removeChild( shopper );
+			arrUnit.splice( arrUnit.indexOf( shopper ), 1 );
+			shopper.dispose();
+		}
 	}
 }

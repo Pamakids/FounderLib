@@ -186,5 +186,15 @@ package view.unit
 			var point:Point = points[ Math.floor( Math.random()*points.length ) ];
 			return LogicalMap.getInstance().getTileByPosition( point );
 		}
+		
+		override public function dispose():void
+		{
+			vo = null;
+			this.removeEventListener(MouseEvent.CLICK, onClick);
+			this.removeChild( action );
+			action = null;
+			props = null;
+			super.dispose();
+		}
 	}
 }

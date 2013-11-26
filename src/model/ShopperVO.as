@@ -1,6 +1,6 @@
 package model
 {
-	import global.PlansManager;
+	
 
 	/**
 	 * 购物者数据
@@ -9,30 +9,15 @@ package model
 	public class ShopperVO
 	{
 		/**
-		 * @param type
-		 * @param list
+		 * @param type	素材索引
+		 * @param list	需求清單
+		 * @param wait	等待時間
 		 */		
-		public function ShopperVO(type:uint, list:Array)
+		public function ShopperVO(type:uint, list:Array, wait:Number)
 		{
 			this.type = type;
 			this.shopperList = list;
-			init();
-		}
-		
-		private function init():void
-		{
-			catchCrtPrice();
-		}
-		
-		private function catchCrtPrice():void
-		{
-			var price:Number;
-			for(var i:int = shopperList.length-1;i>=0;i--)
-			{
-				var arr:Array = shopperList[i];
-				price = PlansManager.getInstance().getPriceByID( arr[0] );
-				arr.push( price );	//当前单价
-			}
+			this.waitMax = wait;
 		}
 		
 		/**
@@ -46,5 +31,9 @@ package model
 		 * ]
 		 */		
 		public var shopperList:Array;
+		/**
+		 * 等待时间
+		 */		
+		public var waitMax:uint;
 	}
 }
