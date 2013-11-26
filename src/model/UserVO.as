@@ -14,13 +14,13 @@ package model
 		}
 
 		public var username:String;
-		public var lose_times:Number;
-		public var win_times:Number;
+		public var lose_times:int;
+		public var win_times:int;
 		public var company_name:String;
-		public var single_level:Number;
+		public var single_level:int;
 		public var password:String='123456';
 		public var portrait:String;
-		public var signed_in_times:String;
+		public var signed_in_times:int;
 
 		public var birthday:String;
 		public var come_from:String;

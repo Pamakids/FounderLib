@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<components:PopupBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:mx="library://ns.adobe.com/flex/mx"
+					 xmlns:components="com.pamakids.components.*"
+					 skinClass="skins.GMPopupBoxSkin"
+					 title="我准备好了"
+					 creationComplete="popupbox1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.pamakids.components.PAlert;
+
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			import spark.components.Group;
+
+			import controller.ServiceController;
+
+			import model.GameConfigVO;
+			import model.PlayerVO;
+
+			private var purchaseAC:ArrayCollection;
+			private var sc:ServiceController;
+
+			private var maxLoan:int;
+
+			[Bindable]
+			private var player:PlayerVO;
+
+			[Bindable]
+			private var config:GameConfigVO;
+
+			protected function popupbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sc=ServiceController.instance;
+				player=sc.player1;
+				config=sc.config;
+				addEventListener('close', closeHandler);
+				if (sc.other)
+					info.text='请等待玩家 ' + sc.other.company_name + ' 准备';
+			}
+
+			protected function closeHandler(event:Event):void
+			{
+				if (parent)
+					(parent as Group).removeElement(this);
+			}
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				c.enabled=false;
+				sc.cancelReady(function(result:Boolean):void
+				{
+					c.enabled=true;
+					if (result)
+						close();
+					else
+						PAlert.show('出问题，请稍后再试');
+				});
+			}
+		]]>
+	</fx:Script>
+
+	<s:Label id="info"
+			 color="0xfe840c"
+			 fontSize="20"
+			 horizontalCenter="0"
+			 y="42"/>
+
+	<s:VGroup width="608"
+			  y="90"
+			  gap="15"
+			  height="100%"
+			  paddingBottom="66"
+			  paddingLeft="66"
+			  horizontalAlign="center"
+			  verticalAlign="middle"
+			  paddingRight="66">
+
+		<s:Label color="0xfe840c"
+				 fontSize="14"
+				 text="如果您觉得还没准备好，您还可以"/>
+		<s:Button skinClass="skins.DefaultButtonBigSkin"
+				  click="button1_clickHandler(event)"
+				  id="c"
+				  label="继续筹备"/>
+
+	</s:VGroup>
+
+</components:PopupBox>
