@@ -8,6 +8,8 @@
 		<![CDATA[
 			import com.pamakids.components.PAlert;
 			import com.pamakids.components.PopupBox;
+			import com.pamakids.managers.PopupBoxManager;
+			import com.pamakids.models.ResultVO;
 
 			import mx.events.FlexEvent;
 
@@ -17,6 +19,7 @@
 
 			import view.boxes.BankBox;
 			import view.boxes.GoodsMarketBox;
+			import view.boxes.ReadyBox;
 			import view.boxes.SaleStrategyBox;
 			import view.boxes.TalentMarketBox;
 
@@ -69,7 +72,18 @@
 
 			protected function ok_clickHandler(event:MouseEvent):void
 			{
-
+				var result:ResultVO=sc.readyToStart();
+				if (!result.status)
+				{
+					PAlert.show(result.errorResult);
+				}
+				else
+				{
+					sc.showReadyBox=function():void
+					{
+						PopupBoxManager.popup(new ReadyBox);
+					}
+				}
 			}
 
 			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void

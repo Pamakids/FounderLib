@@ -1,6 +1,7 @@
 package model
 {
 
+	[Bindable]
 	public class ShopVO
 	{
 		public function ShopVO()
