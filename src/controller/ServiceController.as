@@ -1,6 +1,5 @@
 package controller
 {
-	import com.pamakids.components.PAlert;
 	import com.pamakids.events.ODataEvent;
 	import com.pamakids.manager.LoadManager;
 	import com.pamakids.models.ResultVO;
@@ -170,7 +169,7 @@ package controller
 						if (response.code == '500')
 						{
 							trace('500 user signed in');
-							PAlert.show(response.message, '提示', null, null, 'normal', '', '', true);
+							alert(response.message);
 							return;
 						}
 						pomelo.init(socket, response.port, null, function(response:Object):void
@@ -180,7 +179,7 @@ package controller
 							{
 								if (data.error)
 								{
-									PAlert.show(data.message, '提示', null, null, 'normal', '', '', true);
+									alert(data.message);
 								}
 								else
 								{
@@ -209,7 +208,7 @@ package controller
 				}
 				else
 				{
-					PAlert.show('游戏服务器连接失败');
+					alert('游戏服务器连接失败');
 				}
 			});
 		}
