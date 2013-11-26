@@ -6,6 +6,7 @@ package controller
 	import com.pamakids.services.ServiceBase;
 	import com.pamakids.utils.BrowserUtil;
 	import com.pamakids.utils.CloneUtil;
+	import com.pamakids.utils.DateUtil;
 	import com.pamakids.utils.Singleton;
 
 	import flash.display.Sprite;
@@ -17,11 +18,13 @@ package controller
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
 	import flash.utils.getDefinitionByName;
+	import flash.utils.setTimeout;
 
 	import global.DC;
 
 	import model.BoughtGoodsVO;
 	import model.GameConfigVO;
+	import model.GameResult;
 	import model.GoodsVO;
 	import model.PlayerVO;
 	import model.SaleStrategyVO;
@@ -51,9 +54,18 @@ package controller
 			callingDic=new Dictionary();
 		}
 
+		[Bindable]
+		public var otherCash:Number=0;
+
 		protected function onGameHandler(event:PomeloEvent):void
 		{
-			trace(event.message);
+			otherCash=Number(event.message.data);
+			dispatchEvent(new Event(GAME_START));
+			if (!gameTimer.running)
+			{
+				gameTimer.reset();
+				gameTimer.start();
+			}
 		}
 
 		protected function onReadyHandler(event:PomeloEvent):void
@@ -64,7 +76,7 @@ package controller
 				if (o.user == event.message.user)
 				{
 					var user:Object=event.message;
-					users[users.getItemIndex(o)]=user;
+					users[users.indexOf(o)]=user;
 					dispatchEvent(new ODataEvent(user, USER_READY));
 					isBothReady(user);
 					break;
@@ -87,7 +99,7 @@ package controller
 			if (b)
 			{
 				trace('both ready');
-				SO.i.setKV('player', player1);
+				SO.i.setKV('player' + me.company_name, player1);
 //				SO.i.setKV('p2', player2);
 				navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
 			}
@@ -107,25 +119,58 @@ package controller
 			LoadManager.instance.loadSWF('goods/assets.swf');
 		}
 
-		private var timer:Timer=new Timer(3000);
+
+		private var gameTimer:Timer;
+		private var messageTimer:Timer=new Timer(3000);
+
+		public var fighting:Boolean;
 
 		/**
 		 * 开始游戏，自动计时，同步现金数
 		 */
 		public function startGame():void
 		{
-			timer.start();
-			timer.addEventListener(TimerEvent.TIMER, sendGameMessageHandler);
+			if (fighting)
+			{
+				messageTimer.start();
+				messageTimer.addEventListener(TimerEvent.TIMER, sendGameMessageHandler);
+			}
+		}
+
+		[Bindable]
+		public var gameTime:String;
+
+		protected function roundComplete(event:TimerEvent):void
+		{
+			pauseGame();
+		}
+
+		protected function playGameing(event:TimerEvent):void
+		{
+			var s:int=config.roundTime - gameTimer.currentCount;
+			var m:int=Math.floor(s / 60);
+			var ms:String;
+			var ss:String;
+			ms=m < 10 ? '0' + m : '' + m;
+			s=s % 60;
+			ss=s < 10 ? '0' + s : '' + s;
+			gameTime=ms + ':' + ss;
 		}
 
 		public static const GAME_PAUSE:String="GAME_PAUSE";
+		public static const GAME_START:String="GAME_START";
+
+		public var roundNum:int=1;
 
 		/**
 		 * 暂停游戏，进入筹备阶段
 		 */
 		public function pauseGame():void
 		{
-			timer.stop();
+			messageTimer.stop();
+			gameTimer.stop();
+			roundNum++;
+			gameTime='第 ' + roundNum + ' 回合';
 			dispatchEvent(new Event(GAME_PAUSE));
 		}
 
@@ -141,7 +186,7 @@ package controller
 		private var enter:String='connector.entryHandler.enter';
 		private var readyRoute:String='connector.entryHandler.ready';
 		private var cancelReadyRoute:String='connector.entryHandler.cancelReady';
-		private var sendGameMessage:String='game.gameHandler.send';
+		private var sendGameMessage:String='chat.chatHandler.sendGameInfo';
 
 		public static const USER_READY:String="USER_READY";
 		public static const ENTERED:String="ENTERED";
@@ -262,14 +307,6 @@ package controller
 				http=o.remoteHttp;
 			}
 			var query:Object=BrowserUtil.getQuery();
-			var uo:Object=SO.i.getKV('user');
-			if (uo)
-			{
-				me=CloneUtil.convertObject(uo, UserVO);
-				getDefaultConfig();
-				dispatchEvent(new Event(SINGED_IN));
-				return;
-			}
 			if (!query || !query.u)
 				query={u: 1, p: 1, t: 2};
 			if (!query || !query.u || !query.p)
@@ -278,6 +315,14 @@ package controller
 			}
 			else
 			{
+				var uo:Object=SO.i.getKV('user');
+				if (uo && !query.u)
+				{
+					me=CloneUtil.convertObject(uo, UserVO);
+					getDefaultConfig();
+					dispatchEvent(new Event(SINGED_IN));
+					return;
+				}
 				userSignIn(query.u, query.p, function(result:ResultVO):void
 				{
 					if (result.status)
@@ -326,7 +371,7 @@ package controller
 				if (result.status)
 				{
 					config=CloneUtil.convertObject(result.results, GameConfigVO);
-					var pvo:Object=SO.i.getKV('player');
+					var pvo:Object=SO.i.getKV('player' + me.company_name);
 					if (!pvo)
 					{
 						player1=new PlayerVO();
@@ -337,14 +382,22 @@ package controller
 					{
 						pvo.goods=CloneUtil.convertArrayObjects(pvo.goods, BoughtGoodsVO);
 						pvo.staffes=CloneUtil.convertArrayObjects(pvo.staffes, StaffVO);
+						for each (var svo:Object in pvo.saleStrategies)
+						{
+							svo.goods=CloneUtil.convertArrayObjects(svo.goods, BoughtGoodsVO);
+						}
 						pvo.saleStrategies=CloneUtil.convertArrayObjects(pvo.saleStrategies, SaleStrategyVO);
 						pvo.shop=CloneUtil.convertObject(pvo.shop, ShopVO);
 						pvo.user=CloneUtil.convertObject(pvo.user, UserVO);
 						player1=CloneUtil.convertObject(pvo, PlayerVO);
+						boughtGoods=player1.goods;
 					}
 					var fr:String=SO.i.getKV('fightRoom') as String;
 					if (!fr)
 						fr='FIGHT';
+					gameTimer=new Timer(1000, config.roundTime);
+					gameTimer.addEventListener(TimerEvent.TIMER, playGameing);
+					gameTimer.addEventListener(TimerEvent.TIMER_COMPLETE, roundComplete);
 					connect(fr);
 					dispatchEvent(new Event(GAME_CONFIG_GOT));
 				}
@@ -374,14 +427,42 @@ package controller
 			dispatchEvent(new ODataEvent(text, 'alert'));
 		}
 
+		public var gameResult:String;
+
 		protected function closeHandler(event:Event):void
 		{
-
+			gameOver(new GameResult(false, '于服务器的连接已断开，3秒后将自动返回游戏大厅'));
 		}
 
-		protected function removeUserHandler(event:Event):void
+		protected function removeUserHandler(event:PomeloEvent):void
 		{
+			gameOver(new GameResult(true, '您赢得了游戏，3秒后将自动返回游戏大厅'));
+		}
 
+		private function gameOver(vo:GameResult):void
+		{
+			if (vo.win)
+			{
+				ASC.i.call(ASC.GAME_OVER, function(vo:ResultVO):void
+				{
+					if (vo.status)
+						setTimeout(gotoRoom, 3000);
+					else
+						alert(vo.errorResult);
+				}, {win: me.company_name, lose: other.company_name});
+			}
+			else
+			{
+				setTimeout(gotoRoom, 3000);
+			}
+			alert(vo.info);
+			if (messageTimer)
+				messageTimer.stop();
+		}
+
+		private function gotoRoom():void
+		{
+			navigateToURL(new URLRequest(http + '/FounderRoom.html'), '_self');
 		}
 
 		public var boughtGoods:Array;
@@ -434,6 +515,7 @@ package controller
 			trace('onAdded', event.message.user);
 			other=new UserVO();
 			other.company_name=event.message.user;
+			users.push(event.message);
 			startGame();
 		}
 
@@ -579,7 +661,16 @@ package controller
 				player1.goods=boughtGoods;
 
 			if (saleStrategies)
+			{
 				player1.saleStrategies=saleStrategies;
+			}
+			else
+			{
+				var so:SaleStrategyVO=new SaleStrategyVO();
+				so.name='默认方案';
+				so.goods=boughtGoods;
+				player1.saleStrategies=[so];
+			}
 
 			pomelo.request(readyRoute, {user: me.company_name, rid: rid}, function(result:Boolean):void
 			{

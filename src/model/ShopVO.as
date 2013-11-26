@@ -1,6 +1,10 @@
 package model
 {
 
+	/**
+	 * 店铺VO
+	 * @author mani
+	 */
 	[Bindable]
 	public class ShopVO
 	{

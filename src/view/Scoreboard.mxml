@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  gap="20"
+		  verticalAlign="middle"
+		  y="20"
+		  horizontalCenter="0"
+		  creationComplete="hgroup1_creationCompleteHandler(event)"
+		  xmlns:components="view.components.*"
+		  xmlns:components1="com.pamakids.components.*"
+		  scaleX=".5"
+		  scaleY=".5">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			import controller.ServiceController;
+
+			[Bindable]
+			private var sc:ServiceController;
+
+			protected function hgroup1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sc=ServiceController.instance;
+				sc.addEventListener(ServiceController.GAME_PAUSE, gamePausedHandler);
+				sc.addEventListener(ServiceController.GAME_START, gameStartHandler);
+			}
+
+			protected function gamePausedHandler(event:Event):void
+			{
+				scaleX=scaleY=1;
+			}
+
+			protected function gameStartHandler(event:Event):void
+			{
+				scaleX=scaleY=.5;
+			}
+		]]>
+	</fx:Script>
+
+	<s:HGroup gap="-20"
+			  verticalAlign="middle">
+		<components:GPortrait depth="1"/>
+		<s:Group>
+			<s:BitmapImage source="@Embed('/assets/boxes/rightArrow.png')"
+						   smooth="true"/>
+			<components1:LabelWidthShadow text="{'现金：'+sc.player1.cash}"
+										  fontSize="18"
+										  color="0x724815"
+										  verticalCenter="-2"
+										  horizontalCenter="0"/>
+		</s:Group>
+	</s:HGroup>
+
+	<s:Group>
+		<s:BitmapImage source="@Embed('/assets/boxes/roundBoard.png')"
+					   smooth="true"/>
+		<components1:LabelWidthShadow text="{sc.gameTime}"
+									  fontSize="30"
+									  color="0xff7c00"
+									  verticalCenter="5"
+									  horizontalCenter="0"/>
+	</s:Group>
+
+	<s:HGroup gap="-20"
+			  verticalAlign="middle">
+		<s:Group>
+			<s:BitmapImage source="@Embed('/assets/boxes/leftArrow.png')"
+						   smooth="true"/>
+			<components1:LabelWidthShadow text="{'现金：'+sc.otherCash}"
+										  fontSize="18"
+										  color="0x724815"
+										  verticalCenter="-2"
+										  horizontalCenter="0"/>
+		</s:Group>
+		<components:GPortrait/>
+	</s:HGroup>
+
+</s:HGroup>
