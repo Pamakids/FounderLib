@@ -19,8 +19,6 @@ package controller
 	import flash.utils.Timer;
 	import flash.utils.getDefinitionByName;
 
-	import mx.collections.ArrayCollection;
-
 	import global.DC;
 
 	import model.BoughtGoodsVO;
@@ -150,7 +148,7 @@ package controller
 		public static const ENTERED:String="ENTERED";
 		public static const USER_CANCEL_READY:String="USER_CANCEL_READY";
 
-		public var users:ArrayCollection;
+		public var users:Array;
 
 		/**
 		 * 房间ID
@@ -186,7 +184,7 @@ package controller
 								}
 								else
 								{
-									users=new ArrayCollection();
+									users=[];
 									for each (var o:String in data.users)
 									{
 										var uo:Object=JSON.parse(o);
@@ -199,7 +197,7 @@ package controller
 										{
 
 										}
-										users.addItem(uo);
+										users.push(uo);
 									}
 									if (users.length == 2)
 										startGame();
