@@ -186,8 +186,6 @@ package controller
 
 		public function userSignIn(account:String, password:String, callback:Function):void
 		{
-			MC.instance.u=account;
-			MC.instance.p=password;
 			var s:ServiceBase=getService(USER_SIGN_IN, URLRequestMethod.POST);
 			if (callingDic[s])
 				return;
