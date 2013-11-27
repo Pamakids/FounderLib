@@ -6,7 +6,6 @@ package controller
 	import com.pamakids.services.ServiceBase;
 	import com.pamakids.utils.BrowserUtil;
 	import com.pamakids.utils.CloneUtil;
-	import com.pamakids.utils.DateUtil;
 	import com.pamakids.utils.Singleton;
 
 	import flash.display.Sprite;
@@ -443,7 +442,8 @@ package controller
 		{
 			if (vo.win)
 			{
-				ASC.i.call(ASC.GAME_OVER, function(vo:ResultVO):void
+				var s:ServiceBase=new ServiceBase(ASC.GAME_OVER, 'POST');
+				s.call(ASC.GAME_OVER, function(vo:ResultVO):void
 				{
 					if (vo.status)
 						setTimeout(gotoRoom, 3000);
