@@ -1,5 +1,7 @@
 package global
 {
+	import model.BoughtGoodsVO;
+
 	/**
 	 * 仓库管理
 	 * @author Administrator
@@ -8,17 +10,62 @@ package global
 	{
 		public function StoreManager()
 		{
-			dic = {};
+			reCatchGoods();
+		}
+		
+		public function reCatchGoods():void
+		{
+			var goods:Array = [];
+			
+			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+			//test
+			var a:Array = [
+				[101, 300],
+				[102, 300],
+				[103, 300],
+				[104, 300],
+				[105, 300],
+				[201, 300],
+				[202, 300],
+				[203, 300],
+				[204, 300],
+				[301, 300],
+				[302, 300],
+				[303, 300],
+				[304, 300],
+				[305, 300]
+			];
+			for(var i:int = 0;i<a.length;i++)
+			{
+				var boughtGoodsVO:BoughtGoodsVO = new BoughtGoodsVO();
+				boughtGoodsVO.id = a[i][0];
+				boughtGoodsVO.quantity = a[i][1];
+				goods.push( boughtGoodsVO );
+			};
+			//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+			
+			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+			//正确版本
+			//goods = ServiceController.instance.boughtGoods;
+			//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+			for each(var vo:BoughtGoodsVO in goods)
+			{
+				this.addPropByID( vo.id, vo.quantity );
+			}
 		}
 		
 		/**
 		 * 批量添加
+		 * [
+		 * 		[id, num],
+		 * 		[id, num]
+		 * ]
 		 */		
-		public function addPropBatch(obj:Object):void
+		public function addPropBatch(obj:Array):void
 		{
-			for(var id:String in obj)
+			for each(var arr:Array in obj)
 			{
-				addPropByID(id, obj.id);
+				addPropByID(arr[0], arr[1]);
 			}
 		}
 		
@@ -63,22 +110,29 @@ package global
 		{
 			return dic[id];
 		}
-		
-		private var dic:Object;
+		private var dic:Object = {};
 		
 		/**
 		 * 获取物品清单
+		 * [
+		 * 		[id, num],
+		 * 		[id, num],
+		 * 		[id, num]
+		 * ]
 		 */		
-		public function getPropList():Vector.<Array>
+		public function getPropList():Array
 		{
-			var list:Vector.<Array> = new Vector.<Array>();
+			var list:Array = [];
 			var arr:Array;
 			for(var id:String in dic)
 			{
-				arr = [id, dic[id]];
-				list.push( arr );
+				list.push( [id, dic[id]] );
 			}
 			return list;
+		}
+		public function clear():void
+		{
+			dic = {};
 		}
 		
 		private static var _instance:StoreManager;

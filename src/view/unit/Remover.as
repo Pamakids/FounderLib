@@ -1,9 +1,15 @@
 package view.unit
 {
+	import com.astar.expand.ItemTile;
+	
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.utils.getTimer;
 	
 	import global.AssetsManager;
+	import global.StatusManager;
+	
+	import model.StaffVO;
 	
 	import view.component.LogicalMap;
 
@@ -17,12 +23,15 @@ package view.unit
 		 * 是否空闲
 		 */		
 		public var isFree:Boolean = true;
-		public function Remover()
+		private var vo:StaffVO;
+		public function Remover(vo:StaffVO)
 		{
 			super();
+			this.vo = vo;
+			init();
 		}
 		
-		override protected function init():void
+		private function init():void
 		{
 			initAction();
 			initProbar();
@@ -38,34 +47,51 @@ package view.unit
 			probar.visible = false;
 		}
 		
+		override protected function get SPEED():uint
+		{
+			return 8;
+		}
 		override protected function onArrived(e:Event):void
 		{
-			trace("arrived");
 			replenishHandler();
 		}
 		
 		private var targetShelf:Shelf;
 		private function replenishHandler():void
 		{
-			trace("开始补货");
-			probar.gotoAndPlay(1);
-			probar.addFrameScript(probar.totalFrames, replenishComplete);
+			probar.visible = true;
+			probar.gotoAndStop(1);
+			action.gotoAndStop(ACTION_STAY_UP);
+			
+			start = getTimer();
+			StatusManager.getInstance().addFunc( onTimer, 0.05 );
 		}
 		
-		private function replenishComplete():void
+		private function onTimer():void
 		{
-			probar.gotoAndStop(1);
-			probar.visible = false;
-			targetShelf.resplenish();
-			isFree = true;
+			var time:uint = getTimer();
+			var i:int = Math.floor( Math.min( (time-start)/(vo.ability*1000) , 1)*100 );
+			probar.gotoAndStop( i );
+			if(time - start >= vo.ability*1000)
+			{
+				StatusManager.getInstance().delFunc( onTimer );
+				probar.gotoAndStop( 1 );
+				probar.visible = false;
+				action.gotoAndStop(ACTION_STAY_DOWN);
+				targetShelf.resplenish();
+				targetShelf = null;
+				isFree = true;
+			}
 		}
+		private var start:uint;
 		
 		private function initAction():void
 		{
-			action = AssetsManager.instance().getResByName("shopper_0") as MovieClip;
+			action = AssetsManager.instance().getResByName("remover") as MovieClip;
 			this.addChild( action );
 			action.gotoAndStop(ACTION_STAY_LEFT);
 			action.mouseEnabled = action.mouseChildren = false;
+			action.scaleX = action.scaleY = .5;
 		}
 		
 		/**
@@ -76,7 +102,27 @@ package view.unit
 		{
 			isFree = false;
 			targetShelf = shelf;
-			LogicalMap.getInstance().moveBody(this, shelf.getCrtTile());
+			var tile:ItemTile = targetShelf.getTargetTile();
+			if(tile == crtTile)
+				replenishHandler();
+			else
+				LogicalMap.getInstance().moveBody(this, tile);
+		}
+		
+		override public function dispose():void
+		{
+			StatusManager.getInstance().delFunc( onTimer );
+			vo = null;
+			this.removeChild( probar );
+			probar = null;
+			this.removeChild( action );
+			action = null;
+			super.dispose();
+		}
+		
+		public function getAbility():Number
+		{
+			return vo.ability;
 		}
 	}
 }

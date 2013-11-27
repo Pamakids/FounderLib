@@ -3,13 +3,10 @@ package view.unit
 	import com.astar.core.IAstarTile;
 	import com.astar.expand.ItemTile;
 	
-	import flash.display.MovieClip;
 	import flash.events.Event;
-	import flash.events.TimerEvent;
 	import flash.geom.Point;
-	import flash.utils.Timer;
 	
-	import global.AssetsManager;
+	import global.StatusManager;
 
 	/**
 	 * 可移动的
@@ -38,7 +35,6 @@ package view.unit
 		
 		public function Walker()
 		{
-			init();
 			this.addEventListener(Walker.ARRIVED, onArrived);
 		}
 		
@@ -46,16 +42,12 @@ package view.unit
 		{
 		}
 		
-		override protected function init():void
-		{
-			action = AssetsManager.instance().getResByName("role") as MovieClip;
-			action.gotoAndStop(ACTION_STAY_RIGHT);
-			this.addChild( action );
-			this.mouseChildren = this.mouseEnabled = false;
-		}
-		
 		private var vx:int;
 		private var vy:int;
+		protected function get SPEED():uint
+		{
+			return 4;
+		}
 		/**
 		 * 沿指定路线移动
 		 * @param path
@@ -66,18 +58,10 @@ package view.unit
 				this.path = new Vector.<IAstarTile>();
 			_path.splice(0,1);
 			this.path = this.path.concat(_path);
-			if(!timer)
-				creatTimer();
-			timer.start();
+			StatusManager.getInstance().addFunc( onTimer , 0.05);
 		}
 		
 		protected var path:Vector.<IAstarTile>;
-		private var timer:Timer;
-		private function creatTimer():void
-		{
-			timer = new Timer(50);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-		}
 		
 		/**
 		 * 朝向:
@@ -86,9 +70,9 @@ package view.unit
 		 * 3:	左
 		 * 4:	右
 		 */		
-		private var direction:int = 0;
+		protected var direction:int = 0;
 		
-		protected function onTimer(event:TimerEvent):void
+		private function onTimer():void
 		{
 			var tile:ItemTile = path[0] as ItemTile;
 			//确定方向
@@ -110,10 +94,10 @@ package view.unit
 			if(action.currentFrame != direction+4)
 				action.gotoAndStop( 4+direction );
 			
-			const X:int = tile.rect.x;
-			const Y:int = tile.rect.y;
-			vx = X - crtTile.rect.x >> 1;
-			vy = Y - crtTile.rect.y >> 1;
+			const X:int = tile.place.x;
+			const Y:int = tile.place.y;
+			vx = X-crtTile.place.x==0 ? 0 : ( X - crtTile.place.x>0?SPEED:-SPEED );
+			vy = Y-crtTile.place.y==0 ? 0 : ( Y - crtTile.place.y>0?SPEED:-SPEED );
 			this.x += vx;
 			this.y += vy;
 			if(this.x == X && this.y == Y)
@@ -121,7 +105,7 @@ package view.unit
 				this.crtTile = path.shift() as ItemTile;
 				if(path.length == 0)
 				{
-					timer.stop();
+					StatusManager.getInstance().delFunc( onTimer );
 					action.gotoAndStop(direction);
 					dispatchEvent(new Event(ARRIVED));
 				}
@@ -132,8 +116,8 @@ package view.unit
 		{
 			if(this.path)
 			{
-				timer.stop();
-				if(crtTile.rect.x == x &&　crtTile.rect.y == y)
+				StatusManager.getInstance().delFunc( onTimer );
+				if(crtTile.place.x == x &&　crtTile.place.y == y)
 					path.splice(0, path.length);
 				else
 					path.splice(1, path.length-1);
@@ -146,7 +130,7 @@ package view.unit
 		public function isCrtPathEnd(tile:IAstarTile):Boolean
 		{
 			if(path && path.length>0 && tile == path[path.length-1])
-				return true
+				return true;
 			return false;
 		}
 		
@@ -155,6 +139,14 @@ package view.unit
 			if(path && path.length > 0)
 				return path[path.length-1];
 			return crtTile;
+		}
+		
+		override public function dispose():void
+		{
+			StatusManager.getInstance().delFunc( onTimer );
+			this.removeEventListener(Walker.ARRIVED, onArrived);
+			if(path)	path = null;
+			super.dispose();
 		}
 	}
 }

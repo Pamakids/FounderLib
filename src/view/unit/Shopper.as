@@ -1,17 +1,18 @@
 package view.unit
 {
 	import com.astar.expand.ItemTile;
+	import com.greensock.TweenLite;
 	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.TimerEvent;
-	import flash.geom.Point;
-	import flash.utils.Timer;
+	import flash.utils.getTimer;
 	
 	import global.AssetsManager;
 	import global.ShelfManager;
 	import global.ShopperManager;
+	import global.StatusManager;
+	import global.StoreManager;
 	import global.WorkerManager;
 	
 	import model.ShopperVO;
@@ -42,12 +43,13 @@ package view.unit
 		{
 			this.vo = vo;
 			super();
+			init();
 		}
 		
-		override protected function init():void
+		private function init():void
 		{
 			initAction();
-			updateIcon();
+			initIcon();
 			this.mouseChildren = this.mouseEnabled = false;
 		}
 		
@@ -61,14 +63,16 @@ package view.unit
 				if(arr[3])	continue;
 				crtIndex = i;
 				targetShelf = ShelfManager.getInstance().getShelfByPropID( arr[0] );
-				var points:Vector.<Point> = targetShelf.vo.target;
-				var point:Point = points[ Math.floor( Math.random()*points.length ) ];
-				var tile:ItemTile = LogicalMap.getInstance().getTileByPosition( point );
+				if(!targetShelf)
+				{
+					dispatchEvent(new Event(SHOP_FAILED));
+					return;
+				}
+				var tile:ItemTile = targetShelf.getTargetTile();
 				(tile == crtTile) ? shopHandler() : LogicalMap.getInstance().moveBody(this, tile);
 				return;
 			}
 			isFinish = true;
-			this.title.visible = false;
 			dispatchEvent(new Event(Shopper.SHOP_FINISHED));
 		}
 		/**
@@ -90,10 +94,22 @@ package view.unit
 					case LogicalMap.getInstance().TITLE_OUT_SHOP:
 						ShopperManager.getInstance().delShopper( this );
 						break;
+					case LogicalMap.getInstance().TITLE_QUEUE:
+						var time:uint = ShopperManager.getInstance().getTotalWaitTime();
+						if(time > vo.waitMax)
+							dispatchEvent( new Event( SHOP_FAILED ) );
+						else
+							ShopperManager.getInstance().insertQueue( this );
+						break;
 					default:
-						action.gotoAndStop(ACTION_STAY_LEFT);
+						action.gotoAndStop(ACTION_STAY_UP);
 						break;
 				}
+				return;
+			}
+			if(isFailed)
+			{
+				ShopperManager.getInstance().delShopper( this );
 				return;
 			}
 			shopHandler();
@@ -101,97 +117,116 @@ package view.unit
 		
 		private function shopHandler():void
 		{
+			this.action.gotoAndStop(ACTION_STAY_UP);
+			
 			var arr:Array = vo.shopperList[crtIndex];
 			var id:String = arr[0];
 			var num:uint = arr[1];
-			if(targetShelf.getPropNumByID(id) >= num)
+			var countShelf:uint = targetShelf.getPropNumByID(id);
+			if(countShelf >= num)
 			{
 				targetShelf.delProp( id, num ); 
 				arr[3] = true;
 				updateIcon();
-				dispatchEvent(new Event(SHOP_CATCHED));
+				TweenLite.delayedCall( 0.5, function():void{
+					dispatchEvent(new Event(SHOP_CATCHED));
+				});
 			}
 			else
 			{
-				waitForReplenish();
+				var countStore:uint = StoreManager.getInstance().getPropNumByID( id );
+				if(countShelf + countStore >= num)
+					waitForReplenish();
+				else
+					dispatchEvent( new Event( SHOP_FAILED ) );
 			}
 		}
 		
 		
-		private var timer:Timer;
 		private function waitForReplenish():void
 		{
-			if(!timer)
-			{
-				timer = new Timer(1000, 5);
-				timer.addEventListener(TimerEvent.TIMER, timerListener);
-				timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerListener);
-			}
-			timer.start();
+			start = getTimer();
+			StatusManager.getInstance().addFunc( onTimer, 0.5 );
 		}
-		
-		protected function timerListener(e:TimerEvent):void
+		private function onTimer():void
 		{
+			var crtTime:uint = getTimer();
+			if(crtTime - start >= vo.waitMax*1000)
+			{
+				dispatchEvent(new Event(SHOP_FAILED));
+				StatusManager.getInstance().delFunc( onTimer );
+				return;
+			}
 			var id:String = vo.shopperList[crtIndex][0];
 			var num:uint = vo.shopperList[crtIndex][1];
-			switch(e.type)
+			if(targetShelf.getPropNumByID(id) >= num)
 			{
-				case TimerEvent.TIMER_COMPLETE:
-					if(targetShelf.getPropNumByID(id) < num)
-					{
-						dispatchEvent(new Event(SHOP_FAILED));
-						return;
-					}
-				case TimerEvent.TIMER:
-					if(targetShelf.getPropNumByID(id) >= num)
-					{
-						targetShelf.delProp( id, num );
-						vo.shopperList[crtIndex][3] = true;
-						dispatchEvent(new Event(SHOP_CATCHED));
-						timer.reset();
-					}
-					break;
+				targetShelf.delProp( id, num );
+				vo.shopperList[crtIndex][3] = true;
+				dispatchEvent(new Event(SHOP_CATCHED));
+				StatusManager.getInstance().delFunc( onTimer );
 			}
 		}
+		private var start:uint;
 		
-		private var vecIcon:Vector.<Sprite> = new Vector.<Sprite>();
+		private var vecIcon:Vector.<Sprite>;
+		
 		private function updateIcon():void
 		{
-			const gap:uint = 10;
-			const w:uint = 20;
-			const padding:uint = 5;
-			var num:uint = vo.shopperList.length;
-			//清除旧图标
-			title.removeChildren(1);
-			vecIcon.splice(0, vecIcon.length);
-			
 			var arr:Array;
 			var icon:Sprite;
-			for(var i:int = 0;i<num;i++)
+			var icons:Array = [];
+			var num:uint = vo.shopperList.length;
+			for(var i:int = vo.shopperList.length-1;i>=0;i--)
 			{
 				arr = vo.shopperList[i];
-				if(arr[3])		continue;
-				icon = AssetsManager.instance().getResByName("sprite_"+arr[0]) as Sprite;
-				title.addChild( icon );
-				icon.x = padding + i*(w+gap) - title.width/2;
-				icon.y = -30;
-				vecIcon.push( icon );
+				icon = vecIcon[i];
+				if(arr[3])		
+				{
+					if(icon)
+					{
+						this.removeChild( icon );
+						vecIcon[i] = null;
+					}
+				}else
+				{
+					icons.push( icon );
+				}
 			}
-			
-			num = vecIcon.length;
-			title.bg.width = (num-1)*gap + w*num + padding*2;
+			//重新排列位置
+			var kinds:uint = icons.length;
+			for(i=0;i<kinds;i++)
+			{
+				icon = icons[i];
+				icon.x = -(kinds-1)*gap/2 + i*gap;
+			}
 		}
 		
-		private var title:MovieClip;
 		private function initAction():void
 		{
 			action = AssetsManager.instance().getResByName("shopper_"+vo.type) as MovieClip;
 			action.gotoAndStop(ACTION_STAY_RIGHT);
 			this.addChild( action );
-			
-			title = AssetsManager.instance().getResByName("title") as MovieClip;
-			title.y = -action.height;
-			this.addChild( title );
+			action.scaleX = action.scaleY = .4;
+		}
+		private const gap:uint = 40;
+		private function initIcon():void
+		{
+			var icon:Sprite;
+			var id:String;
+			var num:uint;
+			const kinds:uint = vo.shopperList.length;
+			vecIcon = new Vector.<Sprite>(kinds);
+			for(var i:int = kinds-1;i>=0;i--)
+			{
+				id = vo.shopperList[i][0];
+				num = vo.shopperList[i][1];
+				icon = AssetsManager.instance().getResByName("sprite_"+id) as Sprite;
+				this.addChild( icon );
+				icon.x = -(kinds-1)*gap/2 + i*gap;
+				icon.y = -action.height-10;
+				vecIcon[i] = icon;
+			}
 		}
 		
 		public function getShoppingList():Array
@@ -201,6 +236,33 @@ package view.unit
 		
 		override public function dispose():void
 		{
+			StatusManager.getInstance().delFunc( onTimer );
+			vo = null;
+			this.removeChild( action );
+			action = null;
+			targetShelf=null;
+			clearIcon();
+			vecIcon = null;
+			super.dispose();
+		}
+		
+		private var isFailed:Boolean = false;
+		public function shopFailed():void
+		{
+			isFailed = true;
+			clearIcon();
+			LogicalMap.getInstance().moveBody(this, LogicalMap.getInstance().TITLE_OUT_SHOP);
+		}
+		
+		private function clearIcon():void
+		{
+			var s:Sprite;
+			for(var i:int = vecIcon.length-1;i>=0;i--)
+			{
+				s = vecIcon[i];
+				if(s && s.parent)	s.parent.removeChild( s );
+				vecIcon.pop();
+			}
 		}
 	}
 }

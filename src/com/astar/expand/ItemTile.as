@@ -4,26 +4,27 @@ package com.astar.expand
 	
 	import flash.geom.Point;
 	
-	import view.component.LogicalRect;
+	import view.component.LogicalMap;
 	
 	public class ItemTile extends BasicTile
 	{
-		private var _rect:LogicalRect;
 		public function ItemTile(cost:Number, position:Point, walkable:Boolean)
 		{
 			super(cost, position, walkable);
 		}
 		
-		public function set rect(item:LogicalRect):void
+		private var _place:Point;
+		public function get place():Point
 		{
-			if(_rect && _rect == item)
-				return;
-			_rect = item;
+			if(!_place)
+				_place = LogicalMap.turnPointToPosition( this.getPosition() );
+			return _place;
 		}
 		
-		public function get rect():LogicalRect
+		override public function setPosition(p:Point):void
 		{
-			return _rect;
+			super.setPosition(p);
+			this._place = LogicalMap.turnPointToPosition( p );
 		}
 	}
 }

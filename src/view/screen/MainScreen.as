@@ -3,14 +3,10 @@ package view.screen
 	import flash.display.Sprite;
 	
 	import global.AssetsManager;
-	import global.PlansManager;
-	import global.ShelfManager;
-	import global.ShopperManager;
-	import global.StoreManager;
-	import global.WorkerManager;
+	import global.StatusManager;
 	
-	import view.component.LogicalMap;
-	import view.unit.Walker;
+	import view.unit.BasicUnit;
+	import view.unit.Shopper;
 
 	/**
 	 * 主场景
@@ -23,57 +19,54 @@ package view.screen
 			init();
 		}
 		
-		/**
-		 * 地图逻辑格
-		 */		
-		private var tileMap:LogicalMap;
-		
 		private function init():void
-		{
-			initMap();
-			
-			initManager();
-		}
-		
-		private var bg:Sprite;
-		private function initMap():void
 		{
 			bg = AssetsManager.instance().getResByName("background") as Sprite;
 			this.addChild( bg );
-			
-			tileMap = LogicalMap.getInstance();
-			this.addChild( tileMap );
-//			tileMap.visible = false;
-			tileMap.mouseEnabled = tileMap.mouseChildren = false;
-		}
-		
-		private var container:Sprite;
-		private var role:Walker;
-		private function initManager():void
-		{
-			//初始化仓库
-			store = StoreManager.getInstance();
-			//销售方案管理
-			plansManager = PlansManager.getInstance();
-			
 			container = new Sprite();
 			this.addChild( container );
-			//货架管理器
-			shelfManager = ShelfManager.getInstance();
-			shelfManager.creatShelf(container);
-			//雇员管理器
-			workerManager = WorkerManager.getInstance();
-			workerManager.creatWorker(container);
-			//顾客管理器
-			shopperManager = ShopperManager.getInstance();
-			shopperManager.setContainer(container);
+		}
+		private var bg:Sprite;
+		private var container:Sprite;
+		
+		public function resetViewLevel():void
+		{
+			arrUnit.sortOn("y");
+			for(var i:int = 0;i<arrUnit.length;i++)
+			{
+				container.setChildIndex(arrUnit[i], i);
+			}
 		}
 		
-		private var store:StoreManager;
-		private var plansManager:PlansManager;
-		private var shelfManager:ShelfManager;
-		private var workerManager:WorkerManager;
-		private var shopperManager:ShopperManager;
+		private var arrUnit:Array = [];
+		public function addUnit(uint:BasicUnit):void
+		{
+			if(uint is Shopper)
+				container.addChildAt( uint, 0 );
+			else
+				container.addChild( uint );
+			arrUnit.push( uint );
+		}
 		
+		public function delUnit(view:BasicUnit):void
+		{
+			if(view.parent)
+				view.parent.removeChild( view );
+			arrUnit.splice( arrUnit.indexOf( view ), 1 );
+			view.dispose();
+		}
+		
+		public function dispose():void
+		{
+			for(var i:int = arrUnit.length-1;i>=0;i--)
+			{
+				delUnit( arrUnit[i] );
+			}
+			this.removeChild( container );
+			this.removeChild( bg );
+			bg = null;
+			container = null;
+			arrUnit = null;
+		}
 	}
 }

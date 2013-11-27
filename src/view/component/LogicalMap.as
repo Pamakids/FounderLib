@@ -7,7 +7,6 @@ package view.component
 	import com.astar.core.PathRequest;
 	import com.astar.expand.ItemTile;
 	
-	import flash.display.Sprite;
 	import flash.geom.Point;
 	
 	import global.DC;
@@ -18,7 +17,7 @@ package view.component
 	 * 逻辑地图层
 	 * @author Administrator
 	 */	
-	public class LogicalMap extends Sprite
+	public class LogicalMap
 	{
 		private var dataMap:Array;
 		private var maxH:uint;
@@ -38,7 +37,6 @@ package view.component
 			initAstar();
 		}
 		
-		
 		private var astar:Astar;
 		private var req:PathRequest;
 		private function initAstar():void
@@ -54,9 +52,6 @@ package view.component
 		private function creatMap():void
 		{
 			var tile:ItemTile;
-			var item:LogicalRect;
-			const w:uint = LogicalRect.ITEM_WIDTH;
-			const h:uint = LogicalRect.ITEM_HEIGHT;
 			map = new Map(maxH, maxV);
 			map.heuristic = Map.MANHATTAN_HEURISTIC;
 			
@@ -66,11 +61,6 @@ package view.component
 				{
 					tile = new ItemTile(1, new Point(x,y), (dataMap[y][x]==0));
 					map.setTile(tile);
-					item = new LogicalRect(tile);
-					item.setPositionText(x, y);
-					item.x = w/2 + x*w;
-					item.y = h/2 + y*h;
-					this.addChild( item );
 				}
 			}
 		}
@@ -101,7 +91,6 @@ package view.component
 			dataMap.push( arr );
 			maxH = arr.length;
 			maxV = dataMap.length;
-			trace(maxH, maxV);
 		}
 		
 		private function onPathNotFound(event : AstarEvent) : void
@@ -113,10 +102,6 @@ package view.component
 		private function onPathFound(e : AstarEvent) : void
 		{
 			trace("Path was found: ");
-//			for(var i:int = 0;i<e.result.path.length;i++)
-//			{
-//				trace((e.result.path[i] as ItemTile).getPosition());
-//			}
 			var walker:Walker = vecNpc.shift();
 			walker.startMove(e.result.path);
 		}
@@ -138,9 +123,7 @@ package view.component
 				return;
 			vecNpc.push( npc );
 			npc.pause();
-			//create a new PathRequest
 			req = new PathRequest(npc.getCrtPathEnd(), target, map);
-			//a general analyzer
 			astar.getPath(req);
 		}
 		
@@ -151,10 +134,8 @@ package view.component
 		 */		
 		public function getTileByMousePlace(point:Point):ItemTile
 		{
-			var w:uint = LogicalRect.ITEM_WIDTH;
-			var h:uint = LogicalRect.ITEM_HEIGHT;
-			var tx:int = point.x / w;
-			var ty:int = point.y / h;
+			var tx:int = point.x / LOGICAL_RECT_WIDTH;
+			var ty:int = point.y / LOGICAL_RECT_HEIGHT;
 			var p:Point = new Point(Math.round(tx), Math.round(ty));
 			return map.getTileAt(p) as ItemTile;
 		}
@@ -168,19 +149,34 @@ package view.component
 		}
 		
 		public static const POSITION_INTO_SHOP:Point = new Point(3, 5);
-		public static const POSITION_OUT_SHOP:Point = new Point(3, 5);
+		public static const POSITION_OUT_SHOP:Point = new Point(4, 5);
 		public static const POSITION_PAY:Point = new Point(8, 7);
+		public static const POSITION_QUEUE:Point = new Point(8, 12);
 		public function get TITLE_INTO_SHOP():ItemTile
 		{
-			return _instance.getTileByPosition( POSITION_INTO_SHOP );
+			return this.getTileByPosition( POSITION_INTO_SHOP );
 		}
 		public function get TITLE_OUT_SHOP():ItemTile
 		{
-			return _instance.getTileByPosition( POSITION_OUT_SHOP );
+			return this.getTileByPosition( POSITION_OUT_SHOP );
 		}
 		public function get TITLE_PAY():ItemTile
 		{
-			return _instance.getTileByPosition( POSITION_PAY );
+			return this.getTileByPosition( POSITION_PAY );
 		}
+		public function get TITLE_QUEUE():ItemTile
+		{
+			return this.getTileByPosition( POSITION_QUEUE );
+		}
+		
+		public static function turnPointToPosition(point:Point):Point
+		{
+			var p:Point = new Point();
+			p.x = LOGICAL_RECT_WIDTH/2 + LOGICAL_RECT_WIDTH * point.x;
+			p.y = LOGICAL_RECT_HEIGHT/2 + LOGICAL_RECT_HEIGHT * point.y;
+			return p;
+		}
+		public static const LOGICAL_RECT_WIDTH:uint = 32;
+		public static const LOGICAL_RECT_HEIGHT:uint = 32;
 	}
 }

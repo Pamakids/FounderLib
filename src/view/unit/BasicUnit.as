@@ -4,6 +4,9 @@ package view.unit
 	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.geom.Point;
+	
+	import view.component.LogicalMap;
 
 	/**
 	 * 地图单位基类
@@ -20,11 +23,6 @@ package view.unit
 		{
 			this.buttonMode = true;
 			this.useHandCursor = true;
-			init();
-		}
-		
-		protected function init():void
-		{
 		}
 		
 		protected var crtTile:ItemTile;
@@ -33,8 +31,9 @@ package view.unit
 			if(crtTile && crtTile == tile)
 				return;
 			this.crtTile = tile;
-			this.x = tile.rect.x;
-			this.y = tile.rect.y;
+			var p:Point = LogicalMap.turnPointToPosition( crtTile.getPosition() );
+			this.x = p.x;
+			this.y = p.y;
 		}
 		
 		public function getCrtTile():ItemTile
@@ -44,6 +43,7 @@ package view.unit
 		
 		public function dispose():void
 		{
+			crtTile = null;
 		}
 	}
 }
