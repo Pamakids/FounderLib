@@ -6,12 +6,12 @@ package view.unit
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
+	import flash.utils.getTimer;
 	
 	import global.AssetsManager;
 	import global.ShelfManager;
 	import global.ShopperManager;
+	import global.StatusManager;
 	import global.StoreManager;
 	import global.WorkerManager;
 	
@@ -63,6 +63,11 @@ package view.unit
 				if(arr[3])	continue;
 				crtIndex = i;
 				targetShelf = ShelfManager.getInstance().getShelfByPropID( arr[0] );
+				if(!targetShelf)
+				{
+					dispatchEvent(new Event(SHOP_FAILED));
+					return;
+				}
 				var tile:ItemTile = targetShelf.getTargetTile();
 				(tile == crtTile) ? shopHandler() : LogicalMap.getInstance().moveBody(this, tile);
 				return;
@@ -138,41 +143,31 @@ package view.unit
 		}
 		
 		
-		private var timer:Timer;
 		private function waitForReplenish():void
 		{
-			if(!timer)
-			{
-				timer = new Timer(1000, 5);
-				timer.addEventListener(TimerEvent.TIMER, timerListener);
-				timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerListener);
-			}
-			timer.start();
+			start = getTimer();
+			StatusManager.getInstance().addFunc( onTimer, 0.5 );
 		}
-		
-		protected function timerListener(e:TimerEvent):void
+		private function onTimer():void
 		{
+			var crtTime:uint = getTimer();
+			if(crtTime - start >= vo.waitMax*1000)
+			{
+				dispatchEvent(new Event(SHOP_FAILED));
+				StatusManager.getInstance().delFunc( onTimer );
+				return;
+			}
 			var id:String = vo.shopperList[crtIndex][0];
 			var num:uint = vo.shopperList[crtIndex][1];
-			switch(e.type)
+			if(targetShelf.getPropNumByID(id) >= num)
 			{
-				case TimerEvent.TIMER_COMPLETE:
-					if(targetShelf.getPropNumByID(id) < num)
-					{
-						dispatchEvent(new Event(SHOP_FAILED));
-						return;
-					}
-				case TimerEvent.TIMER:
-					if(targetShelf.getPropNumByID(id) >= num)
-					{
-						targetShelf.delProp( id, num );
-						vo.shopperList[crtIndex][3] = true;
-						dispatchEvent(new Event(SHOP_CATCHED));
-						timer.reset();
-					}
-					break;
+				targetShelf.delProp( id, num );
+				vo.shopperList[crtIndex][3] = true;
+				dispatchEvent(new Event(SHOP_CATCHED));
+				StatusManager.getInstance().delFunc( onTimer );
 			}
 		}
+		private var start:uint;
 		
 		private var vecIcon:Vector.<Sprite>;
 		
@@ -241,17 +236,12 @@ package view.unit
 		
 		override public function dispose():void
 		{
+			StatusManager.getInstance().delFunc( onTimer );
 			vo = null;
 			this.removeChild( action );
 			action = null;
 			targetShelf=null;
-			if(timer)
-			{
-				timer.stop();
-				timer.removeEventListener(TimerEvent.TIMER, timerListener);
-				timer.removeEventListener(TimerEvent.TIMER_COMPLETE, timerListener);
-				timer = null;
-			}
+			clearIcon();
 			vecIcon = null;
 			super.dispose();
 		}

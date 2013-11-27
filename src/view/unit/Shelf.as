@@ -196,5 +196,32 @@ package view.unit
 			props = null;
 			super.dispose();
 		}
+		
+		public function clear():void
+		{
+			this.visible = true;
+			props = [];
+			for(var i:int = 0;i<vo.count;i++)
+			{
+				updatePropIcon(i);
+			}
+		}
+		
+		public function needResplenish():Boolean
+		{
+			var id:String;
+			var crtNum:uint;
+			if(props.length == 0)
+				return false;
+			for(var i:int = vo.count-1;i>=0;i--)
+			{
+				id = props[i][0];
+				crtNum = props[i][1];
+				//缺少货品且仓库内尚有存货，此时满足补货条件
+				if(crtNum < vo.volume && StoreManager.getInstance().getPropNumByID(id) > 0)
+					return true;
+			}
+			return false;
+		}
 	}
 }

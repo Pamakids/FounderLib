@@ -12,6 +12,15 @@ package global
 	 */	
 	public class ShelfManager
 	{
+		
+		private static var _instance:ShelfManager;
+		public static function getInstance():ShelfManager
+		{
+			if(!_instance)
+				_instance = new ShelfManager();
+			return _instance;
+		}
+		
 		public function ShelfManager()
 		{
 			init();
@@ -35,14 +44,10 @@ package global
 			}
 		}
 		
-		private var main:MainScreen;
-		private var map:LogicalMap;
-		private var vecShelf:Array;
-		public function setMainStage(main:MainScreen):void
+		private var vecShelf:Array = [];
+		public function creatShelves():void
 		{
-			vecShelf = [];
-			this.main = main;
-			this.map = LogicalMap.getInstance();
+			var map:LogicalMap = LogicalMap.getInstance();
 			var shelf:Shelf;
 			var vo:ShelfVO;
 			for(var i:int = datas.length-1;i>=0;i--)
@@ -54,16 +59,15 @@ package global
 			}
 			
 			vecShelf.sortOn("y");
+			var main:MainScreen = MC.instance().mainScreen;
 			for(i = 0;i<vecShelf.length;i++)
 			{
 				main.addUnit( vecShelf[i] );
 			}
-			
-			setGoods();
 		}
 		
 		//将物品放入货架
-		private function setGoods():void
+		public function setGoods():void
 		{
 			var shelf:Shelf;
 			var index:int = 0;
@@ -72,6 +76,7 @@ package global
 			for(var j:int = 0;j<vecShelf.length;j++)
 			{
 				shelf = vecShelf[j];
+				shelf.clear();
 				for (var k:int = 0; k < shelf.vo.count; k++) 
 				{
 					if(arr[index])
@@ -91,11 +96,10 @@ package global
 		/**
 		 * 需要补货的货架队列
 		 */		
-//		private var vecWait:Vector.<Shelf> = new Vector.<Shelf>();
 		private var vecWait:Array = [];
 		public function addToWait(shelf:Shelf):void
 		{
-			if(vecWait.indexOf( shelf ) == -1)
+			if(shelf.needResplenish() && vecWait.indexOf( shelf ) == -1)
 				vecWait.push( shelf );
 		}
 		public function delFromWait(shelf:Shelf):void
@@ -104,20 +108,20 @@ package global
 			if(i != -1)
 				vecWait.splice( i, 1 );
 		}
-		
+		//获取等待补货的shelf
 		public function getWaitShelf():Shelf
 		{
+			//优先队列
 			if(vecWait.length > 0)
 				return vecWait[0];
+			//寻求满足补货条件的shelf
+			for each(var shelf:Shelf in vecShelf)
+			{
+				if(shelf.needResplenish())
+					return shelf;
+			}
+			//无需补货
 			return null;
-		}
-		
-		private static var _instance:ShelfManager;
-		public static function getInstance():ShelfManager
-		{
-			if(!_instance)
-				_instance = new ShelfManager();
-			return _instance;
 		}
 		
 		public function getShelfByPropID(propID:String):Shelf
@@ -130,5 +134,10 @@ package global
 			return null;
 		}
 		
+		public function clear():void
+		{
+			vecWait.splice(0, vecWait.length);
+			vecShelf.splice( 0, vecShelf.length );
+		}
 	}
 }

@@ -36,10 +36,10 @@ package view.unit
 		private function initProbar():void
 		{
 			probar = AssetsManager.instance().getResByName("probar") as MovieClip;
-			action.addChild( probar );
+			this.addChild( probar );
 			probar.visible = false;
-			probar.x = 108;
-			probar.y = -145;
+			probar.x = 113;
+			probar.y = -191;
 			probar.mouseEnabled = probar.mouseChildren = false;
 			probar.gotoAndStop(1);
 		}
@@ -48,7 +48,6 @@ package view.unit
 		{
 			action = AssetsManager.instance().getResByName("cashier") as MovieClip;
 			this.addChild( action );
-			action.gotoAndStop(1);
 			this.mouseEnabled = this.mouseChildren = false;
 		}
 		
@@ -60,33 +59,29 @@ package view.unit
 		{
 			crtShopper = shopper;
 			probar.visible = true;
-			probar.gotoAndPlay(1);
+			probar.gotoAndStop(1);
+			action.play();
 			start = getTimer();
-			StatusManager.instance().addFunc( onTimer, 0.05 );
+			StatusManager.getInstance().addFunc( onTimer, 0.05 );
 		}
 		private var start:uint;
 		private var crtShopper:Shopper;
 		private function onTimer():void
 		{
 			var time:uint = getTimer();
-			trace(time - start);
-			trace(crtShopper);
 			var i:int = Math.floor( Math.min( (time-start)/(vo.ability*1000) , 1)*100 );
 			probar.gotoAndStop( i );
 			if(time - start >= vo.ability*1000)
 			{
-				StatusManager.instance().delFunc( onTimer );
-				probar.gotoAndStop( 1 );
+				StatusManager.getInstance().delFunc( onTimer );
+				probar.gotoAndStop(1);
 				probar.visible = false;
-				
+				action.play();
 				var list:Array = crtShopper.getShoppingList();
 				ServiceController.instance.player1.cash += liquidation(list);		//现金结算
 				ShopperManager.getInstance().outShop( crtShopper );
-//				crtShopper = null;
+				crtShopper = null;
 			}
-		}
-		private function onComplete():void
-		{
 		}
 		
 		/**
@@ -106,6 +101,17 @@ package view.unit
 		public function getAbility():uint
 		{
 			return vo.ability;
+		}
+		
+		override public function dispose():void
+		{
+			StatusManager.getInstance().delFunc( onTimer );
+			this.removeChild( probar );
+			probar = null;
+			this.removeChild( action );
+			action = null;
+			vo = null;
+			super.dispose();
 		}
 	}
 }

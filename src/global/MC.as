@@ -7,8 +7,6 @@ package global
 
 	public class MC
 	{
-		public static const MAIN_MAP:int = 100;
-		
 		private static var _instance:MC;
 		public static function instance():MC
 		{
@@ -21,47 +19,33 @@ package global
 		{
 		}
 		
-		private var main:Sprite;
+		private var container:Sprite;
 		public function setMainContainer(container:DisplayObjectContainer):void
 		{
-			if(!main)
-				main = new Sprite();
-			container.addChild( main );
+			if(!this.container)
+				this.container = new Sprite();
+			container.addChild( this.container );
 		}
 		
-		public function openWindow(index:int):void
+		public function openScreen():void
 		{
+			if(!mainScreen)
+				mainScreen = new MainScreen();
+			container.addChild( mainScreen );
 		}
 		
-		public function closeWindow(index:int):void
+		public function closeScreen():void
 		{
-		}
-		
-		public function openScreen(index:int):void
-		{
-			switch(index)
+			if(StatusManager.getInstance().ifStarted)
+				StatusManager.getInstance().quitGame();
+			if(mainScreen)
 			{
-				case MAIN_MAP:
-					openMainMap();
-					break;
+				container.removeChild( mainScreen );
+				mainScreen.dispose();
+				mainScreen = null;
 			}
+			container = null;
 		}
-		
-		public function closeScreen(index:int):void
-		{
-		}
-		
-		private var screen:MainScreen;
-		private function openMainMap():void
-		{
-			if(!screen)
-				screen = new MainScreen();
-			main.addChild( screen );
-		}
-		
-		public function teseIsOpend(index:int):Boolean
-		{
-			return false;
-		}
+		public var mainScreen:MainScreen;
 	}
 }

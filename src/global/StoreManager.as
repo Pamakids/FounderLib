@@ -15,26 +15,25 @@ package global
 		
 		public function reCatchGoods():void
 		{
-			dic = {};
 			var goods:Array = [];
 			
 			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 			//test
 			var a:Array = [
-				[101, 30],
-				[102, 30],
-				[103, 30],
-				[104, 30],
-				[105, 30],
-				[201, 30],
-				[202, 30],
-				[203, 30],
-				[204, 30],
-				[301, 30],
-				[302, 30],
-				[303, 30],
-				[304, 30],
-				[305, 30]
+				[101, 300],
+				[102, 300],
+				[103, 300],
+				[104, 300],
+				[105, 300],
+				[201, 300],
+				[202, 300],
+				[203, 300],
+				[204, 300],
+				[301, 300],
+				[302, 300],
+				[303, 300],
+				[304, 300],
+				[305, 300]
 			];
 			for(var i:int = 0;i<a.length;i++)
 			{
@@ -111,8 +110,7 @@ package global
 		{
 			return dic[id];
 		}
-		
-		private var dic:Object;
+		private var dic:Object = {};
 		
 		/**
 		 * 获取物品清单
@@ -131,6 +129,10 @@ package global
 				list.push( [id, dic[id]] );
 			}
 			return list;
+		}
+		public function clear():void
+		{
+			dic = {};
 		}
 		
 		private static var _instance:StoreManager;

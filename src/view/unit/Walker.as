@@ -4,9 +4,9 @@ package view.unit
 	import com.astar.expand.ItemTile;
 	
 	import flash.events.Event;
-	import flash.events.TimerEvent;
 	import flash.geom.Point;
-	import flash.utils.Timer;
+	
+	import global.StatusManager;
 
 	/**
 	 * 可移动的
@@ -44,7 +44,10 @@ package view.unit
 		
 		private var vx:int;
 		private var vy:int;
-		private var speed:uint = 8;
+		protected function get SPEED():uint
+		{
+			return 4;
+		}
 		/**
 		 * 沿指定路线移动
 		 * @param path
@@ -55,18 +58,10 @@ package view.unit
 				this.path = new Vector.<IAstarTile>();
 			_path.splice(0,1);
 			this.path = this.path.concat(_path);
-			if(!timer)
-				creatTimer();
-			timer.start();
+			StatusManager.getInstance().addFunc( onTimer , 0.05);
 		}
 		
 		protected var path:Vector.<IAstarTile>;
-		private var timer:Timer;
-		private function creatTimer():void
-		{
-			timer = new Timer(50);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-		}
 		
 		/**
 		 * 朝向:
@@ -77,7 +72,7 @@ package view.unit
 		 */		
 		protected var direction:int = 0;
 		
-		protected function onTimer(event:TimerEvent):void
+		private function onTimer():void
 		{
 			var tile:ItemTile = path[0] as ItemTile;
 			//确定方向
@@ -101,8 +96,8 @@ package view.unit
 			
 			const X:int = tile.place.x;
 			const Y:int = tile.place.y;
-			vx = X - crtTile.place.x >> 2;
-			vy = Y - crtTile.place.y >> 2;
+			vx = X-crtTile.place.x==0 ? 0 : ( X - crtTile.place.x>0?SPEED:-SPEED );
+			vy = Y-crtTile.place.y==0 ? 0 : ( Y - crtTile.place.y>0?SPEED:-SPEED );
 			this.x += vx;
 			this.y += vy;
 			if(this.x == X && this.y == Y)
@@ -110,7 +105,7 @@ package view.unit
 				this.crtTile = path.shift() as ItemTile;
 				if(path.length == 0)
 				{
-					timer.stop();
+					StatusManager.getInstance().delFunc( onTimer );
 					action.gotoAndStop(direction);
 					dispatchEvent(new Event(ARRIVED));
 				}
@@ -121,7 +116,7 @@ package view.unit
 		{
 			if(this.path)
 			{
-				timer.stop();
+				StatusManager.getInstance().delFunc( onTimer );
 				if(crtTile.place.x == x &&　crtTile.place.y == y)
 					path.splice(0, path.length);
 				else
@@ -148,13 +143,8 @@ package view.unit
 		
 		override public function dispose():void
 		{
+			StatusManager.getInstance().delFunc( onTimer );
 			this.removeEventListener(Walker.ARRIVED, onArrived);
-			if(timer)
-			{
-				timer.stop();
-				timer.removeEventListener(TimerEvent.TIMER, onTimer);
-				timer=null;
-			}
 			if(path)	path = null;
 			super.dispose();
 		}

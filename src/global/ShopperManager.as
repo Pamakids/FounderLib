@@ -3,7 +3,6 @@ package global
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
-	import flash.utils.Timer;
 	
 	import model.ShopperVO;
 	
@@ -27,18 +26,15 @@ package global
 		
 		public function ShopperManager()
 		{
-			init();
 		}
 		
-		private function init():void
+		private var main:MainScreen;
+		private var map:LogicalMap;
+		public function initialize():void
 		{
 			this.map = LogicalMap.getInstance();
+			this.main = MC.instance().mainScreen;
 		}
-		
-		private var timer:Timer;
-		
-		private var time:uint;
-		private const Interval:uint = 1000;
 		
 		private var vecShopper:Vector.<Shopper> = new Vector.<Shopper>();
 		private var waitForPay:Vector.<Shopper> = new Vector.<Shopper>();
@@ -101,13 +97,6 @@ package global
 			}
 		}
 		
-		private var main:MainScreen;
-		private var map:LogicalMap;
-		public function setMainStage(main:MainScreen):void
-		{
-			this.main = main;
-		}
-		
 		public function insertQueue(shopper:Shopper):void
 		{
 			var count:uint = waitForPay.length;
@@ -144,6 +133,17 @@ package global
 		{
 			var time:uint = waitForPay.length * WorkerManager.getInstance().getWaitTime();
 			return time;
+		}
+		public function getShopperNum():int
+		{
+			return this.vecShopper.length;
+		}
+		public function clear():void
+		{
+			vecShopper.splice(0, vecShopper.length);
+			waitForPay.splice(0, waitForPay.length);
+			this.main = null;
+			this.map = null;
 		}
 	}
 }

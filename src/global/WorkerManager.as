@@ -29,23 +29,14 @@ package global
 		
 		public function WorkerManager()
 		{
-			init();
 		}
-		
-		private function init():void
-		{
-			StatusManager.instance().addFunc( onTimer );
-		}
-		
-		private var map:LogicalMap;
 		
 		private var cashier:Cashier;
 		private var remover:Remover;
-		private var main:MainScreen;
-		public function setMainStage(main:MainScreen):void
+		public function creatWorkes():void
 		{
-			this.main = main;
-			this.map = LogicalMap.getInstance();
+			var main:MainScreen = MC.instance().mainScreen;
+			var map:LogicalMap = LogicalMap.getInstance();
 			
 			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 			//test
@@ -56,12 +47,14 @@ package global
 			//var vo:StaffVO = getStaffVO(2);
 			cashier = new Cashier(vo);
 			cashier.setCrtTile(map.getTileByPosition(new Point(7,6)));
-			this.main.addUnit( cashier );
+			main.addUnit( cashier );
 			
 			//vo = getStaffVO(3);
 			remover = new Remover(vo);
 			remover.setCrtTile(map.getTileByPosition(new Point(28,6)));
-			this.main.addUnit( remover );
+			main.addUnit( remover );
+			
+			StatusManager.getInstance().addFunc( onTimer );
 		}
 		
 		public function getFreeRomover():Remover
@@ -72,11 +65,6 @@ package global
 		public function getCashier():Cashier
 		{
 			return cashier;
-		}
-		
-		public function replenish(shelf:Shelf):void
-		{
-			remover.replenish( shelf );
 		}
 		
 		private function onTimer():void
@@ -105,6 +93,13 @@ package global
 					return vo;
 			}
 			return null;
+		}
+		
+		public function clear():void
+		{
+			StatusManager.getInstance().delFunc( onTimer );
+			cashier = null;
+			remover = null;
 		}
 	}
 }

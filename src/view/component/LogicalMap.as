@@ -7,7 +7,6 @@ package view.component
 	import com.astar.core.PathRequest;
 	import com.astar.expand.ItemTile;
 	
-	import flash.display.Sprite;
 	import flash.geom.Point;
 	
 	import global.DC;
@@ -18,7 +17,7 @@ package view.component
 	 * 逻辑地图层
 	 * @author Administrator
 	 */	
-	public class LogicalMap extends Sprite
+	public class LogicalMap
 	{
 		private var dataMap:Array;
 		private var maxH:uint;
@@ -150,9 +149,9 @@ package view.component
 		}
 		
 		public static const POSITION_INTO_SHOP:Point = new Point(3, 5);
-		public static const POSITION_OUT_SHOP:Point = new Point(3, 5);
+		public static const POSITION_OUT_SHOP:Point = new Point(4, 5);
 		public static const POSITION_PAY:Point = new Point(8, 7);
-		public static const POSITION_QUEUE:Point = new Point(10, 7);
+		public static const POSITION_QUEUE:Point = new Point(8, 12);
 		public function get TITLE_INTO_SHOP():ItemTile
 		{
 			return this.getTileByPosition( POSITION_INTO_SHOP );

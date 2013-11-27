@@ -4,8 +4,10 @@ package view.unit
 	
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.utils.getTimer;
 	
 	import global.AssetsManager;
+	import global.StatusManager;
 	
 	import model.StaffVO;
 	
@@ -45,31 +47,43 @@ package view.unit
 			probar.visible = false;
 		}
 		
+		override protected function get SPEED():uint
+		{
+			return 8;
+		}
 		override protected function onArrived(e:Event):void
 		{
-			trace("arrived");
 			replenishHandler();
 		}
 		
 		private var targetShelf:Shelf;
 		private function replenishHandler():void
 		{
-			trace("开始补货");
 			probar.visible = true;
+			probar.gotoAndStop(1);
 			action.gotoAndStop(ACTION_STAY_UP);
-			probar.gotoAndPlay(1);
-			probar.addFrameScript(probar.totalFrames-1, replenishComplete);
+			
+			start = getTimer();
+			StatusManager.getInstance().addFunc( onTimer, 0.05 );
 		}
 		
-		private function replenishComplete():void
+		private function onTimer():void
 		{
-			probar.stop();
-			probar.visible = false;
-			action.gotoAndStop(ACTION_STAY_DOWN);
-			targetShelf.resplenish();
-			targetShelf = null;
-			isFree = true;
+			var time:uint = getTimer();
+			var i:int = Math.floor( Math.min( (time-start)/(vo.ability*1000) , 1)*100 );
+			probar.gotoAndStop( i );
+			if(time - start >= vo.ability*1000)
+			{
+				StatusManager.getInstance().delFunc( onTimer );
+				probar.gotoAndStop( 1 );
+				probar.visible = false;
+				action.gotoAndStop(ACTION_STAY_DOWN);
+				targetShelf.resplenish();
+				targetShelf = null;
+				isFree = true;
+			}
 		}
+		private var start:uint;
 		
 		private function initAction():void
 		{
@@ -97,11 +111,13 @@ package view.unit
 		
 		override public function dispose():void
 		{
-			super.dispose();
-			this.removeChild( action );
-			action = null;
+			StatusManager.getInstance().delFunc( onTimer );
+			vo = null;
 			this.removeChild( probar );
 			probar = null;
+			this.removeChild( action );
+			action = null;
+			super.dispose();
 		}
 		
 		public function getAbility():Number

@@ -4,8 +4,12 @@ package
 	
 	import global.AssetsManager;
 	import global.MC;
+	import global.ShelfManager;
+	import global.ShopperManager;
+	import global.StatusManager;
+	import global.StoreManager;
+	import global.WorkerManager;
 
-	[SWF(width="1024", height="768", frameRate="30", backgroundColor="0x333333")]
 	public class GameDemo extends Sprite
 	{
 		private var assets:AssetsManager;
@@ -16,26 +20,28 @@ package
 		}
 		private function init():void
 		{
-			initData();
-			startGame();
-//			loadAssets();
-		}
-		
-		private function initData():void
-		{
-		}
-		
-		private function loadAssets():void
-		{
-//			assets = AssetsManager.instance();
-//			assets.loadZip("assets/assets.zip", startGame);
-		}
-		
-		private function startGame():void
-		{
-//			AssetsManager.instance().parse();
 			MC.instance().setMainContainer(this);
-			MC.instance().openScreen(MC.MAIN_MAP);
+			MC.instance().openScreen();
+			ShelfManager.getInstance().creatShelves();
+			WorkerManager.getInstance().creatWorkes();
+			ShopperManager.getInstance().initialize();
+			StatusManager.getInstance().initlize();
+			StatusManager.getInstance().startGame();
+		}
+		
+		public function dispose():void
+		{
+			MC.instance().closeScreen();
+			clearManagers();
+		}
+		
+		private function clearManagers():void
+		{
+			ShelfManager.getInstance().clear();
+			StoreManager.getInstance().clear();
+			ShopperManager.getInstance().clear();
+			WorkerManager.getInstance().clear();
+			StatusManager.getInstance().clear();
 		}
 	}
 }
