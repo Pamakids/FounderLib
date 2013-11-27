@@ -56,10 +56,12 @@ package controller
 		[Bindable]
 		public var otherCash:Number=0;
 
+
 		protected function onGameHandler(event:PomeloEvent):void
 		{
+			if (!otherCash)
+				dispatchEvent(new Event(GAME_START));
 			otherCash=Number(event.message.data);
-			dispatchEvent(new Event(GAME_START));
 			if (!gameTimer.running)
 			{
 				gameTimer.reset();
@@ -98,9 +100,12 @@ package controller
 			if (b)
 			{
 				trace('both ready');
-				SO.i.setKV('player' + me.company_name, player1);
-//				SO.i.setKV('p2', player2);
-				navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
+				if (!fighting)
+				{
+					SO.i.setKV('player' + me.company_name, player1);
+					SO.i.setKV('fightRoom', me.company_name + 'vs' + other.company_name);
+					navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
+				}
 			}
 			else if (user.user == me.company_name && user.ready)
 			{
@@ -230,17 +235,24 @@ package controller
 									users=[];
 									for each (var o:String in data.users)
 									{
-										var uo:Object=JSON.parse(o);
-										if (uo.user != me.company_name)
+										try
 										{
-											other=new UserVO();
-											other.company_name=uo.user;
-										}
-										else if (uo.user == me.company_name)
-										{
+											var uo:Object=JSON.parse(o);
+											if (uo.user != me.company_name)
+											{
+												other=new UserVO();
+												other.company_name=uo.user;
+											}
+											else if (uo.user == me.company_name)
+											{
 
+											}
+											users.push(uo);
 										}
-										users.push(uo);
+										catch (error:Error)
+										{
+											trace('users error：' + error.message);
+										}
 									}
 									if (users.length == 2)
 										startGame();
@@ -315,7 +327,7 @@ package controller
 			else
 			{
 				var uo:Object=SO.i.getKV('user');
-				if (uo && !query.u)
+				if (uo)
 				{
 					me=CloneUtil.convertObject(uo, UserVO);
 					getDefaultConfig();
@@ -390,6 +402,11 @@ package controller
 						pvo.user=CloneUtil.convertObject(pvo.user, UserVO);
 						player1=CloneUtil.convertObject(pvo, PlayerVO);
 						boughtGoods=player1.goods;
+						for each (var s:StaffVO in player1.staffes)
+						{
+							staffs[s.type]=s;
+						}
+						saleStrategies=player1.saleStrategies;
 					}
 					var fr:String=SO.i.getKV('fightRoom') as String;
 					if (!fr)
@@ -430,12 +447,28 @@ package controller
 
 		protected function closeHandler(event:Event):void
 		{
-			gameOver(new GameResult(false, '于服务器的连接已断开，3秒后将自动返回游戏大厅'));
+			if (fighting)
+			{
+				gameOver(new GameResult(false, '于服务器的连接已断开，3秒后将自动返回游戏大厅'));
+			}
+			else
+			{
+				alert('对方掉线了，3秒后返回游戏大厅');
+				setTimeout(gotoRoom, 3000);
+			}
 		}
 
 		protected function removeUserHandler(event:PomeloEvent):void
 		{
-			gameOver(new GameResult(true, '您赢得了游戏，3秒后将自动返回游戏大厅'));
+			if (fighting)
+			{
+				gameOver(new GameResult(true, '您赢得了游戏，3秒后将自动返回游戏大厅'));
+			}
+			else
+			{
+				alert('对方掉线了，3秒后返回游戏大厅');
+				setTimeout(gotoRoom, 3000);
+			}
 		}
 
 		private function gameOver(vo:GameResult):void

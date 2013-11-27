@@ -6,6 +6,8 @@ package controller
 
 	public class SO extends Singleton
 	{
+		private var so:SharedObject;
+
 		public function SO()
 		{
 			super();
@@ -18,22 +20,36 @@ package controller
 
 		public function setKV(key:String, value:Object):void
 		{
-			var so:SharedObject=SharedObject.getLocal(key);
+			loadSO();
 			so.data[key]=value;
-			so.flush();
+			unloadSO();
 		}
 
 		public function deleteKey(key:String):void
 		{
-			var so:SharedObject=SharedObject.getLocal(key);
+			loadSO();
 			delete so.data[key];
 			so.flush();
+			unloadSO();
 		}
 
 		public function getKV(key:String):Object
 		{
-			var so:SharedObject=SharedObject.getLocal(key);
-			return so.data[key];
+			loadSO();
+			var data:Object=so.data[key];
+			unloadSO();
+			return data;
+		}
+
+		private function loadSO():void
+		{
+			so=SharedObject.getLocal("founder", "/");
+		}
+
+		private function unloadSO():void
+		{
+			so.flush();
+			so=null;
 		}
 	}
 }

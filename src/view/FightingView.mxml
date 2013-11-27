@@ -11,58 +11,42 @@
 		  xmlns:view="view.*">
 	<fx:Script>
 		<![CDATA[
-			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 
-			import spark.events.IndexChangeEvent;
-
-			import skins.DefaultButtonBarSkin;
-			import skins.DefaultButtonBigSkin;
+			import controller.ServiceController;
+			private var sc:ServiceController;
 
 			protected function group1_creationCompleteHandler(event:FlexEvent):void
 			{
-				var ac:ArrayCollection=new ArrayCollection(['人才市场', '批发市场', '银行', '销售策略']);
-				nvs.dataProvider=ac;
-			}
-
-			protected function nvs_changeHandler(event:IndexChangeEvent):void
-			{
-				currentState='s' + nvs.selectedIndex;
+				sc=ServiceController.instance;
+				sc.addEventListener(ServiceController.GAME_PAUSE, gamePausedHandler);
+				sc.addEventListener(ServiceController.GAME_START, gameStartHandler);
 			}
 
 			protected function ready_clickHandler(event:MouseEvent):void
 			{
 
 			}
+
+			protected function gamePausedHandler(event:Event):void
+			{
+				currentState='prepare';
+			}
+
+			protected function gameStartHandler(event:Event):void
+			{
+				currentState='normal';
+			}
 		]]>
 	</fx:Script>
 
 	<s:states>
-		<s:State name="s0"/>
-		<s:State name="s1"/>
-		<s:State name="s2"/>
-		<s:State name="s3"/>
+		<s:State name="normal"/>
+		<s:State name="prepare"/>
 	</s:states>
 
 	<view:Scoreboard id="sb"/>
+	<view:FightingPrepare includeIn="prepare"/>
 
-	<s:HGroup id="nv"
-			  gap="36">
-		<s:ButtonBar skinClass="skins.DefaultButtonBarSkin"
-					 horizontalCenter="0"
-					 requireSelection="true"
-					 change="nvs_changeHandler(event)"
-					 y="35	"
-					 id="nvs"/>
-		<s:Button skinClass="skins.DefaultButtonBigSkin"
-				  id="ready"
-				  label="准备好了"
-				  click="ready_clickHandler(event)"/>
-	</s:HGroup>
-
-	<boxes:TalentMarketBox includeIn="s0"/>
-	<boxes:GoodsMarketBox includeIn="s1"/>
-	<boxes:BankBox includeIn="s2"/>
-	<boxes:SaleStrategyBox includeIn="s3"/>
 
 </s:VGroup>
