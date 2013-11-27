@@ -443,7 +443,7 @@ package controller
 			if (vo.win)
 			{
 				var s:ServiceBase=new ServiceBase("game/over", 'POST');
-				s.call("game/over", function(vo:ResultVO):void
+				s.call(function(vo:ResultVO):void
 				{
 					if (vo.status)
 						setTimeout(gotoRoom, 3000);
