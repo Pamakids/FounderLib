@@ -442,8 +442,8 @@ package controller
 		{
 			if (vo.win)
 			{
-				var s:ServiceBase=new ServiceBase(ASC.GAME_OVER, 'POST');
-				s.call(ASC.GAME_OVER, function(vo:ResultVO):void
+				var s:ServiceBase=new ServiceBase("game/over", 'POST');
+				s.call("game/over", function(vo:ResultVO):void
 				{
 					if (vo.status)
 						setTimeout(gotoRoom, 3000);
