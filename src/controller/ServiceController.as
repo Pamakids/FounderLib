@@ -6,6 +6,7 @@ package controller
 	import com.pamakids.services.ServiceBase;
 	import com.pamakids.utils.BrowserUtil;
 	import com.pamakids.utils.CloneUtil;
+	import com.pamakids.utils.MathUtil;
 	import com.pamakids.utils.Singleton;
 
 	import flash.display.Sprite;
@@ -20,6 +21,7 @@ package controller
 	import flash.utils.setTimeout;
 
 	import global.DC;
+	import global.StatusManager;
 
 	import model.BoughtGoodsVO;
 	import model.GameConfigVO;
@@ -28,6 +30,7 @@ package controller
 	import model.PlayerVO;
 	import model.SaleStrategyVO;
 	import model.ShopVO;
+	import model.ShopperVO;
 	import model.StaffVO;
 	import model.UserVO;
 
@@ -130,7 +133,7 @@ package controller
 
 
 		private var gameTimer:Timer;
-		private var messageTimer:Timer=new Timer(3000);
+		private var messageTimer:Timer;
 
 		public var fighting:Boolean;
 
@@ -141,8 +144,10 @@ package controller
 		{
 			if (fighting)
 			{
+				messageTimer.reset();
 				messageTimer.start();
-				messageTimer.addEventListener(TimerEvent.TIMER, sendGameMessageHandler);
+				shopperTimer.reset();
+				shopperTimer.start();
 			}
 		}
 
@@ -178,8 +183,10 @@ package controller
 		{
 			messageTimer.stop();
 			gameTimer.stop();
+			shopperTimer.stop();
 			roundNum++;
 			gameTime='回合' + roundNum;
+			StatusManager.getInstance().quitGame();
 			dispatchEvent(new Event(GAME_PAUSE));
 		}
 
@@ -277,11 +284,12 @@ package controller
 
 		public var goodsDic:Dictionary;
 
+		public var goods:Array;
+
 		private function loadGoodsHandler(s:String):void
 		{
-
 			var data:Object=JSON.parse(s);
-			var goods:Array=CloneUtil.convertArrayObjects(data.goods, GoodsVO);
+			goods=CloneUtil.convertArrayObjects(data.goods, GoodsVO);
 
 			DC.instance().mapObj=data.map;
 			DC.instance().shelfObj=data.shelf;
@@ -417,9 +425,8 @@ package controller
 					var fr:String=SO.i.getKV('fightRoom') as String;
 					if (!fr)
 						fr='FIGHT';
-					gameTimer=new Timer(1000, config.roundTime);
-					gameTimer.addEventListener(TimerEvent.TIMER, playGameing);
-					gameTimer.addEventListener(TimerEvent.TIMER_COMPLETE, roundComplete);
+
+					initTimers();
 					connect(fr);
 					dispatchEvent(new Event(GAME_CONFIG_GOT));
 				}
@@ -428,6 +435,29 @@ package controller
 				delete callingDic[s];
 			}, {type: BrowserUtil.getQuery() && BrowserUtil.getQuery().t ? BrowserUtil.getQuery().t : 2});
 		}
+
+		private function initTimers():void
+		{
+			messageTimer=new Timer(3000)
+			messageTimer.addEventListener(TimerEvent.TIMER, sendGameMessageHandler);
+
+			gameTimer=new Timer(1000, config.roundTime);
+			gameTimer.addEventListener(TimerEvent.TIMER, playGameing);
+			gameTimer.addEventListener(TimerEvent.TIMER_COMPLETE, roundComplete);
+
+			shopperTimer=new Timer(config.roundTime / player1.shop.visit);
+			shopperTimer.addEventListener(TimerEvent.TIMER, addShopperHandler);
+		}
+
+		protected function addShopperHandler(event:TimerEvent):void
+		{
+
+			var vo:ShopperVO=new ShopperVO(0, '');
+//			MathUtil.getRandomBetween(
+			addShopper(vo);
+		}
+
+		private var shopperTimer:Timer;
 
 		public function userSignIn(account:String, password:String, callback:Function):void
 		{
