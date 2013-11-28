@@ -38,18 +38,24 @@ package global
 			var main:MainScreen = MC.instance().mainScreen;
 			var map:LogicalMap = LogicalMap.getInstance();
 			
-			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-			//test
-			var vo:StaffVO = new StaffVO();
-			vo.ability = 2;
-			//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
-			
-			//var vo:StaffVO = getStaffVO(2);
+			var vo:StaffVO = getStaffVO(2);
+			if(!vo)
+			{
+				vo = new StaffVO();
+				vo.type = 2;
+				vo.ability = 2;
+			}
 			cashier = new Cashier(vo);
 			cashier.setCrtTile(map.getTileByPosition(new Point(7,6)));
 			main.addUnit( cashier );
 			
-			//vo = getStaffVO(3);
+			vo = getStaffVO(3);
+			if(!vo)
+			{
+				vo = new StaffVO();
+				vo.type = 3;
+				vo.ability = 2;
+			}
 			remover = new Remover(vo);
 			remover.setCrtTile(map.getTileByPosition(new Point(28,6)));
 			main.addUnit( remover );

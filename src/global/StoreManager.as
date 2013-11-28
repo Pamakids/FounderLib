@@ -1,5 +1,7 @@
 package global
 {
+	import controller.ServiceController;
+	
 	import model.BoughtGoodsVO;
 
 	/**
@@ -15,39 +17,33 @@ package global
 		
 		public function reCatchGoods():void
 		{
-			var goods:Array = [];
-			
-			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-			//test
-			var a:Array = [
-				[101, 300],
-				[102, 300],
-				[103, 300],
-				[104, 300],
-				[105, 300],
-				[201, 300],
-				[202, 300],
-				[203, 300],
-				[204, 300],
-				[301, 300],
-				[302, 300],
-				[303, 300],
-				[304, 300],
-				[305, 300]
-			];
-			for(var i:int = 0;i<a.length;i++)
+			var goods:Array = ServiceController.instance.boughtGoods;
+			if(!goods)
 			{
-				var boughtGoodsVO:BoughtGoodsVO = new BoughtGoodsVO();
-				boughtGoodsVO.id = a[i][0];
-				boughtGoodsVO.quantity = a[i][1];
-				goods.push( boughtGoodsVO );
-			};
-			//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
-			
-			//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-			//正确版本
-			//goods = ServiceController.instance.boughtGoods;
-			//↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+				var a:Array = [
+					[101, 300],
+					[102, 300],
+					[103, 300],
+					[104, 300],
+					[105, 300],
+					[201, 300],
+					[202, 300],
+					[203, 300],
+					[204, 300],
+					[301, 300],
+					[302, 300],
+					[303, 300],
+					[304, 300],
+					[305, 300]
+				];
+				for(var i:int = 0;i<a.length;i++)
+				{
+					var boughtGoodsVO:BoughtGoodsVO = new BoughtGoodsVO();
+					boughtGoodsVO.id = a[i][0];
+					boughtGoodsVO.quantity = a[i][1];
+					goods.push( boughtGoodsVO );
+				};
+			}
 			for each(var vo:BoughtGoodsVO in goods)
 			{
 				this.addPropByID( vo.id, vo.quantity );

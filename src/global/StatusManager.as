@@ -128,5 +128,14 @@ package global
 			timer.removeEventListener(TimerEvent.TIMER, onTimer);
 			timer = null;
 		}
+		
+		public function pause():void
+		{
+			timer.stop();
+		}
+		public function restart():void
+		{
+			timer.start();
+		}
 	}
 }
