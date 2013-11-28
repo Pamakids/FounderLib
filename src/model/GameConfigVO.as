@@ -70,6 +70,23 @@ package model
 		}
 
 		/**
+		 * 最长排队时间
+		 */
+		public function getMaxQueueTime():Number
+		{
+			return parseFloat(params[6]);
+		}
+
+		/**
+		 * 最长等货时间
+		 */
+		public function getMaxWaitGoodsTime():Number
+		{
+			return parseFloat(params[10]);
+		}
+
+
+		/**
 		 * 物品售价最大倍数
 		 */
 		public var goodsSaleMax:int;
