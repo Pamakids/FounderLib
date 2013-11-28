@@ -39,32 +39,12 @@ package global
 		private var vecShopper:Vector.<Shopper> = new Vector.<Shopper>();
 		private var waitForPay:Vector.<Shopper> = new Vector.<Shopper>();
 		
-		public function creatShopper():void
+		/**
+		 * 添加一个顾客，需要提供一个包含了顾客的形象索引、购物清单、排队等待最大忍受时间数据的shopperVO对象
+		 * @param vo	
+		 */		
+		public function creatShopper(vo:ShopperVO):void
 		{
-			var arr:Array = [
-				[101, 10],
-				[102, 10],
-				[103, 10],
-				[104, 10],
-				[105, 10],
-				[201, 10],
-				[202, 10],
-				[203, 10],
-				[204, 10],
-				[301, 10],
-				[302, 10],
-				[303, 10],
-				[304, 10],
-				[305, 10]
-			];
-			var a:Array = [];
-			var n:uint = Math.floor( Math.random()*2 ) + 1;
-			for(var i:int = 0;i<n;i++)
-			{
-				a.push( arr[Math.floor(Math.random()*arr.length)] );
-			}
-			
-			var vo:ShopperVO = new ShopperVO(0, a, 6);
 			var shopper:Shopper = new Shopper(vo);
 			shopper.setCrtTile( map.getTileByPosition( LogicalMap.POSITION_INTO_SHOP ) );
 			main.addUnit( shopper );

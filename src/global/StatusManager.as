@@ -5,6 +5,8 @@ package global
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
 	import flash.utils.getTimer;
+	
+	import model.ShopperVO;
 
 	public class StatusManager
 	{
@@ -91,7 +93,31 @@ package global
 		private function test():void
 		{
 			MC.instance().mainScreen.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void{
-				ShopperManager.getInstance().creatShopper();
+				var arr:Array = [
+					[101, 10],
+					[102, 10],
+					[103, 10],
+					[104, 10],
+					[105, 10],
+					[201, 10],
+					[202, 10],
+					[203, 10],
+					[204, 10],
+					[301, 10],
+					[302, 10],
+					[303, 10],
+					[304, 10],
+					[305, 10]
+				];
+				var a:Array = [];
+				var n:uint = Math.floor( Math.random()*2 ) + 1;
+				for(var i:int = 0;i<n;i++)
+				{
+					a.push( arr[Math.floor(Math.random()*arr.length)] );
+				}
+				
+				var vo:ShopperVO = new ShopperVO(0, a, 6);
+				ShopperManager.getInstance().creatShopper(vo);
 			});
 //			addFunc( ShopperManager.getInstance().creatShopper , 3);
 		}
