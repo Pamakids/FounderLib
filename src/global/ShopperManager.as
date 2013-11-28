@@ -3,9 +3,9 @@ package global
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
-
+	
 	import model.ShopperVO;
-
+	
 	import view.component.LogicalMap;
 	import view.screen.MainScreen;
 	import view.unit.Shopper;
@@ -41,17 +41,8 @@ package global
 		private var vecShopper:Vector.<Shopper>=new Vector.<Shopper>();
 		private var waitForPay:Vector.<Shopper>=new Vector.<Shopper>();
 
-		public function creatShopper():void
+		public function creatShopper(vo:ShopperVO):void
 		{
-			var arr:Array=[[101, 10], [102, 10], [103, 10], [104, 10], [105, 10], [201, 10], [202, 10], [203, 10], [204, 10], [301, 10], [302, 10], [303, 10], [304, 10], [305, 10]];
-			var a:Array=[];
-			var n:uint=Math.floor(Math.random() * 2) + 1;
-			for (var i:int=0; i < n; i++)
-			{
-				a.push(arr[Math.floor(Math.random() * arr.length)]);
-			}
-
-			var vo:ShopperVO=new ShopperVO(0, a, 6);
 			var shopper:Shopper=new Shopper(vo);
 			shopper.setCrtTile(map.getTileByPosition(LogicalMap.POSITION_INTO_SHOP));
 			main.addUnit(shopper);
