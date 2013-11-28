@@ -100,7 +100,7 @@ package view.unit
 						break;
 					case LogicalMap.getInstance().TITLE_QUEUE:
 						var time:uint=ShopperManager.getInstance().getTotalWaitTime();
-						if (time > vo.waitMax)
+						if (time > vo.maxQueueTime)
 							dispatchEvent(new Event(SHOP_FAILED));
 						else
 							ShopperManager.getInstance().insertQueue(this);
@@ -157,7 +157,7 @@ package view.unit
 		private function onTimer():void
 		{
 			var crtTime:uint=getTimer();
-			if (crtTime - start >= vo.waitMax * 1000)
+			if (crtTime - start >= vo.maxWaitGoodsTime * 1000)
 			{
 				dispatchEvent(new Event(SHOP_FAILED));
 				StatusManager.getInstance().delFunc(onTimer);
@@ -167,10 +167,10 @@ package view.unit
 			var num:uint=vo.shopperList[crtIndex][1];
 			if (targetShelf.getPropNumByID(id) >= num)
 			{
+				StatusManager.getInstance().delFunc(onTimer);
 				targetShelf.delProp(id, num);
 				vo.shopperList[crtIndex][3]=true;
 				dispatchEvent(new Event(SHOP_CATCHED));
-				StatusManager.getInstance().delFunc(onTimer);
 			}
 		}
 		private var start:uint;
