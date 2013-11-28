@@ -452,9 +452,9 @@ package controller
 		protected function addShopperHandler(event:TimerEvent):void
 		{
 
-			var vo:ShopperVO=new ShopperVO(0, '');
+//			var vo:ShopperVO=new ShopperVO(0, '');
 //			MathUtil.getRandomBetween(
-			addShopper(vo);
+//			addShopper(vo);
 		}
 
 		private var shopperTimer:Timer;

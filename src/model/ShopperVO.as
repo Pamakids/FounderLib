@@ -12,7 +12,6 @@ package model
 		/**
 		 * @param type	素材索引
 		 * @param list	需求清單
-		 * @param wait	等待時間
 		 */
 		public function ShopperVO(type:uint, list:Array)
 		{
@@ -43,9 +42,5 @@ package model
 		 * ]
 		 */
 		public var shopperList:Array;
-		/**
-		 * 等待时间
-		 */
-		public var waitMax:uint;
 	}
 }

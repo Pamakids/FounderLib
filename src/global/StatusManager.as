@@ -116,7 +116,7 @@ package global
 					a.push(temp);
 				}
 				
-				var vo:ShopperVO=new ShopperVO(0, a, 6);
+				var vo:ShopperVO=new ShopperVO(0, a);
 				ShopperManager.getInstance().creatShopper(vo);
 			});
 		}
