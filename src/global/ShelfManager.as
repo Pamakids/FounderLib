@@ -111,11 +111,18 @@ package global
 		//获取等待补货的shelf
 		public function getWaitShelf():Shelf
 		{
+			var shelf:Shelf;
 			//优先队列
-			if(vecWait.length > 0)
-				return vecWait[0];
+			for(var i:int = 0;i<vecWait.length;i++)
+			{
+				shelf = vecWait[i];
+				if(shelf.needResplenish())
+					return shelf;
+				else
+					vecWait.shift();
+			}
 			//寻求满足补货条件的shelf
-			for each(var shelf:Shelf in vecShelf)
+			for each(shelf in vecShelf)
 			{
 				if(shelf.needResplenish())
 					return shelf;

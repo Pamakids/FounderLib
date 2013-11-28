@@ -1,4 +1,4 @@
-package view.unit
+package view.unit.w
 {
 	import com.astar.core.IAstarTile;
 	import com.astar.expand.ItemTile;
@@ -7,6 +7,7 @@ package view.unit
 	import flash.geom.Point;
 	
 	import global.StatusManager;
+	import view.unit.BasicUnit;
 
 	/**
 	 * 可移动的
@@ -44,7 +45,7 @@ package view.unit
 		
 		private var vx:int;
 		private var vy:int;
-		protected function get SPEED():uint
+		public function get SPEED():uint
 		{
 			return 4;
 		}

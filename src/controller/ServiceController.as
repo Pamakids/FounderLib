@@ -85,6 +85,11 @@ package controller
 			}
 		}
 
+		/**
+		 * ShpperVO
+		 */
+		public var addShopper:Function;
+
 		public var showReadyBox:Function;
 
 		private function isBothReady(user:Object):void
@@ -103,7 +108,7 @@ package controller
 				if (!fighting)
 				{
 					SO.i.setKV('player' + me.company_name, player1);
-					SO.i.setKV('fightRoom', me.company_name + 'vs' + other.company_name);
+					SO.i.setKV('fightRoom', users[0].user + 'vs' + users[1].user);
 					navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
 				}
 			}
@@ -174,7 +179,7 @@ package controller
 			messageTimer.stop();
 			gameTimer.stop();
 			roundNum++;
-			gameTime='第 ' + roundNum + ' 回合';
+			gameTime='回合' + roundNum;
 			dispatchEvent(new Event(GAME_PAUSE));
 		}
 
@@ -207,6 +212,7 @@ package controller
 		{
 			rid=room;
 			trace('connect game server', room, socket);
+			alert(room + ' ' + socket + ' ' + me.company_name);
 			pomelo.init(socket, 3014, null, function(res:Object):void
 			{
 				if (res.code == 200)
