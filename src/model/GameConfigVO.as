@@ -69,6 +69,11 @@ package model
 			return true;
 		}
 
+		public function getShopperInTime():Number
+		{
+			return parseFloat(params[3]);
+		}
+
 		/**
 		 * 最长排队时间
 		 */
