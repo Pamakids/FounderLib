@@ -2,104 +2,108 @@ package view.unit
 {
 	import com.astar.expand.ItemTile;
 	import com.greensock.TweenLite;
-	
+
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.utils.getTimer;
-	
+
 	import global.AssetsManager;
 	import global.ShelfManager;
 	import global.ShopperManager;
 	import global.StatusManager;
 	import global.StoreManager;
 	import global.WorkerManager;
-	
+
 	import model.ShopperVO;
-	
+
 	import view.component.LogicalMap;
+	import view.unit.w.Walker;
 
 	/**
 	 * 顾客
 	 * @author Administrator
-	 */	
+	 */
 	public class Shopper extends Walker
 	{
 		/**
 		 * 每采购到一种物品即派发
-		 */		
-		public static const SHOP_CATCHED:String = "shop_catched";
+		 */
+		public static const SHOP_CATCHED:String="shop_catched";
 		/**
 		 * 采购到清单中的所有物品即派发
-		 */		
-		public static const SHOP_FINISHED:String = "shop_finished";
+		 */
+		public static const SHOP_FINISHED:String="shop_finished";
 		/**
 		 * 采购失败派发
-		 */		
-		public static const SHOP_FAILED:String = "shop_failed";
-		
+		 */
+		public static const SHOP_FAILED:String="shop_failed";
+
 		private var vo:ShopperVO;
+
 		public function Shopper(vo:ShopperVO)
 		{
-			this.vo = vo;
+			this.vo=vo;
 			super();
 			init();
 		}
-		
+
 		private function init():void
 		{
 			initAction();
 			initIcon();
-			this.mouseChildren = this.mouseEnabled = false;
+			this.mouseChildren=this.mouseEnabled=false;
 		}
-		
-		private var isFinish:Boolean = false;
+
+		private var isFinish:Boolean=false;
+
 		public function shopping():void
 		{
 			var arr:Array;
-			for(var i:int = 0;i<vo.shopperList.length;i++)
+			for (var i:int=0; i < vo.shopperList.length; i++)
 			{
-				arr = vo.shopperList[i];
-				if(arr[3])	continue;
-				crtIndex = i;
-				targetShelf = ShelfManager.getInstance().getShelfByPropID( arr[0] );
-				if(!targetShelf)
+				arr=vo.shopperList[i];
+				if (arr[3])
+					continue;
+				crtIndex=i;
+				targetShelf=ShelfManager.getInstance().getShelfByPropID(arr[0]);
+				if (!targetShelf)
 				{
 					dispatchEvent(new Event(SHOP_FAILED));
 					return;
 				}
-				var tile:ItemTile = targetShelf.getTargetTile();
+				var tile:ItemTile=targetShelf.getTargetTile();
 				(tile == crtTile) ? shopHandler() : LogicalMap.getInstance().moveBody(this, tile);
 				return;
 			}
-			isFinish = true;
+			isFinish=true;
 			dispatchEvent(new Event(Shopper.SHOP_FINISHED));
 		}
 		/**
-		 *	[id, num, crtPrice, catched] 
-		 */		
+		 *	[id, num, crtPrice, catched]
+		 */
 		private var crtIndex:int;
 		private var targetShelf:Shelf;
-		
+
 		override protected function onArrived(e:Event):void
 		{
-			if(isFinish)
+			if (isFinish)
 			{
-				switch(crtTile)
+				switch (crtTile)
 				{
 					case LogicalMap.getInstance().TITLE_PAY:
-						WorkerManager.getInstance().getCashier().serviceFor( this );
+						WorkerManager.getInstance().getCashier().serviceFor(this);
 						action.gotoAndStop(ACTION_STAY_UP);
 						break;
 					case LogicalMap.getInstance().TITLE_OUT_SHOP:
-						ShopperManager.getInstance().delShopper( this );
+						ShopperManager.getInstance().delShopper(this);
 						break;
 					case LogicalMap.getInstance().TITLE_QUEUE:
-						var time:uint = ShopperManager.getInstance().getTotalWaitTime();
-						if(time > vo.waitMax)
-							dispatchEvent( new Event( SHOP_FAILED ) );
+						var time:uint=ShopperManager.getInstance().getTotalWaitTime();
+						if (time > vo.waitMax)
+							dispatchEvent(new Event(SHOP_FAILED));
 						else
-							ShopperManager.getInstance().insertQueue( this );
+							ShopperManager.getInstance().insertQueue(this);
 						break;
 					default:
 						action.gotoAndStop(ACTION_STAY_UP);
@@ -107,160 +111,166 @@ package view.unit
 				}
 				return;
 			}
-			if(isFailed)
+			if (isFailed)
 			{
-				ShopperManager.getInstance().delShopper( this );
+				ShopperManager.getInstance().delShopper(this);
 				return;
 			}
 			shopHandler();
 		}
-		
+
 		private function shopHandler():void
 		{
 			this.action.gotoAndStop(ACTION_STAY_UP);
-			
-			var arr:Array = vo.shopperList[crtIndex];
-			var id:String = arr[0];
-			var num:uint = arr[1];
-			var countShelf:uint = targetShelf.getPropNumByID(id);
-			if(countShelf >= num)
+
+			var arr:Array=vo.shopperList[crtIndex];
+			var id:String=arr[0];
+			var num:uint=arr[1];
+			var countShelf:uint=targetShelf.getPropNumByID(id);
+			if (countShelf >= num)
 			{
-				targetShelf.delProp( id, num ); 
-				arr[3] = true;
+				targetShelf.delProp(id, num);
+				arr[3]=true;
 				updateIcon();
-				TweenLite.delayedCall( 0.5, function():void{
+				TweenLite.delayedCall(0.5, function():void
+				{
 					dispatchEvent(new Event(SHOP_CATCHED));
 				});
 			}
 			else
 			{
-				var countStore:uint = StoreManager.getInstance().getPropNumByID( id );
-				if(countShelf + countStore >= num)
+				var countStore:uint=StoreManager.getInstance().getPropNumByID(id);
+				if (countShelf + countStore >= num)
 					waitForReplenish();
 				else
-					dispatchEvent( new Event( SHOP_FAILED ) );
+					dispatchEvent(new Event(SHOP_FAILED));
 			}
 		}
-		
-		
+
+
 		private function waitForReplenish():void
 		{
-			start = getTimer();
-			StatusManager.getInstance().addFunc( onTimer, 0.5 );
+			start=getTimer();
+			StatusManager.getInstance().addFunc(onTimer, 0.5);
 		}
+
 		private function onTimer():void
 		{
-			var crtTime:uint = getTimer();
-			if(crtTime - start >= vo.waitMax*1000)
+			var crtTime:uint=getTimer();
+			if (crtTime - start >= vo.waitMax * 1000)
 			{
 				dispatchEvent(new Event(SHOP_FAILED));
-				StatusManager.getInstance().delFunc( onTimer );
+				StatusManager.getInstance().delFunc(onTimer);
 				return;
 			}
-			var id:String = vo.shopperList[crtIndex][0];
-			var num:uint = vo.shopperList[crtIndex][1];
-			if(targetShelf.getPropNumByID(id) >= num)
+			var id:String=vo.shopperList[crtIndex][0];
+			var num:uint=vo.shopperList[crtIndex][1];
+			if (targetShelf.getPropNumByID(id) >= num)
 			{
-				targetShelf.delProp( id, num );
-				vo.shopperList[crtIndex][3] = true;
+				targetShelf.delProp(id, num);
+				vo.shopperList[crtIndex][3]=true;
 				dispatchEvent(new Event(SHOP_CATCHED));
-				StatusManager.getInstance().delFunc( onTimer );
+				StatusManager.getInstance().delFunc(onTimer);
 			}
 		}
 		private var start:uint;
-		
+
 		private var vecIcon:Vector.<Sprite>;
-		
+
 		private function updateIcon():void
 		{
 			var arr:Array;
 			var icon:Sprite;
-			var icons:Array = [];
-			var num:uint = vo.shopperList.length;
-			for(var i:int = vo.shopperList.length-1;i>=0;i--)
+			var icons:Array=[];
+			var num:uint=vo.shopperList.length;
+			for (var i:int=vo.shopperList.length - 1; i >= 0; i--)
 			{
-				arr = vo.shopperList[i];
-				icon = vecIcon[i];
-				if(arr[3])		
+				arr=vo.shopperList[i];
+				icon=vecIcon[i];
+				if (arr[3])
 				{
-					if(icon)
+					if (icon)
 					{
-						this.removeChild( icon );
-						vecIcon[i] = null;
+						this.removeChild(icon);
+						vecIcon[i]=null;
 					}
-				}else
+				}
+				else
 				{
-					icons.push( icon );
+					icons.push(icon);
 				}
 			}
 			//重新排列位置
-			var kinds:uint = icons.length;
-			for(i=0;i<kinds;i++)
+			var kinds:uint=icons.length;
+			for (i=0; i < kinds; i++)
 			{
-				icon = icons[i];
-				icon.x = -(kinds-1)*gap/2 + i*gap;
+				icon=icons[i];
+				icon.x=-(kinds - 1) * gap / 2 + i * gap;
 			}
 		}
-		
+
 		private function initAction():void
 		{
-			action = AssetsManager.instance().getResByName("shopper_"+vo.type) as MovieClip;
+			action=AssetsManager.instance().getResByName("shopper_" + vo.type) as MovieClip;
 			action.gotoAndStop(ACTION_STAY_RIGHT);
-			this.addChild( action );
-			action.scaleX = action.scaleY = .4;
+			this.addChild(action);
+			action.scaleX=action.scaleY=.4;
 		}
-		private const gap:uint = 40;
+		private const gap:uint=40;
+
 		private function initIcon():void
 		{
 			var icon:Sprite;
 			var id:String;
 			var num:uint;
-			const kinds:uint = vo.shopperList.length;
-			vecIcon = new Vector.<Sprite>(kinds);
-			for(var i:int = kinds-1;i>=0;i--)
+			const kinds:uint=vo.shopperList.length;
+			vecIcon=new Vector.<Sprite>(kinds);
+			for (var i:int=kinds - 1; i >= 0; i--)
 			{
-				id = vo.shopperList[i][0];
-				num = vo.shopperList[i][1];
-				icon = AssetsManager.instance().getResByName("sprite_"+id) as Sprite;
-				this.addChild( icon );
-				icon.x = -(kinds-1)*gap/2 + i*gap;
-				icon.y = -action.height-10;
-				vecIcon[i] = icon;
+				id=vo.shopperList[i][0];
+				num=vo.shopperList[i][1];
+				icon=AssetsManager.instance().getResByName("sprite_" + id) as Sprite;
+				this.addChild(icon);
+				icon.x=-(kinds - 1) * gap / 2 + i * gap;
+				icon.y=-action.height - 10;
+				vecIcon[i]=icon;
 			}
 		}
-		
+
 		public function getShoppingList():Array
 		{
 			return vo.shopperList;
 		}
-		
+
 		override public function dispose():void
 		{
-			StatusManager.getInstance().delFunc( onTimer );
-			vo = null;
-			this.removeChild( action );
-			action = null;
+			StatusManager.getInstance().delFunc(onTimer);
+			vo=null;
+			this.removeChild(action);
+			action=null;
 			targetShelf=null;
 			clearIcon();
-			vecIcon = null;
+			vecIcon=null;
 			super.dispose();
 		}
-		
-		private var isFailed:Boolean = false;
+
+		private var isFailed:Boolean=false;
+
 		public function shopFailed():void
 		{
-			isFailed = true;
+			isFailed=true;
 			clearIcon();
 			LogicalMap.getInstance().moveBody(this, LogicalMap.getInstance().TITLE_OUT_SHOP);
 		}
-		
+
 		private function clearIcon():void
 		{
 			var s:Sprite;
-			for(var i:int = vecIcon.length-1;i>=0;i--)
+			for (var i:int=vecIcon.length - 1; i >= 0; i--)
 			{
-				s = vecIcon[i];
-				if(s && s.parent)	s.parent.removeChild( s );
+				s=vecIcon[i];
+				if (s && s.parent)
+					s.parent.removeChild(s);
 				vecIcon.pop();
 			}
 		}
