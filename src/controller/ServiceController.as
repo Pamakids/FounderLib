@@ -59,16 +59,28 @@ package controller
 		[Bindable]
 		public var otherCash:Number=0;
 
+		private var otherSO:SaleStrategyVO;
+
 
 		protected function onGameHandler(event:PomeloEvent):void
 		{
+			var msg:Object=event.message;
+			otherCash=Number(msg.data);
+			if (msg.player)
+				player2=getPlayer(msg.player);
+			if (msg.svo)
+				otherSO=CloneUtil.convertObject(msg.svo, SaleStrategyVO);
 			if (!otherCash)
 				dispatchEvent(new Event(GAME_START));
-			otherCash=Number(event.message.data);
 			if (!gameTimer.running)
 			{
 				gameTimer.reset();
 				gameTimer.start();
+			}
+			if (!shopperTimer.running)
+			{
+				shopperTimer.reset();
+				shopperTimer.start();
 			}
 		}
 
@@ -146,8 +158,6 @@ package controller
 			{
 				messageTimer.reset();
 				messageTimer.start();
-				shopperTimer.reset();
-				shopperTimer.start();
 			}
 		}
 
@@ -192,7 +202,8 @@ package controller
 
 		protected function sendGameMessageHandler(event:TimerEvent):void
 		{
-			pomelo.request(sendGameMessage, {target: other.company_name, data: player1.cash}, function(data:Object):void
+			var sendData:Object={target: other.company_name, data: player1.cash, player: player1, svo: currentSaleStrategy};
+			pomelo.request(sendGameMessage, sendData, function(data:Object):void
 			{
 				trace('sent data:', data);
 			});
@@ -380,10 +391,24 @@ package controller
 		[Bindable]
 		public var player1:PlayerVO;
 
-//		/**
-//		 * 对手
-//		 */
-//		public var player2:PlayerVO;
+		/**
+		 * 对手
+		 */
+		public var player2:PlayerVO;
+
+		private function getPlayer(pvo:Object):PlayerVO
+		{
+			pvo.goods=CloneUtil.convertArrayObjects(pvo.goods, BoughtGoodsVO);
+			pvo.staffes=CloneUtil.convertArrayObjects(pvo.staffes, StaffVO);
+			for each (var svo:Object in pvo.saleStrategies)
+			{
+				svo.goods=CloneUtil.convertArrayObjects(svo.goods, BoughtGoodsVO);
+			}
+			pvo.saleStrategies=CloneUtil.convertArrayObjects(pvo.saleStrategies, SaleStrategyVO);
+			pvo.shop=CloneUtil.convertObject(pvo.shop, ShopVO);
+			pvo.user=CloneUtil.convertObject(pvo.user, UserVO);
+			return CloneUtil.convertObject(pvo, PlayerVO);
+		}
 
 		private function getDefaultConfig():void
 		{
@@ -405,22 +430,14 @@ package controller
 					}
 					else
 					{
-						pvo.goods=CloneUtil.convertArrayObjects(pvo.goods, BoughtGoodsVO);
-						pvo.staffes=CloneUtil.convertArrayObjects(pvo.staffes, StaffVO);
-						for each (var svo:Object in pvo.saleStrategies)
-						{
-							svo.goods=CloneUtil.convertArrayObjects(svo.goods, BoughtGoodsVO);
-						}
-						pvo.saleStrategies=CloneUtil.convertArrayObjects(pvo.saleStrategies, SaleStrategyVO);
-						pvo.shop=CloneUtil.convertObject(pvo.shop, ShopVO);
-						pvo.user=CloneUtil.convertObject(pvo.user, UserVO);
-						player1=CloneUtil.convertObject(pvo, PlayerVO);
+						player1=getPlayer(pvo);
 						boughtGoods=player1.goods;
 						for each (var s:StaffVO in player1.staffes)
 						{
 							staffs[s.type]=s;
 						}
 						saleStrategies=player1.saleStrategies;
+						currentSaleStrategy=saleStrategies[0];
 					}
 					var fr:String=SO.i.getKV('fightRoom') as String;
 					if (!fr)
@@ -445,16 +462,107 @@ package controller
 			gameTimer.addEventListener(TimerEvent.TIMER, playGameing);
 			gameTimer.addEventListener(TimerEvent.TIMER_COMPLETE, roundComplete);
 
-			shopperTimer=new Timer(config.roundTime / player1.shop.visit);
+			shopperTimer=new Timer(config.getShopperInTime());
 			shopperTimer.addEventListener(TimerEvent.TIMER, addShopperHandler);
+		}
+
+		public var currentSaleStrategy:SaleStrategyVO;
+
+		private function getCurrentPrice(id:String, svo:SaleStrategyVO):int
+		{
+			var p:int;
+			for each (var gvo:Object in svo.goods)
+			{
+				if (gvo.id == id)
+				{
+					p=gvo.outPrice;
+					break;
+				}
+			}
+			return p;
+		}
+
+		private function hasGoods(id:String, num:int, arr:Array):Boolean
+		{
+			for each (var vo:BoughtGoodsVO in arr)
+			{
+				if (vo.id == id && vo.quantity > num)
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 
 		protected function addShopperHandler(event:TimerEvent):void
 		{
+			trace('add shoper');
+			var vo:ShopperVO=new ShopperVO(0, '');
+			var r:Number=Math.random();
+			var num:int=Math.ceil(Math.random() * 10);
+			var buyTwo:Boolean=r > 0.5;
+			var toBuy:Array;
+			var index:int=Math.floor(MathUtil.getRandomBetween(0, goods.length));
+			var gvo:GoodsVO=goods[index];
+			var ids:Array=[];
+			toBuy=[[gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]];
+			if (buyTwo)
+			{
+				var index2:int;
+				do
+				{
+					index2=Math.floor(MathUtil.getRandomBetween(0, goods.length));
+				} while (index2 != index);
+				num=Math.ceil(Math.random() * 10);
+				gvo=goods[index2];
+				toBuy.push([gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]);
+			}
 
-//			var vo:ShopperVO=new ShopperVO(0, '');
-//			MathUtil.getRandomBetween(
-//			addShopper(vo);
+
+
+			if (allHave(toBuy, player1.goods) && player2)
+			{
+				if (allHave(toBuy, player2.goods))
+				{
+					var a1:Number=player1.shop.visit / (player1.shop.visit + player2.shop.visit);
+					var ap1:int=getAllPrice(toBuy, currentSaleStrategy);
+					var ap2:int=getAllPrice(toBuy, otherSO);
+					var a2:Number=ap1 / (ap1 + ap2);
+					var aa:Number=(a1 + a2) / 2;
+					r=Math.random();
+					trace('all have random', r);
+					if (r < aa)
+						addShopper(new ShopperVO(0, toBuy));
+				}
+				else
+				{
+					addShopper(new ShopperVO(0, toBuy));
+				}
+			}
+		}
+
+		private function getAllPrice(toBuy:Array, svo:SaleStrategyVO):int
+		{
+			var p:int=0;
+			for each (var arr:Array in toBuy)
+			{
+				p+=getCurrentPrice(arr[0], svo);
+			}
+			return p;
+		}
+
+		private function allHave(toBuy:Array, goods:Array):Boolean
+		{
+			var hasAll:Boolean=true;
+			for each (var arr:Array in toBuy)
+			{
+				if (!hasGoods(arr[0], arr[1], goods))
+				{
+					hasAll=false;
+					break;
+				}
+			}
+			return hasAll;
 		}
 
 		private var shopperTimer:Timer;
@@ -586,6 +694,10 @@ package controller
 			other.company_name=event.message.user;
 			users.push(event.message);
 			startGame();
+			if (fighting)
+			{
+
+			}
 		}
 
 		private var pomelo:Pomelo;

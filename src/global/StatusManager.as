@@ -1,16 +1,13 @@
 package global
 {
-	import flash.events.MouseEvent;
-	import flash.events.TimerEvent;
+	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.utils.Dictionary;
-	import flash.utils.Timer;
 	import flash.utils.getTimer;
 	
 	import controller.ServiceController;
-	
-	import model.ShopperVO;
 
-	public class StatusManager
+	public class StatusManager extends Sprite
 	{
 		private static var _instance:StatusManager;
 
@@ -27,20 +24,13 @@ package global
 
 		public function initlize():void
 		{
-			initTimer();
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
-
-		private var timer:Timer;
-
-		private function initTimer():void
+		
+		protected function onEnterFrame(e:Event):void
 		{
-			timer=new Timer(10);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-			timer.start();
-		}
-
-		private function onTimer(event:TimerEvent):void
-		{
+			if(ifPause)
+				return ;
 			var obj:Object;
 			var time:uint=getTimer();
 			for (var func:Object in dicFunc)
@@ -53,7 +43,7 @@ package global
 				}
 			}
 		}
-
+		
 		private var dicFunc:Dictionary=new Dictionary();
 
 		/**
@@ -94,7 +84,7 @@ package global
 			isStart=true;
 			StoreManager.getInstance().reCatchGoods(); //重新获取仓库内物品列表
 			ShelfManager.getInstance().setGoods(); //清理货架，重新添置物品
-			ServiceController.instance.addShopper = ShopperManager.getInstance().creatShopper;
+			ServiceController.instance.addShopper=ShopperManager.getInstance().creatShopper;
 			addFunc(MC.instance().mainScreen.resetViewLevel, 0.25); //显示层级
 //			test();
 		}
@@ -122,9 +112,10 @@ package global
 //		}
 
 		private var callback:Function;
+
 		public function quitGame(_callback:Function=null):void
 		{
-			callback = _callback;
+			callback=_callback;
 			//验证店内是否依然有顾客，等待顾客全部移除后结束游戏
 			addFunc(checkIfQuit, 1);
 		}
@@ -144,7 +135,8 @@ package global
 			delFunc(MC.instance().mainScreen.resetViewLevel);
 			trace("GameOver");
 			//doSomething
-			if(callback)	callback();
+			if (callback)
+				callback();
 		}
 
 		public function clear():void
@@ -153,19 +145,17 @@ package global
 			{
 				delete dicFunc[obj];
 			}
-			timer.stop();
-			timer.removeEventListener(TimerEvent.TIMER, onTimer);
-			timer=null;
 		}
 
+		private var ifPause:Boolean = false;
 		public function pause():void
 		{
-			timer.stop();
+			ifPause = true;
 		}
 
 		public function restart():void
 		{
-			timer.start();
+			ifPause = false;
 		}
 	}
 }
