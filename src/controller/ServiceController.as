@@ -65,13 +65,13 @@ package controller
 		protected function onGameHandler(event:PomeloEvent):void
 		{
 			var msg:Object=event.message;
-			otherCash=Number(msg.data);
 			if (msg.player)
 				player2=getPlayer(msg.player);
 			if (msg.svo)
 				otherSO=CloneUtil.convertObject(msg.svo, SaleStrategyVO);
 			if (!otherCash)
 				dispatchEvent(new Event(GAME_START));
+			otherCash=Number(msg.data);
 			if (!gameTimer.running)
 			{
 				gameTimer.reset();
@@ -122,6 +122,11 @@ package controller
 				trace('both ready');
 				if (!fighting)
 				{
+					if (users.length != 2)
+					{
+						alert('另一玩家尚未进入，请等待或返回游戏大厅');
+						return;
+					}
 					SO.i.setKV('player' + me.company_name, player1);
 					SO.i.setKV('fightRoom', users[0].user + 'vs' + users[1].user);
 					navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
@@ -196,8 +201,10 @@ package controller
 			shopperTimer.stop();
 			roundNum++;
 			gameTime='回合' + roundNum;
-			StatusManager.getInstance().quitGame();
-			dispatchEvent(new Event(GAME_PAUSE));
+			StatusManager.getInstance().quitGame(function():void
+			{
+				dispatchEvent(new Event(GAME_PAUSE));
+			});
 		}
 
 		protected function sendGameMessageHandler(event:TimerEvent):void
@@ -351,13 +358,16 @@ package controller
 			}
 			else
 			{
-				var uo:Object=SO.i.getKV('user');
-				if (uo)
+//				if (!fighting)
 				{
-					me=CloneUtil.convertObject(uo, UserVO);
-					getDefaultConfig();
-					dispatchEvent(new Event(SINGED_IN));
-					return;
+					var uo:Object=SO.i.getKV('user');
+					if (uo)
+					{
+						me=CloneUtil.convertObject(uo, UserVO);
+						getDefaultConfig();
+						dispatchEvent(new Event(SINGED_IN));
+						return;
+					}
 				}
 				userSignIn(query.u, query.p, function(result:ResultVO):void
 				{
@@ -462,7 +472,7 @@ package controller
 			gameTimer.addEventListener(TimerEvent.TIMER, playGameing);
 			gameTimer.addEventListener(TimerEvent.TIMER_COMPLETE, roundComplete);
 
-			shopperTimer=new Timer(config.getShopperInTime());
+			shopperTimer=new Timer(config.getShopperInTime() * 1000);
 			shopperTimer.addEventListener(TimerEvent.TIMER, addShopperHandler);
 		}
 
@@ -496,8 +506,6 @@ package controller
 
 		protected function addShopperHandler(event:TimerEvent):void
 		{
-			trace('add shoper');
-			var vo:ShopperVO=new ShopperVO(0, '');
 			var r:Number=Math.random();
 			var num:int=Math.ceil(Math.random() * 10);
 			var buyTwo:Boolean=r > 0.5;
@@ -506,21 +514,25 @@ package controller
 			var gvo:GoodsVO=goods[index];
 			var ids:Array=[];
 			toBuy=[[gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]];
+			trace('to buy 1:', gvo.id, gvo.name);
 			if (buyTwo)
 			{
 				var index2:int;
 				do
 				{
 					index2=Math.floor(MathUtil.getRandomBetween(0, goods.length));
-				} while (index2 != index);
+				} while (index2 == index);
 				num=Math.ceil(Math.random() * 10);
 				gvo=goods[index2];
 				toBuy.push([gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]);
+				trace('to buy 2:', gvo.id, gvo.name);
 			}
 
+			var player1Have:Boolean=allHave(toBuy, player1.goods);
 
+			trace('user 1 have', player1Have);
 
-			if (allHave(toBuy, player1.goods) && player2)
+			if (player1Have && player2)
 			{
 				if (allHave(toBuy, player2.goods))
 				{

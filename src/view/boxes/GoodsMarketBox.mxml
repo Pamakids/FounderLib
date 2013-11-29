@@ -69,7 +69,7 @@
 					}
 				}
 				if (!added)
-					boughtGoods.addItem(bo);
+					boughtGoods.addItemAt(bo, 0);
 				else
 					vo.quantity++;
 				caculate();
