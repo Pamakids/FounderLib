@@ -69,19 +69,7 @@ package controller
 				player2=getPlayer(msg.player);
 			if (msg.svo)
 				otherSO=CloneUtil.convertObject(msg.svo, SaleStrategyVO);
-			if (!otherCash)
-				dispatchEvent(new Event(GAME_START));
 			otherCash=Number(msg.data);
-			if (!gameTimer.running)
-			{
-				gameTimer.reset();
-				gameTimer.start();
-			}
-			if (!shopperTimer.running)
-			{
-				shopperTimer.reset();
-				shopperTimer.start();
-			}
 		}
 
 		protected function onReadyHandler(event:PomeloEvent):void
@@ -131,6 +119,10 @@ package controller
 					SO.i.setKV('fightRoom', users[0].user + 'vs' + users[1].user);
 					navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
 				}
+				else
+				{
+					startGame();
+				}
 			}
 			else if (user.user == me.company_name && user.ready)
 			{
@@ -163,6 +155,18 @@ package controller
 			{
 				messageTimer.reset();
 				messageTimer.start();
+
+				if (!gameTimer.running)
+				{
+					gameTimer.reset();
+					gameTimer.start();
+				}
+				if (!shopperTimer.running)
+				{
+					shopperTimer.reset();
+					shopperTimer.start();
+				}
+				dispatchEvent(new Event(GAME_START));
 			}
 		}
 
@@ -196,11 +200,15 @@ package controller
 		 */
 		public function pauseGame():void
 		{
+			purchaseNumEachRound=0;
 			messageTimer.stop();
 			gameTimer.stop();
 			shopperTimer.stop();
 			roundNum++;
 			gameTime='回合' + roundNum;
+
+			player1.cash-=player1.loan * config.loanRate / 100;
+
 			StatusManager.getInstance().quitGame(function():void
 			{
 				dispatchEvent(new Event(GAME_PAUSE));
@@ -209,7 +217,7 @@ package controller
 
 		protected function sendGameMessageHandler(event:TimerEvent):void
 		{
-			var sendData:Object={target: other.company_name, data: player1.cash, player: player1, svo: currentSaleStrategy};
+			var sendData:Object={target: other.company_name, data: player1.money, player: player1, svo: currentSaleStrategy};
 			pomelo.request(sendGameMessage, sendData, function(data:Object):void
 			{
 				trace('sent data:', data);
@@ -391,6 +399,8 @@ package controller
 		public static const USER_SIGN_IN:String="user/signIn";
 		public static const GET_DEFAULT_CONFIG:String="gc/default";
 
+		public var purchaseNumEachRound:int;
+
 		/**
 		 * 游戏配置
 		 */
@@ -431,6 +441,7 @@ package controller
 				if (result.status)
 				{
 					config=CloneUtil.convertObject(result.results, GameConfigVO);
+					config.roundTime=20;
 					var pvo:Object=SO.i.getKV('player' + me.company_name);
 					if (!pvo)
 					{

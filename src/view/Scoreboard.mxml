@@ -45,7 +45,7 @@
 		<s:Group>
 			<s:BitmapImage source="@Embed('/assets/boxes/rightArrow.png')"
 						   smooth="true"/>
-			<components1:LabelWidthShadow text="{'现金：'+sc.player1.cash}"
+			<components1:LabelWidthShadow text="{'现金：'+sc.player1.money}"
 										  fontSize="18"
 										  color="0x724815"
 										  verticalCenter="-2"

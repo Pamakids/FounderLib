@@ -13,10 +13,7 @@ package model
 		 */
 		public var cash:Number=0;
 
-		/**
-		 * 贷款
-		 */
-		public var loan:Number=0;
+		private var _loan:Number=0;
 
 		/**
 		 * 员工
@@ -39,6 +36,34 @@ package model
 
 		private var _money:int;
 
+		public function getStaff(type:int):StaffVO
+		{
+			var vo:StaffVO;
+			for each (vo in staffes)
+			{
+				if (vo.type == type)
+					break;
+			}
+			return vo;
+		}
+
+		/**
+		 * 贷款
+		 */
+		public function get loan():Number
+		{
+			return _loan;
+		}
+
+		/**
+		 * @private
+		 */
+		public function set loan(value:Number):void
+		{
+			_loan=value;
+			money=value + cash;
+		}
+
 		public function get money():int
 		{
 			return cash + loan;
@@ -49,5 +74,9 @@ package model
 			_money=value;
 		}
 
+		public function payRent():void
+		{
+			cash-=shop.rent;
+		}
 	}
 }

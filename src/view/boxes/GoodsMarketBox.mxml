@@ -9,6 +9,7 @@
 	<fx:Script>
 		<![CDATA[
 			import com.pamakids.components.PAlert;
+			import com.pamakids.events.ODataEvent;
 			import com.pamakids.utils.CloneUtil;
 
 			import mx.collections.ArrayCollection;
@@ -18,8 +19,6 @@
 			import spark.events.IndexChangeEvent;
 
 			import controller.ServiceController;
-
-			import com.pamakids.events.ODataEvent;
 
 			import model.BoughtGoodsVO;
 
@@ -78,12 +77,16 @@
 			[Bindable]
 			public var shopCartTotal:int;
 
+			private var totalNum:int;
+
 			private function caculate():void
 			{
 				var total:int;
+				totalNum=0;
 				for each (var vo:BoughtGoodsVO in boughtGoods)
 				{
 					total+=vo.inPrice * vo.quantity;
+					totalNum+=vo.quantity;
 				}
 				shopCartTotal=total;
 			}
@@ -108,8 +111,13 @@
 				{
 					PAlert.show('现金不足');
 				}
+				else if (totalNum + sc.purchaseNumEachRound > sc.player1.getStaff(1).ability)
+				{
+					PAlert.show('采购数量超出采购员每回合最大采购的数量，请调整');
+				}
 				else
 				{
+					sc.purchaseNumEachRound+=totalNum;
 					sc.checkOut(boughtGoods.source, shopCartTotal);
 					closeHandler(null);
 				}

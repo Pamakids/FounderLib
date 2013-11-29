@@ -7,44 +7,92 @@
 		  creationComplete="vgroup1_creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
+			import com.pamakids.components.PopupBox;
+
 			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 
 			import spark.events.IndexChangeEvent;
 
-			import skins.DefaultButtonBarSkin;
-			import skins.DefaultButtonBigSkin;
+			import controller.ServiceController;
+
+			import view.boxes.BankBox;
+			import view.boxes.GoodsMarketBox;
+			import view.boxes.SaleStrategyBox;
+			import view.boxes.TalentMarketBox;
 
 			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void
 			{
 				var ac:ArrayCollection=new ArrayCollection(['人才市场', '批发市场', '银行', '销售策略']);
 				nvs.dataProvider=ac;
+				nvs.selectedIndex=0;
+				showBox();
 			}
 
 			protected function nvs_changeHandler(event:IndexChangeEvent):void
 			{
-				currentState='s' + nvs.selectedIndex;
+				showBox();
+//				currentState='s' + nvs.selectedIndex;
 			}
 
 			protected function ready_clickHandler(event:MouseEvent):void
 			{
+				ServiceController.instance.readyToStart();
+			}
 
+			private var currentBox:PopupBox;
+
+			private function showBox():void
+			{
+				if (currentBox && currentBox.parent)
+				{
+					currentBox.removeEventListener(CloseEvent.CLOSE, closedHandler);
+					removeElement(currentBox);
+					currentBox=null;
+				}
+
+				switch (nvs.selectedIndex)
+				{
+					case 0:
+						currentBox=new TalentMarketBox();
+						break;
+					case 1:
+						currentBox=new GoodsMarketBox();
+						break;
+					case 2:
+						currentBox=new BankBox();
+						break;
+					case 3:
+						currentBox=new SaleStrategyBox();
+						break;
+				}
+
+				if (currentBox)
+				{
+					currentBox.addEventListener(CloseEvent.CLOSE, closedHandler);
+					addElement(currentBox);
+				}
+			}
+
+			protected function closedHandler(event:Event):void
+			{
+				nvs.selectedIndex=-1;
 			}
 		]]>
 	</fx:Script>
 
-	<s:states>
+	<!--<s:states>
 		<s:State name="s0"/>
 		<s:State name="s1"/>
 		<s:State name="s2"/>
 		<s:State name="s3"/>
-	</s:states>
+	</s:states>-->
 
 	<s:HGroup id="nv"
 			  gap="36">
 		<s:ButtonBar skinClass="skins.DefaultButtonBarSkin"
 					 horizontalCenter="0"
-					 requireSelection="true"
 					 change="nvs_changeHandler(event)"
 					 y="35	"
 					 id="nvs"/>
@@ -54,9 +102,9 @@
 				  click="ready_clickHandler(event)"/>
 	</s:HGroup>
 
-	<boxes:TalentMarketBox includeIn="s0"/>
+	<!--<boxes:TalentMarketBox includeIn="s0"/>
 	<boxes:GoodsMarketBox includeIn="s1"/>
 	<boxes:BankBox includeIn="s2"/>
-	<boxes:SaleStrategyBox includeIn="s3"/>
+	<boxes:SaleStrategyBox includeIn="s3"/>-->
 
 </s:VGroup>

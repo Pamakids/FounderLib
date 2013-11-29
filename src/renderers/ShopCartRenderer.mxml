@@ -2,7 +2,8 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
-				autoDrawBackground="false">
+				autoDrawBackground="false"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)">
 
 	<s:layout>
 		<s:HorizontalLayout verticalAlign="middle"
@@ -12,6 +13,8 @@
 
 	<fx:Script>
 		<![CDATA[
+			import mx.events.FlexEvent;
+
 			import controller.ServiceController;
 
 			import model.BoughtGoodsVO;
@@ -26,6 +29,17 @@
 				data.quantity=int(quantity.text + event.text);
 				ServiceController.instance.dispatchEvent(new Event('quantityChanged'));
 			}
+
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				focusManager.setFocus(quantity);
+			}
+
+			protected function quantity_focusOutHandler(event:FocusEvent):void
+			{
+				data.quantity=int(quantity.text);
+				ServiceController.instance.dispatchEvent(new Event('quantityChanged'));
+			}
 		]]>
 	</fx:Script>
 
@@ -38,6 +52,7 @@
 				 fontSize="14"
 				 id="quantity"
 				 restrict="0-9"
+				 focusOut="quantity_focusOutHandler(event)"
 				 textInput="textinput1_textInputHandler(event)"
 				 color="0xfe840c"
 				 text="{data.quantity}"/>
