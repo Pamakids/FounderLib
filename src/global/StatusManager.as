@@ -1,16 +1,13 @@
 package global
 {
-	import flash.events.MouseEvent;
-	import flash.events.TimerEvent;
+	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.utils.Dictionary;
-	import flash.utils.Timer;
 	import flash.utils.getTimer;
-
+	
 	import controller.ServiceController;
 
-	import model.ShopperVO;
-
-	public class StatusManager
+	public class StatusManager extends Sprite
 	{
 		private static var _instance:StatusManager;
 
@@ -27,20 +24,13 @@ package global
 
 		public function initlize():void
 		{
-			initTimer();
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
-
-		private var timer:Timer;
-
-		private function initTimer():void
+		
+		protected function onEnterFrame(e:Event):void
 		{
-			timer=new Timer(10);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-			timer.start();
-		}
-
-		private function onTimer(event:TimerEvent):void
-		{
+			if(ifPause)
+				return ;
 			var obj:Object;
 			var time:uint=getTimer();
 			for (var func:Object in dicFunc)
@@ -53,7 +43,7 @@ package global
 				}
 			}
 		}
-
+		
 		private var dicFunc:Dictionary=new Dictionary();
 
 		/**
@@ -96,30 +86,30 @@ package global
 			ShelfManager.getInstance().setGoods(); //清理货架，重新添置物品
 			ServiceController.instance.addShopper=ShopperManager.getInstance().creatShopper;
 			addFunc(MC.instance().mainScreen.resetViewLevel, 0.25); //显示层级
-			test();
+//			test();
 		}
 
-		private function test():void
-		{
-			MC.instance().mainScreen.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void
-			{
-				var arr:Array=[[101, 10], [102, 10], [103, 10], [104, 10], [105, 10], [201, 10], [202, 10], [203, 10], [204, 10], [301, 10], [302, 10], [303, 10], [304, 10], [305, 10]];
-				var price:Number=3;
-				var a:Array=[];
-				var temp:Array;
-				var n:uint=Math.floor(Math.random() * 2) + 1;
-				for (var i:int=0; i < n; i++)
-				{
-					temp=arr[Math.floor(Math.random() * arr.length)]; //id, num
-					temp.push(price); //price
-					temp.push(false); //catched
-					a.push(temp);
-				}
-
-				var vo:ShopperVO=new ShopperVO(0, a);
-				ShopperManager.getInstance().creatShopper(vo);
-			});
-		}
+//		private function test():void
+//		{
+//			MC.instance().mainScreen.addEventListener(MouseEvent.CLICK, function(e:MouseEvent):void
+//			{
+//				var arr:Array=[[101, 10], [102, 10], [103, 10], [104, 10], [105, 10], [201, 10], [202, 10], [203, 10], [204, 10], [301, 10], [302, 10], [303, 10], [304, 10], [305, 10]];
+//				var price:Number = 3;
+//				var a:Array=[];
+//				var temp:Array;
+//				var n:uint=Math.floor(Math.random() * 2) + 1;
+//				for (var i:int=0; i < n; i++)
+//				{
+//					temp = arr[Math.floor(Math.random() * arr.length)];	//id, num
+//					temp.push( price );	//price
+//					temp.push( false );	//catched
+//					a.push(temp);
+//				}
+//				
+//				var vo:ShopperVO=new ShopperVO(0, a);
+//				ShopperManager.getInstance().creatShopper(vo);
+//			});
+//		}
 
 		private var callback:Function;
 
@@ -155,19 +145,17 @@ package global
 			{
 				delete dicFunc[obj];
 			}
-			timer.stop();
-			timer.removeEventListener(TimerEvent.TIMER, onTimer);
-			timer=null;
 		}
 
+		private var ifPause:Boolean = false;
 		public function pause():void
 		{
-			timer.stop();
+			ifPause = true;
 		}
 
 		public function restart():void
 		{
-			timer.start();
+			ifPause = false;
 		}
 	}
 }
