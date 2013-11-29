@@ -47,6 +47,11 @@
 					(parent as Group).removeElement(this);
 			}
 
+			public function doClose():void
+			{
+				close();
+			}
+
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
 				c.enabled=false;

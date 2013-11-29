@@ -3,6 +3,8 @@
 		  xmlns:s="library://ns.adobe.com/flex/spark"
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  gap="20"
+		  width="100%"
+		  horizontalAlign="center"
 		  xmlns:boxes="view.boxes.*"
 		  creationComplete="vgroup1_creationCompleteHandler(event)">
 	<fx:Script>

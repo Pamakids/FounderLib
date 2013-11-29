@@ -4,13 +4,13 @@
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  gap="20"
 		  verticalAlign="middle"
-		  y="20"
-		  horizontalCenter="50"
+		  y="10"
+		  x="410"
 		  creationComplete="hgroup1_creationCompleteHandler(event)"
 		  xmlns:components="view.components.*"
 		  xmlns:components1="com.pamakids.components.*"
-		  scaleX=".5"
-		  scaleY=".5">
+		  scaleX=".6"
+		  scaleY=".6">
 	<fx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
@@ -25,16 +25,26 @@
 				sc=ServiceController.instance;
 				sc.addEventListener(ServiceController.GAME_PAUSE, gamePausedHandler);
 				sc.addEventListener(ServiceController.GAME_START, gameStartHandler);
+				sc.addEventListener('moneyChanged', changedHandler);
+				this.width=width;
 			}
 
 			protected function gamePausedHandler(event:Event):void
 			{
 				scaleX=scaleY=1;
+				x=parent.width / 2 - width / 2;
 			}
 
 			protected function gameStartHandler(event:Event):void
 			{
-				scaleX=scaleY=.5;
+				scaleX=scaleY=.6;
+				x=410;
+			}
+
+			protected function changedHandler(event:Event):void
+			{
+				trace(sc.player1.money);
+				lw.text='现金：' + sc.player1.money.toString();
 			}
 		]]>
 	</fx:Script>
@@ -49,6 +59,7 @@
 										  fontSize="18"
 										  color="0x724815"
 										  verticalCenter="-2"
+										  id="lw"
 										  horizontalCenter="0"/>
 		</s:Group>
 	</s:HGroup>

@@ -76,7 +76,8 @@ package model
 
 		public function payRent():void
 		{
-			cash-=shop.rent;
+			if (shop)
+				cash-=shop.rent;
 		}
 	}
 }

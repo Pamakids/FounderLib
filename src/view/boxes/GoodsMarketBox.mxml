@@ -111,7 +111,7 @@
 				{
 					PAlert.show('现金不足');
 				}
-				else if (totalNum + sc.purchaseNumEachRound > sc.player1.getStaff(1).ability)
+				else if (sc.fighting && totalNum + sc.purchaseNumEachRound > sc.player1.getStaff(1).ability)
 				{
 					PAlert.show('采购数量超出采购员每回合最大采购的数量，请调整');
 				}

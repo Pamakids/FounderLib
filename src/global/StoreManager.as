@@ -1,7 +1,7 @@
 package global
 {
 	import controller.ServiceController;
-	
+
 	import model.BoughtGoodsVO;
 
 	/**
@@ -119,23 +119,23 @@ package global
 		{
 			dic={};
 		}
+
 		public function delGoodsFromSource(list:Array):void
 		{
-			var goods:Array = ServiceController.instance.boughtGoods;
-			if(goods)
+			var goods:Array=ServiceController.instance.boughtGoods;
+			if (goods)
 			{
 				var id:String;
 				var count:uint;
-				parent:
-				for(var i:int = 0;i<list.length;i++)
+				parent: for (var i:int=0; i < list.length; i++)
 				{
-					id = list[i][0];
-					count = list[i][1];
-					for each(var vo:BoughtGoodsVO in goods)
+					id=list[i][0];
+					count=list[i][1];
+					for each (var vo:BoughtGoodsVO in goods)
 					{
-						if(id == vo.id)
+						if (id == vo.id)
 						{
-							vo.quantity -= count;
+							vo.quantity-=count;
 							continue parent;
 						}
 					}
@@ -151,6 +151,6 @@ package global
 				_instance=new StoreManager();
 			return _instance;
 		}
-		
+
 	}
 }

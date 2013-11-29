@@ -37,8 +37,11 @@
 
 			protected function quantity_focusOutHandler(event:FocusEvent):void
 			{
-				data.quantity=int(quantity.text);
-				ServiceController.instance.dispatchEvent(new Event('quantityChanged'));
+				if (data)
+				{
+					data.quantity=int(quantity.text);
+					ServiceController.instance.dispatchEvent(new Event('quantityChanged'));
+				}
 			}
 		]]>
 	</fx:Script>

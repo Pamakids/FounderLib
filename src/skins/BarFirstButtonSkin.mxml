@@ -34,7 +34,7 @@
 				   scaleGridBottom=6,  
 				   scaleGridRight=6)"
 				   alpha.disabled="0.5"
-				   includeIn="up"
+				   includeIn="up,over"
 				   left="0"
 				   right="0"/>
 	<s:BitmapImage source="@Embed('/assets/3d/buttonOver.png', 
@@ -43,6 +43,7 @@
 				   scaleGridBottom=6,  
 				   scaleGridRight=6)"
 				   includeIn="overStates, downStates, selectedStates"
+				   alpha.over=".5"
 				   left="0"
 				   right="0"/>
 

@@ -68,7 +68,7 @@
 			  paddingLeft="18"
 			  width="100%"
 			  paddingRight="22">
-		<s:Label text="人流："
+		<s:Label text="人流吸引率："
 				 color="0xffffff"
 				 fontSize="16"/>
 		<s:Label width="100%"
@@ -76,7 +76,7 @@
 				 textAlign="right"
 				 color="0x8b331f"
 				 fontSize="24"/>
-		<s:Label text="/回合"
+		<s:Label text=" %"
 				 color="0xffffff"
 				 fontSize="24"/>
 

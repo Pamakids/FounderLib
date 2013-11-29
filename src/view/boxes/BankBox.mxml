@@ -37,6 +37,7 @@
 				player=sc.player1;
 				config=sc.config;
 				addEventListener('close', closeHandler);
+				sc.addEventListener('moneyChanged', moneyChangedHandler, false, 0, true);
 				maxLoan=int(sc.totalAssets() / 3);
 				info.text='贷款额度：总资产 x 30% = ' + maxLoan;
 			}
@@ -61,6 +62,7 @@
 				else
 				{
 					player.loan+=a;
+					sc.dispatchEvent(new Event('moneyChanged'));
 					PAlert.show('贷款成功!');
 				}
 			}
@@ -80,8 +82,15 @@
 				{
 					player.cash-=a;
 					player.loan-=a;
+					sc.dispatchEvent(new Event('moneyChanged'));
 					PAlert.show('还贷成功!');
 				}
+			}
+
+			protected function moneyChangedHandler(event:Event):void
+			{
+				maxLoan=int(sc.totalAssets() / 3);
+				info.text='贷款额度：总资产 x 30% = ' + maxLoan;
 			}
 		]]>
 	</fx:Script>

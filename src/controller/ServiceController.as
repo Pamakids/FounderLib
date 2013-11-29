@@ -2,6 +2,7 @@ package controller
 {
 	import com.pamakids.events.ODataEvent;
 	import com.pamakids.manager.LoadManager;
+	import com.pamakids.managers.PopupBoxManager;
 	import com.pamakids.models.ResultVO;
 	import com.pamakids.services.ServiceBase;
 	import com.pamakids.utils.BrowserUtil;
@@ -58,9 +59,7 @@ package controller
 
 		[Bindable]
 		public var otherCash:Number=0;
-
 		private var otherSO:SaleStrategyVO;
-
 
 		protected function onGameHandler(event:PomeloEvent):void
 		{
@@ -128,6 +127,7 @@ package controller
 			{
 				showReadyBox();
 			}
+			isReading=false;
 		}
 
 		public var http:String;
@@ -200,6 +200,11 @@ package controller
 		 */
 		public function pauseGame():void
 		{
+			for each (var user:Object in users)
+			{
+				user.ready=false;
+			}
+
 			purchaseNumEachRound=0;
 			messageTimer.stop();
 			gameTimer.stop();
@@ -208,6 +213,35 @@ package controller
 			gameTime='回合' + roundNum;
 
 			player1.cash-=player1.loan * config.loanRate / 100;
+//			player1.cash-=50000;
+			player1.payRent();
+
+			if (other)
+			{
+				var sendData:Object={target: other.company_name, data: player1.money};
+				pomelo.request(sendGameMessage, sendData);
+			}
+
+			dispatchEvent(new Event('moneyChanged'));
+
+			if (player1.money < 0)
+			{
+				if (player2.money < 0)
+				{
+					if (player1.money > player2.money)
+					{
+						gameOver(new GameResult(true, '您获得了胜利，5秒后将自动返回游戏大厅'));
+					}
+					else
+					{
+						gameOver(new GameResult(false, '您失败了，5秒后将自动返回游戏大厅'));
+					}
+				}
+				else
+				{
+					gameOver(new GameResult(false, '您已经没有现金了，游戏失败，5秒后将自动返回游戏大厅'));
+				}
+			}
 
 			StatusManager.getInstance().quitGame(function():void
 			{
@@ -217,11 +251,10 @@ package controller
 
 		protected function sendGameMessageHandler(event:TimerEvent):void
 		{
+			if (!other)
+				return;
 			var sendData:Object={target: other.company_name, data: player1.money, player: player1, svo: currentSaleStrategy};
-			pomelo.request(sendGameMessage, sendData, function(data:Object):void
-			{
-				trace('sent data:', data);
-			});
+			pomelo.request(sendGameMessage, sendData);
 		}
 
 		private var queryEntry:String="gate.gateHandler.queryEntry";
@@ -234,7 +267,7 @@ package controller
 		public static const ENTERED:String="ENTERED";
 		public static const USER_CANCEL_READY:String="USER_CANCEL_READY";
 
-		public var users:Array;
+		public var users:Array=[];
 
 		/**
 		 * 房间ID
@@ -245,7 +278,7 @@ package controller
 		{
 			rid=room;
 			trace('connect game server', room, socket);
-			alert(room + ' ' + socket + ' ' + me.company_name);
+//			alert(room + ' ' + socket + ' ' + me.company_name);
 			pomelo.init(socket, 3014, null, function(res:Object):void
 			{
 				if (res.code == 200)
@@ -366,7 +399,7 @@ package controller
 			}
 			else
 			{
-//				if (!fighting)
+				if (!fighting)
 				{
 					var uo:Object=SO.i.getKV('user');
 					if (uo)
@@ -441,7 +474,7 @@ package controller
 				if (result.status)
 				{
 					config=CloneUtil.convertObject(result.results, GameConfigVO);
-					config.roundTime=20;
+//					config.roundTime=20;
 					var pvo:Object=SO.i.getKV('player' + me.company_name);
 					if (!pvo)
 					{
@@ -476,7 +509,7 @@ package controller
 
 		private function initTimers():void
 		{
-			messageTimer=new Timer(3000)
+			messageTimer=new Timer(5000)
 			messageTimer.addEventListener(TimerEvent.TIMER, sendGameMessageHandler);
 
 			gameTimer=new Timer(1000, config.roundTime);
@@ -491,6 +524,8 @@ package controller
 
 		private function getCurrentPrice(id:String, svo:SaleStrategyVO):int
 		{
+			if (!svo)
+				return 0;
 			var p:int;
 			for each (var gvo:Object in svo.goods)
 			{
@@ -614,14 +649,16 @@ package controller
 
 		protected function closeHandler(event:Event):void
 		{
+			if (isReading)
+				return;
 			if (fighting)
 			{
-				gameOver(new GameResult(false, '于服务器的连接已断开，3秒后将自动返回游戏大厅'));
+				gameOver(new GameResult(false, '于服务器的连接已断开，5秒后将自动返回游戏大厅'));
 			}
 			else
 			{
-				alert('对方掉线了，3秒后返回游戏大厅');
-				setTimeout(gotoRoom, 3000);
+				alert('对方掉线了，5秒后返回游戏大厅');
+				setTimeout(gotoRoom, 5000);
 			}
 		}
 
@@ -629,12 +666,12 @@ package controller
 		{
 			if (fighting)
 			{
-				gameOver(new GameResult(true, '您赢得了游戏，3秒后将自动返回游戏大厅'));
+				gameOver(new GameResult(true, '您赢得了游戏，5秒后将自动返回游戏大厅'));
 			}
 			else
 			{
-				alert('对方掉线了，3秒后返回游戏大厅');
-				setTimeout(gotoRoom, 3000);
+				alert('对方掉线了，5秒后返回游戏大厅');
+				setTimeout(gotoRoom, 5000);
 			}
 		}
 
@@ -645,15 +682,14 @@ package controller
 				var s:ServiceBase=new ServiceBase("game/over", 'POST');
 				s.call(function(vo:ResultVO):void
 				{
-					if (vo.status)
-						setTimeout(gotoRoom, 3000);
-					else
+					if (!vo.status)
 						alert(vo.errorResult);
+					setTimeout(gotoRoom, 5000);
 				}, {win: me.company_name, lose: other.company_name});
 			}
 			else
 			{
-				setTimeout(gotoRoom, 3000);
+				setTimeout(gotoRoom, 5000);
 			}
 			alert(vo.info);
 			if (messageTimer)
@@ -876,6 +912,8 @@ package controller
 				player1.saleStrategies=[so];
 			}
 
+			isReading=true;
+
 			pomelo.request(readyRoute, {user: me.company_name, rid: rid}, function(result:Boolean):void
 			{
 				trace('is ready', result);
@@ -883,6 +921,8 @@ package controller
 
 			return new ResultVO(true);
 		}
+
+		private var isReading:Boolean;
 
 		public function cancelReady(callback:Function):void
 		{
