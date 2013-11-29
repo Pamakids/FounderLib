@@ -8,6 +8,7 @@ package view.unit
 	import global.AssetsManager;
 	import global.ShopperManager;
 	import global.StatusManager;
+	import global.StoreManager;
 	
 	import model.StaffVO;
 
@@ -79,6 +80,7 @@ package view.unit
 				action.play();
 				var list:Array = crtShopper.getShoppingList();
 				ServiceController.instance.player1.cash += liquidation(list);		//现金结算
+				StoreManager.getInstance().delGoodsFromSource( crtShopper.getShoppingList() );
 				ShopperManager.getInstance().outShop( crtShopper );
 				crtShopper = null;
 			}
