@@ -3,7 +3,6 @@ package view.screen
 	import flash.display.Sprite;
 	
 	import global.AssetsManager;
-	import global.StatusManager;
 	
 	import view.unit.BasicUnit;
 	import view.unit.Shopper;
