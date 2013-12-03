@@ -33,7 +33,14 @@
 
 			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
 			{
-				focusManager.setFocus(quantity);
+//				focusManager.setFocus(quantity);
+				focuse();
+			}
+
+			private function focuse():void
+			{
+				quantity.setFocus();
+				quantity.selectRange(quantity.text.length - 1, quantity.text.length - 1);
 			}
 
 			protected function quantity_focusOutHandler(event:FocusEvent):void
@@ -47,14 +54,20 @@
 
 			protected function itemrenderer1_addedToStageHandler(event:Event):void
 			{
-				focusManager.setFocus(quantity);
+				focuse();
+//				quantity.setFocus();
+//				focusManager.setFocus(quantity);
 			}
 
 			override public function set data(value:Object):void
 			{
 				super.data=value;
 				if (initialized && focusManager)
-					focusManager.setFocus(quantity);
+				{
+					focuse();
+//					quantity.setFocus();
+//					focusManager.setFocus(quantity);
+				}
 			}
 		]]>
 	</fx:Script>
@@ -63,8 +76,7 @@
 			 color="0x975c25"
 			 text="{data.name+' x '}"/>
 
-	<s:TextInput skinClass="skins.textinput.DefaultTextInputSkin"
-				 width="60"
+	<s:TextInput width="60"
 				 fontSize="14"
 				 id="quantity"
 				 restrict="0-9"

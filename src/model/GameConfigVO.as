@@ -7,7 +7,7 @@ package model
 	{
 		public function GameConfigVO()
 		{
-			required.push('loanRate', 'params', 'name', 'type', 'startupMoney', 'prepareTime', 'roundTime', 'minShopVisitors', 'minShopRent', 'visitorsAscendingRatio', 'rentAscendingRatio', 'goodsSaleMax');
+			required.push('loanRate', 'params', 'name', 'type', 'startupMoney', 'roundTime', 'minShopVisitors', 'minShopRent', 'visitorsAscendingRatio', 'rentAscendingRatio', 'goodsSaleMax');
 		}
 
 		override public function isValidate():Boolean
@@ -16,8 +16,8 @@ package model
 			{
 				if (startupMoney < minShopRent + 30000)
 					invalidMessage='启动资金低于一月租金+30000最低运营资金';
-				else if (prepareTime < 60)
-					invalidMessage='筹备时间不可低于60秒';
+//				else if (prepareTime < 60)
+//					invalidMessage='筹备时间不可低于60秒';
 				else if (roundTime < 180)
 					invalidMessage='月时间不可低于180秒';
 				else if (minShopRent < 5000)
@@ -72,6 +72,22 @@ package model
 		public function getShopperInTime():Number
 		{
 			return parseFloat(params[3]);
+		}
+
+		/**
+		 * 有可能进入顾客的最短时间
+		 */
+		public function getClientInTime():int
+		{
+			return int(params[11]);
+		}
+
+		/**
+		 * 顾客最多可能购买单一物品的数量
+		 */
+		public function getClientMaxGoodsNum():int
+		{
+			return int(params[12]);
 		}
 
 		/**

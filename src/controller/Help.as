@@ -6,7 +6,9 @@ package controller
 
 	import flash.utils.setTimeout;
 
+	import mx.controls.ToolTip;
 	import mx.core.IToolTip;
+	import mx.events.FlexEvent;
 	import mx.managers.ToolTipManager;
 
 	public class Help extends Singleton
@@ -14,6 +16,7 @@ package controller
 		public function Help()
 		{
 			super();
+			ToolTip.maxWidth=500;
 		}
 
 		public static function get instance():Help
@@ -32,6 +35,11 @@ package controller
 				hideHelp(showingTip);
 
 			var ti:IToolTip=ToolTipManager.createToolTip(text, x ? x : recordX, y ? y : recordY);
+
+//			ti.addEventListener(FlexEvent.CREATION_COMPLETE, function(e:FlexEvent):void
+//			{
+			ti.x=(ti.parent.width - ti.width) / 2;
+//			}, false, 0, true);
 
 			if (hideTime)
 				setTimeout(function():void

@@ -43,7 +43,7 @@
 
 				if (sc.fighting)
 					return;
-				Help.instance.showHelp('采购的物品可以直接在购物车修改数量\n物品种类越多越容易销售成功');
+				Help.instance.showHelp('采购的物品可以直接在购物车修改数量\n物品种类越多越容易销售成功\n如果数量不足以满足顾客所需会导致交易失败');
 			}
 
 			[Bindable]

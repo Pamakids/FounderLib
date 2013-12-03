@@ -25,6 +25,7 @@ package controller
 	import global.StatusManager;
 
 	import model.BoughtGoodsVO;
+	import model.EventsVO;
 	import model.GameConfigVO;
 	import model.GameResult;
 	import model.GoodsVO;
@@ -118,7 +119,6 @@ package controller
 //						alert('另一玩家尚未进入，请等待或返回游戏大厅');
 //						isReading=false;
 						showReadyBox();
-						isReading=false;
 						return;
 					}
 					SO.i.setKV('player' + me.company_name, player1);
@@ -134,7 +134,10 @@ package controller
 			{
 				showReadyBox();
 			}
-			isReading=false;
+			else
+			{
+				isReading=false;
+			}
 		}
 
 		public var http:String;
@@ -222,11 +225,22 @@ package controller
 			gameTimer.stop();
 			shopperTimer.stop();
 			roundNum++;
-			gameTime='第月' + roundNum + '月';
+			gameTime='第' + roundNum + '月';
 
 			player1.cash-=player1.loan * config.loanRate / 100;
 //			player1.cash-=50000;
 			player1.payRentAndSalary();
+
+			var s:ServiceBase=new ServiceBase('event');
+			s.call(function(vo:ResultVO):void
+			{
+				if (vo.status)
+				{
+					var evo:EventsVO=CloneUtil.convertObject(vo.results, EventsVO);
+					alert(evo.content);
+					player1.cash+=evo.money;
+				}
+			});
 
 			if (other)
 			{
@@ -529,7 +543,7 @@ package controller
 			gameTimer.addEventListener(TimerEvent.TIMER, playGameing);
 			gameTimer.addEventListener(TimerEvent.TIMER_COMPLETE, roundComplete);
 
-			shopperTimer=new Timer(config.getShopperInTime() * 1000);
+			shopperTimer=new Timer(1000);
 			shopperTimer.addEventListener(TimerEvent.TIMER, addShopperHandler);
 		}
 
@@ -555,7 +569,7 @@ package controller
 		{
 			for each (var vo:BoughtGoodsVO in arr)
 			{
-				if (vo.id == id && vo.quantity > num)
+				if (vo.id == id)
 				{
 					return true;
 				}
@@ -566,7 +580,7 @@ package controller
 		protected function addShopperHandler(event:TimerEvent):void
 		{
 			var r:Number=Math.random();
-			var num:int=Math.ceil(Math.random() * 10);
+			var num:int=Math.ceil(Math.random() * config.getClientMaxGoodsNum());
 			var buyTwo:Boolean=r > 0.5;
 			var toBuy:Array;
 			var index:int=Math.floor(MathUtil.getRandomBetween(0, goods.length));
@@ -581,7 +595,7 @@ package controller
 				{
 					index2=Math.floor(MathUtil.getRandomBetween(0, goods.length));
 				} while (index2 == index);
-				num=Math.ceil(Math.random() * 10);
+				num=Math.ceil(Math.random() * config.getClientMaxGoodsNum());
 				gvo=goods[index2];
 				toBuy.push([gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]);
 				trace('to buy 2:', gvo.id, gvo.name);

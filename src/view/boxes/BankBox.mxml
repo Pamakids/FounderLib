@@ -55,7 +55,7 @@
 				{
 					PAlert.show('请输入金额');
 				}
-				else if (a > maxLoan)
+				else if (a > maxLoan || a < 0)
 				{
 					PAlert.show('超出最大贷款额度，请重新输入');
 				}
@@ -127,6 +127,7 @@
 							 color="0x975c25"/>
 					<s:TextInput skinClass="skins.textinput.DefaultTextInputSkin"
 								 restrict="0-9"
+								 maxChars="8"
 								 prompt="输入贷款金额"
 								 id="ti"/>
 				</s:HGroup>
