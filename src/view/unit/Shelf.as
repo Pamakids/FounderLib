@@ -43,6 +43,7 @@ package view.unit
 		protected function onClick(e:MouseEvent):void
 		{
 			trace("shelf");
+			ShelfManager.getInstance().addToWait(this);
 		}
 
 		/**
@@ -103,7 +104,7 @@ package view.unit
 					}
 				}
 			}
-			ShelfManager.getInstance().addToWait(this);
+//			ShelfManager.getInstance().addToWait(this);
 		}
 
 		private function updatePropIcon(place:int):void

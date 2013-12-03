@@ -1,16 +1,17 @@
 package view.unit
 {
 	import com.astar.expand.ItemTile;
-
+	
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.utils.getTimer;
-
+	
 	import global.AssetsManager;
+	import global.ShelfManager;
 	import global.StatusManager;
-
+	
 	import model.StaffVO;
-
+	
 	import view.component.LogicalMap;
 	import view.unit.w.Walker;
 
@@ -57,7 +58,14 @@ package view.unit
 
 		override protected function onArrived(e:Event):void
 		{
-			replenishHandler();
+			if(targetShelf.needResplenish())
+			{
+				replenishHandler();
+			}else
+			{
+				ShelfManager.getInstance().delFromWait(targetShelf);
+				isFree = true;
+			}
 		}
 
 		private var targetShelf:Shelf;
