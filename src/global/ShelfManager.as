@@ -99,7 +99,7 @@ package global
 		private var vecWait:Array = [];
 		public function addToWait(shelf:Shelf):void
 		{
-			if(shelf.needResplenish() && vecWait.indexOf( shelf ) == -1)
+			if(/*shelf.needResplenish() && */vecWait.indexOf( shelf ) == -1)
 				vecWait.push( shelf );
 		}
 		public function delFromWait(shelf:Shelf):void
@@ -111,23 +111,8 @@ package global
 		//获取等待补货的shelf
 		public function getWaitShelf():Shelf
 		{
-			var shelf:Shelf;
-			//优先队列
-			for(var i:int = 0;i<vecWait.length;i++)
-			{
-				shelf = vecWait[i];
-				if(shelf.needResplenish())
-					return shelf;
-				else
-					vecWait.shift();
-			}
-			//寻求满足补货条件的shelf
-			for each(shelf in vecShelf)
-			{
-				if(shelf.needResplenish())
-					return shelf;
-			}
-			//无需补货
+			if(vecWait.length > 0)
+				return vecWait.shift();
 			return null;
 		}
 		
