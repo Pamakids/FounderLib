@@ -80,7 +80,6 @@
 				}
 				else
 				{
-					player.cash-=a;
 					player.loan-=a;
 					sc.dispatchEvent(new Event('moneyChanged'));
 					PAlert.show('还贷成功!');
@@ -113,7 +112,7 @@
 			<s:Label text="{'当前利率： '+config.loanRate+'%'}"
 					 fontSize="14"
 					 color="0x975c25"/>
-			<s:Label text="{'每回合利息： '+player.loan*config.loanRate/100}"
+			<s:Label text="{'每月利息： '+player.loan*config.loanRate/100}"
 					 fontSize="14"
 					 color="0x975c25"/>
 		</s:VGroup>
@@ -131,7 +130,7 @@
 								 prompt="输入贷款金额"
 								 id="ti"/>
 				</s:HGroup>
-				<s:Label text="{'利息增加： '+int(int(ti.text)*config.loanRate/100)+'/回合'}"
+				<s:Label text="{'利息增加： '+int(int(ti.text)*config.loanRate/100)+'/月'}"
 						 fontSize="14"
 						 color="0x975c25"/>
 			</s:VGroup>
@@ -154,7 +153,7 @@
 								 prompt="输入还贷金额"
 								 id="ti2"/>
 				</s:HGroup>
-				<s:Label text="{'利息减少： '+int(int(ti2.text)*config.loanRate/100)+'/回合'}"
+				<s:Label text="{'利息减少： '+int(int(ti2.text)*config.loanRate/100)+'/月'}"
 						 fontSize="14"
 						 color="0x975c25"/>
 			</s:VGroup>

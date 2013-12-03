@@ -69,6 +69,8 @@ package controller
 			if (msg.svo)
 				otherSO=CloneUtil.convertObject(msg.svo, SaleStrategyVO);
 			otherCash=Number(msg.data);
+
+			dispatchEvent(new Event('moneyChanged'));
 		}
 
 		protected function onReadyHandler(event:PomeloEvent):void
@@ -102,6 +104,8 @@ package controller
 			{
 				if (!u.ready)
 					b=false;
+				else
+					isReading=true;
 			}
 
 			if (b)
@@ -111,7 +115,10 @@ package controller
 				{
 					if (users.length != 2)
 					{
-						alert('另一玩家尚未进入，请等待或返回游戏大厅');
+//						alert('另一玩家尚未进入，请等待或返回游戏大厅');
+//						isReading=false;
+						showReadyBox();
+						isReading=false;
 						return;
 					}
 					SO.i.setKV('player' + me.company_name, player1);
@@ -135,11 +142,14 @@ package controller
 
 		public function init():void
 		{
-			LoadManager.instance.loadText('assets/config.json', loadedHandler);
-			LoadManager.instance.loadText('goods/data.json', loadGoodsHandler);
-			LoadManager.instance.loadSWF('goods/assets.swf');
+			LoadManager.instance.loadSWF('goods/assets.swf', loadedSWFHandler);
 		}
 
+		private function loadedSWFHandler():void
+		{
+			LoadManager.instance.loadText('assets/config.json', loadedHandler);
+			LoadManager.instance.loadText('goods/data.json', loadGoodsHandler);
+		}
 
 		private var gameTimer:Timer;
 		private var messageTimer:Timer;
@@ -181,13 +191,15 @@ package controller
 		protected function playGameing(event:TimerEvent):void
 		{
 			var s:int=config.roundTime - gameTimer.currentCount;
-			var m:int=Math.floor(s / 60);
-			var ms:String;
-			var ss:String;
-			ms=m < 10 ? '0' + m : '' + m;
-			s=s % 60;
-			ss=s < 10 ? '0' + s : '' + s;
-			gameTime=ms + ':' + ss;
+			var oneDay:int=Math.floor(config.roundTime / 30);
+			gameTime='第' + Math.ceil(gameTimer.currentCount * 30 / gameTimer.repeatCount) + '天';
+//			var m:int=Math.floor(s / 60);
+//			var ms:String;
+//			var ss:String;
+//			ms=m < 10 ? '0' + m : '' + m;
+//			s=s % 60;
+//			ss=s < 10 ? '0' + s : '' + s;
+//			gameTime=ms + ':' + ss;
 		}
 
 		public static const GAME_PAUSE:String="GAME_PAUSE";
@@ -210,11 +222,11 @@ package controller
 			gameTimer.stop();
 			shopperTimer.stop();
 			roundNum++;
-			gameTime='回合' + roundNum;
+			gameTime='第月' + roundNum + '月';
 
 			player1.cash-=player1.loan * config.loanRate / 100;
 //			player1.cash-=50000;
-			player1.payRent();
+			player1.payRentAndSalary();
 
 			if (other)
 			{
@@ -399,7 +411,7 @@ package controller
 			}
 			else
 			{
-				if (!fighting)
+				if (!isDebug)
 				{
 					var uo:Object=SO.i.getKV('user');
 					if (uo)
@@ -494,7 +506,8 @@ package controller
 						currentSaleStrategy=saleStrategies[0];
 					}
 					var fr:String=SO.i.getKV('fightRoom') as String;
-					if (!fr)
+
+					if (!fr || isDebug)
 						fr='FIGHT';
 
 					initTimers();
@@ -664,6 +677,8 @@ package controller
 
 		protected function removeUserHandler(event:PomeloEvent):void
 		{
+			if (isReading)
+				return;
 			if (fighting)
 			{
 				gameOver(new GameResult(true, '您赢得了游戏，5秒后将自动返回游戏大厅'));
@@ -736,7 +751,19 @@ package controller
 		public function selectStaff(staff:StaffVO):void
 		{
 			staffs[staff.type]=staff;
+			var arr:Array=[];
+
 			dispatchEvent(new ODataEvent(staff, 'selectedStaff'));
+
+			if (fighting)
+				return;
+			for each (var vo:StaffVO in staffs)
+			{
+				arr.push(vo);
+			}
+
+			if (arr.length == 3)
+				Help.instance.showHelp('人员招聘完毕，快去批发市场采购东西吧');
 		}
 
 		public function isSeletected(staff:StaffVO):Boolean
@@ -803,7 +830,7 @@ package controller
 		public function totalAssets():int
 		{
 			caculate();
-			return player1.cash + goodsValue;
+			return player1.cash + goodsValue - player1.loan;
 		}
 
 		private function caculate():void
@@ -848,6 +875,11 @@ package controller
 						boughtGoods.push(bg);
 				}
 			}
+
+			if (fighting)
+				return;
+
+			Help.instance.showHelp('采购完成后您可以去设置销售方案了\n您也可以继续采购或者去银行贷款再去采购更多的物品\n或者直接点击“准备好了”开始游戏');
 		}
 
 		public function getBoughtGoodsDic():Dictionary
@@ -922,7 +954,7 @@ package controller
 			return new ResultVO(true);
 		}
 
-		private var isReading:Boolean;
+		public var isReading:Boolean;
 
 		public function cancelReady(callback:Function):void
 		{

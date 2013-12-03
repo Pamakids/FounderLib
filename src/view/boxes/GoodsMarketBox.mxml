@@ -18,6 +18,7 @@
 			import spark.components.Group;
 			import spark.events.IndexChangeEvent;
 
+			import controller.Help;
 			import controller.ServiceController;
 
 			import model.BoughtGoodsVO;
@@ -39,6 +40,10 @@
 				sc.addEventListener('quantityChanged', changedHandler);
 
 				boughtGoods=new ArrayCollection();
+
+				if (sc.fighting)
+					return;
+				Help.instance.showHelp('采购的物品可以直接在购物车修改数量\n物品种类越多越容易销售成功');
 			}
 
 			[Bindable]
@@ -113,7 +118,7 @@
 				}
 				else if (sc.fighting && totalNum + sc.purchaseNumEachRound > sc.player1.getStaff(1).ability)
 				{
-					PAlert.show('采购数量超出采购员每回合最大采购的数量，请调整');
+					PAlert.show('采购数量超出采购员每月最大采购的数量，请调整');
 				}
 				else
 				{
@@ -138,12 +143,12 @@
 			  y="90">
 		<s:List id="goodsList"
 				skinClass="skins.DefaultListSkin"
-				width="240"
+				width="260"
 				itemRenderer="renderers.GoodsItem"
 				height="240"
 				dataProvider="{goods}"/>
 		<s:VGroup horizontalAlign="center"
-				  width="100%">
+				  width="300">
 			<s:Label text="购物车"
 					 fontSize="18"
 					 color="0x975c25"/>
@@ -151,7 +156,7 @@
 					dataProvider="{boughtGoods}"
 					skinClass="skins.DefaultListSkin"
 					itemRenderer="renderers.ShopCartRenderer"
-					width="280"
+					width="260"
 					height="165"/>
 			<s:BitmapImage source="@Embed('/assets/boxes/cartLine.png')"/>
 
@@ -160,7 +165,7 @@
 				<s:Label id="total"
 						 text="{'总金额：'+ shopCartTotal}"
 						 color="0xfe840c"
-						 fontSize="20"/>
+						 fontSize="18"/>
 				<s:Button skinClass="skins.DefaultButtonBigSkin"
 						  id="buy"
 						  click="buy_clickHandler(event)"

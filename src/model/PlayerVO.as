@@ -74,10 +74,17 @@ package model
 			_money=value;
 		}
 
-		public function payRent():void
+		/**
+		 * 付房租和工资
+		 */
+		public function payRentAndSalary():void
 		{
 			if (shop)
 				cash-=shop.rent;
+			for each (var vo:StaffVO in staffes)
+			{
+				cash-=vo.salary;
+			}
 		}
 	}
 }

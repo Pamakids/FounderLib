@@ -9,6 +9,7 @@
 	<fx:Script>
 		<![CDATA[
 			import com.pamakids.components.PAlert;
+			import com.pamakids.events.ODataEvent;
 			import com.pamakids.utils.CloneUtil;
 
 			import mx.collections.ArrayCollection;
@@ -17,9 +18,8 @@
 			import spark.components.Group;
 			import spark.events.IndexChangeEvent;
 
+			import controller.Help;
 			import controller.ServiceController;
-
-			import com.pamakids.events.ODataEvent;
 
 			import model.BoughtGoodsVO;
 			import model.SaleStrategyVO;
@@ -35,6 +35,13 @@
 				sc=ServiceController.instance;
 
 				initData();
+
+				if (!sc.fighting)
+				{
+					Help.instance.showHelp('物品的售价会影响店铺对顾客的吸引率，价格越低越容易吸引到顾客光顾');
+				}
+
+				sc.addEventListener('removeSS', removeSSHandler);
 			}
 
 			[Bindable]
@@ -68,6 +75,11 @@
 
 				sc.saleStrategies.push(vo);
 				initData();
+
+				if (sc.fighting)
+					return;
+				Help.instance.showHelp('一切准备就绪，点击“准备好了”吧！');
+//				Help.instance.hideAll();
 			}
 
 			private function initData():void
@@ -95,6 +107,11 @@
 			protected function goodsTypes_changeHandler(event:IndexChangeEvent):void
 			{
 				goods=new ArrayCollection(boughtGoodsDic[goodsTypes.selectedItem]);
+			}
+
+			protected function removeSSHandler(event:ODataEvent):void
+			{
+				saleStrategy.removeItemAt(saleStrategy.getItemIndex(event.data));
 			}
 		]]>
 	</fx:Script>

@@ -15,11 +15,11 @@ package model
 			if (super.isValidate())
 			{
 				if (startupMoney < minShopRent + 30000)
-					invalidMessage='启动资金低于一回合租金+30000最低运营资金';
+					invalidMessage='启动资金低于一月租金+30000最低运营资金';
 				else if (prepareTime < 60)
 					invalidMessage='筹备时间不可低于60秒';
 				else if (roundTime < 180)
-					invalidMessage='回合时间不可低于180秒';
+					invalidMessage='月时间不可低于180秒';
 				else if (minShopRent < 5000)
 					invalidMessage='最低房租不可低于5000元';
 				else if (minShopVisitors < 10)
@@ -112,7 +112,7 @@ package model
 		 */
 		public var prepareTime:Number;
 		/**
-		 * 回合时长
+		 * 月时长
 		 */
 		public var roundTime:Number;
 		/**

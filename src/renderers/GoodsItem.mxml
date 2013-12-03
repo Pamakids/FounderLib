@@ -81,7 +81,7 @@
 			<s:HGroup verticalAlign="middle">
 				<s:Label fontSize="14"
 						 color="0x975c25"
-						 width="58"
+						 width="78"
 						 text="{'进价：'+vo.inPrice}"/>
 				<s:Label fontSize="14"
 						 color="0x975c25"

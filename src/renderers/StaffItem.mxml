@@ -52,13 +52,13 @@
 					}
 
 					if (data.type == 1)
-						ability.text='采购量： ' + vo.ability + ' 件/回合';
+						ability.text='采购量： ' + vo.ability + ' 件/月';
 					else if (data.type == 2)
 						ability.text='收银时间： ' + vo.ability + ' 秒/次';
 					else
 						ability.text='补货时间： ' + vo.ability + ' 秒/次';
 
-					salary.text='工资： ' + vo.salary + ' /回合';
+					salary.text='工资： ' + vo.salary + ' /月';
 					sign.selected=ServiceController.instance.isSeletected(vo);
 				}
 			}

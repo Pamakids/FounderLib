@@ -1,4 +1,4 @@
-package views
+package view
 {
 	import com.pamakids.managers.NiceToolTipManagerImpl;
 

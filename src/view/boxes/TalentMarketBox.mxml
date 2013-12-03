@@ -13,6 +13,7 @@
 
 			import spark.components.Group;
 
+			import controller.Help;
 			import controller.ServiceController;
 
 			import model.StaffVO;
@@ -44,6 +45,8 @@
 				currentState='s1';
 
 				addEventListener('close', closeHandler);
+
+				Help.instance.showHelp('请招聘采购员、收银员及理货员，签约即招聘成功');
 			}
 
 			private function getStaffes(type:int):ArrayCollection

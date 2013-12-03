@@ -1,9 +1,9 @@
 {
 	"isDebug":false,
-	"local" : "http://192.168.1.107:6661",
+	"local" : "http://localhost:6661",
 	"remote" : "http://temp.pamakids.com:81",
-	"localHttp":"http://192.168.1.107/f/",
+	"localHttp":"http://localhost/f/",
 	"remoteHttp":"http://temp.pamakids.com/",
-	"socket_local":"temp.pamakids.com",
+	"socket_local":"127.0.0.1",
 	"socket_remote":"temp.pamakids.com"
 }

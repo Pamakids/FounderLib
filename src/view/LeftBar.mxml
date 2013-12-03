@@ -15,6 +15,7 @@
 
 			import spark.components.Group;
 
+			import controller.Help;
 			import controller.ServiceController;
 
 			import view.boxes.BankBox;
@@ -72,18 +73,19 @@
 
 			protected function ok_clickHandler(event:MouseEvent):void
 			{
+				if (sc.isReading)
+					return;
 				var result:ResultVO=sc.readyToStart();
 				if (!result.status)
 				{
 					PAlert.show(result.errorResult);
+					return;
 				}
 				else
 				{
-					sc.showReadyBox=function():void
-					{
-						PopupBoxManager.popup(new ReadyBox);
-					}
 				}
+
+				Help.instance.hideAll();
 			}
 
 			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void

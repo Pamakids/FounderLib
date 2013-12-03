@@ -9,6 +9,7 @@
 
 	<fx:Script>
 		<![CDATA[
+			import com.greensock.TweenLite;
 			import com.pamakids.components.PAlert;
 			import com.pamakids.managers.PopupBoxManager;
 
@@ -58,7 +59,13 @@
 			{
 				if (PopupBoxManager.hasPopupBox)
 					return;
-				var p:int=int(ti.text + event.text);
+				TweenLite.killDelayedCallsTo(checkValue);
+				TweenLite.delayedCall(0.3, checkValue);
+			}
+
+			private function checkValue():void
+			{
+				var p:int=int(ti.text);
 				if (p == 0)
 				{
 					PAlert.show('售价不能为0');
@@ -66,8 +73,8 @@
 				}
 				else if (p > vo.inPrice * sc.config.goodsSaleMax / 100)
 				{
-					PAlert.show('售价不能超出进货价的 ' + sc.config.goodsSaleMax + '%');
 					ti.text=vo.outPrice.toString();
+					PAlert.show('售价不能超出进货价的 ' + sc.config.goodsSaleMax + '%');
 				}
 				else
 				{
@@ -93,7 +100,7 @@
 			<s:HGroup verticalAlign="middle">
 				<s:Label fontSize="14"
 						 color="0x975c25"
-						 width="58"
+						 width="78"
 						 text="{'进价：'+vo.inPrice}"/>
 				<s:Label fontSize="14"
 						 color="0x975c25"

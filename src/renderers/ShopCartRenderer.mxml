@@ -3,6 +3,7 @@
 				xmlns:s="library://ns.adobe.com/flex/spark"
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				autoDrawBackground="false"
+				addedToStage="itemrenderer1_addedToStageHandler(event)"
 				creationComplete="itemrenderer1_creationCompleteHandler(event)">
 
 	<s:layout>
@@ -43,18 +44,31 @@
 					ServiceController.instance.dispatchEvent(new Event('quantityChanged'));
 				}
 			}
+
+			protected function itemrenderer1_addedToStageHandler(event:Event):void
+			{
+				focusManager.setFocus(quantity);
+			}
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				if (initialized && focusManager)
+					focusManager.setFocus(quantity);
+			}
 		]]>
 	</fx:Script>
 
 	<s:Label fontSize="14"
 			 color="0x975c25"
-			 text="{data.name+' X '}"/>
+			 text="{data.name+' x '}"/>
 
 	<s:TextInput skinClass="skins.textinput.DefaultTextInputSkin"
 				 width="60"
 				 fontSize="14"
 				 id="quantity"
 				 restrict="0-9"
+				 maxChars="4"
 				 focusOut="quantity_focusOutHandler(event)"
 				 textInput="textinput1_textInputHandler(event)"
 				 color="0xfe840c"

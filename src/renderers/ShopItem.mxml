@@ -56,7 +56,7 @@
 				 color="0x8b331f"
 				 textAlign="right"
 				 fontSize="24"/>
-		<s:Label text="/回合"
+		<s:Label text="/月"
 				 color="0xffffff"
 				 fontSize="24"/>
 

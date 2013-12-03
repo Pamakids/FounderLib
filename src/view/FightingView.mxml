@@ -24,13 +24,6 @@
 				sc=ServiceController.instance;
 				sc.addEventListener(ServiceController.GAME_PAUSE, gamePausedHandler);
 				sc.addEventListener(ServiceController.GAME_START, gameStartHandler);
-				if (!sc.saleStrategies)
-				{
-					var svo:SaleStrategyVO=new SaleStrategyVO();
-					svo.name='默认方案';
-					sc.saleStrategies=[svo, svo];
-				}
-				saleStrategies.dataProvider=new ArrayCollection(sc.saleStrategies);
 			}
 
 			protected function ready_clickHandler(event:MouseEvent):void
@@ -38,19 +31,48 @@
 
 			}
 
+			private var fp:FightingPrepare;
+
 			protected function gamePausedHandler(event:Event):void
 			{
 				currentState='prepare';
+				fp=new FightingPrepare();
+				fp.y=190;
+				addElement(fp);
 			}
 
 			protected function gameStartHandler(event:Event):void
 			{
 				currentState='normal';
+				if (fp)
+				{
+					removeElement(fp);
+					fp=null;
+				}
+				if (saleStrategies)
+					initSS();
 			}
 
 			protected function saleStrategies_changeHandler(event:IndexChangeEvent):void
 			{
 				sc.currentSaleStrategy=saleStrategies.selectedItem;
+			}
+
+			protected function saleStrategies_creationCompleteHandler(event:FlexEvent):void
+			{
+				initSS();
+			}
+
+			private function initSS():void
+			{
+				sc=ServiceController.instance;
+				if (!sc.saleStrategies)
+				{
+					var svo:SaleStrategyVO=new SaleStrategyVO();
+					svo.name='默认方案';
+					sc.saleStrategies=[svo, svo];
+				}
+				saleStrategies.dataProvider=new ArrayCollection(sc.saleStrategies);
 			}
 		]]>
 	</fx:Script>
@@ -68,28 +90,27 @@
 		</s:fill>
 	</s:Rect>
 
-	<s:Group width="100%"
-			 height="100%">
-		<view:Scoreboard id="sb"/>
+	<view:Scoreboard id="sb"/>
 
-		<s:ButtonBar id="saleStrategies"
-					 skinClass="skins.DefaultButtonBarSkin"
-					 labelField="name"
-					 x="10"
-					 y="10"
-					 alpha="0.7"
-					 rollOver="saleStrategies.alpha = 1"
-					 rollOut="saleStrategies.alpha = 0.5"
-					 includeIn="normal"
-					 change="saleStrategies_changeHandler(event)"
-					 requireSelection="true">
-			<s:layout>
-				<s:VerticalLayout gap="8"/>
-			</s:layout>
-		</s:ButtonBar>
+	<s:ButtonBar id="saleStrategies"
+				 toolTip="销售方案"
+				 skinClass="skins.DefaultButtonBarSkin"
+				 creationComplete="saleStrategies_creationCompleteHandler(event)"
+				 labelField="name"
+				 right="10"
+				 y="115"
+				 alpha="0.7"
+				 rollOver="saleStrategies.alpha = 1"
+				 rollOut="saleStrategies.alpha = 0.5"
+				 includeIn="normal"
+				 change="saleStrategies_changeHandler(event)"
+				 requireSelection="true">
+		<s:layout>
+			<s:VerticalLayout gap="8"/>
+		</s:layout>
+	</s:ButtonBar>
 
-		<view:FightingPrepare y="190"
-							  includeIn="prepare"/>
-	</s:Group>
+	<!--<view:FightingPrepare y="190"
+						  includeIn="prepare"/>-->
 
 </s:Group>

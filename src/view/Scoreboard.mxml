@@ -5,7 +5,7 @@
 		  gap="20"
 		  verticalAlign="middle"
 		  y="10"
-		  x="410"
+		  x="574"
 		  creationComplete="hgroup1_creationCompleteHandler(event)"
 		  xmlns:components="view.components.*"
 		  xmlns:components1="com.pamakids.components.*"
@@ -38,7 +38,7 @@
 			protected function gameStartHandler(event:Event):void
 			{
 				scaleX=scaleY=.6;
-				x=410;
+				x=574;
 			}
 
 			protected function changedHandler(event:Event):void
