@@ -8,10 +8,7 @@ package model
 		{
 		}
 
-		/**
-		 * 现金
-		 */
-		public var cash:Number=0;
+		private var _cash:Number=0;
 
 		private var _loan:Number=0;
 
@@ -35,6 +32,27 @@ package model
 		public var user:UserVO;
 
 		private var _money:int;
+
+		/**
+		 * 现金
+		 */
+		public function get cash():Number
+		{
+			return _cash;
+		}
+
+		/**
+		 * @private
+		 */
+		public function set cash(value:Number):void
+		{
+			if (value < 0 && value + loan > 0)
+			{
+				value=0;
+				loan+=value;
+			}
+			_cash=value;
+		}
 
 		public function getStaff(type:int):StaffVO
 		{

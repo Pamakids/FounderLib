@@ -14,7 +14,6 @@
 		<![CDATA[
 			import controller.ServiceController;
 
-			import model.BoughtGoodsVO;
 			import model.SaleStrategyVO;
 
 			protected function button1_clickHandler(event:MouseEvent):void

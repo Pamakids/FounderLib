@@ -62,6 +62,16 @@ package model
 					invalidMessage='理货员最快理货时间不可低于1秒';
 				else if (a[10] < 1)
 					invalidMessage='顾客能忍受的最长等货时间不可低于1秒';
+				else if (type == 1)
+				{
+					if (!a[13])
+						invalidMessage='最低目标盈利不能为空';
+					else if (a[14] > 100)
+						invalidMessage='递增率不可超出100%';
+					else
+						return true;
+					return false;
+				}
 				else
 					return true;
 				return false;
@@ -72,6 +82,22 @@ package model
 		public function getShopperInTime():Number
 		{
 			return parseFloat(params[3]);
+		}
+
+		/**
+		 * 单机模式最低目标盈利
+		 */
+		public function getSingleMinRequirement():int
+		{
+			return int(params[13]);
+		}
+
+		/**
+		 * 单机模式递增率
+		 */
+		public function getSingleRatio():int
+		{
+			return int(params[14]);
 		}
 
 		/**
@@ -117,7 +143,7 @@ package model
 		public var loanRate:Number;
 		public var name:String;
 		public var isDefault:Boolean;
-		public var type:int;
+		public var type:int=1;
 		public var params:Array;
 		/**
 		 * 启动资金

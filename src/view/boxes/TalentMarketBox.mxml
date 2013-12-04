@@ -46,7 +46,8 @@
 
 				addEventListener('close', closeHandler);
 
-				Help.instance.showHelp('请招聘采购员、收银员及理货员，签约即招聘成功');
+				if (!ServiceController.instance.fighting)
+					Help.instance.showHelp('请招聘采购员、收银员及理货员，签约即招聘成功');
 			}
 
 			private function getStaffes(type:int):ArrayCollection

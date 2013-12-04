@@ -27,18 +27,31 @@
 				sc.addEventListener(ServiceController.GAME_START, gameStartHandler);
 				sc.addEventListener('moneyChanged', changedHandler);
 				this.width=width;
+				if (sc.isSingle)
+				{
+					horizontalCenter=0;
+					leftGroup.visible=rightGroup.visible=false;
+				}
 			}
 
 			protected function gamePausedHandler(event:Event):void
 			{
 				scaleX=scaleY=1;
 				x=parent.width / 2 - width / 2;
+				if (sc.isSingle)
+					leftGroup.visible=true;
 			}
 
 			protected function gameStartHandler(event:Event):void
 			{
 				scaleX=scaleY=.6;
-				x=574;
+				if (!sc.isSingle)
+					x=574;
+				else
+				{
+					x=parent.width / 2 - width / 2;
+					leftGroup.visible=rightGroup.visible=false;
+				}
 			}
 
 			protected function changedHandler(event:Event):void
@@ -50,6 +63,7 @@
 	</fx:Script>
 
 	<s:HGroup gap="-20"
+			  id="leftGroup"
 			  verticalAlign="middle">
 		<components:GPortrait depth="1"/>
 		<s:Group>
@@ -75,6 +89,7 @@
 	</s:Group>
 
 	<s:HGroup gap="-20"
+			  id="rightGroup"
 			  verticalAlign="middle">
 		<s:Group>
 			<s:BitmapImage source="@Embed('/assets/boxes/leftArrow.png')"

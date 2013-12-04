@@ -25,13 +25,13 @@
 				player=ServiceController.instance.player1;
 				defaultCash=player.cash;
 
-				ServiceController.instance.addEventListener('selectdShop', selectedHandler);
+//				ServiceController.instance.addEventListener('selectdShop', selectedHandler);
 			}
 
 			protected function selectedHandler(event:ODataEvent):void
 			{
-				var shop:Object=event.data;
-				player.cash=defaultCash - shop.rent;
+//				var shop:Object=event.data;
+//				player.cash=defaultCash - shop.rent;
 			}
 		]]>
 	</fx:Script>

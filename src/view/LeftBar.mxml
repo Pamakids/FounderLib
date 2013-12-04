@@ -81,8 +81,9 @@
 					PAlert.show(result.errorResult);
 					return;
 				}
-				else
+				else if (sc.isSingle)
 				{
+					sc.gotoFighting();
 				}
 
 				Help.instance.hideAll();
@@ -91,6 +92,8 @@
 			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void
 			{
 				sc=ServiceController.instance;
+				if (sc.isSingle)
+					ok.label='开始游戏';
 			}
 
 			protected function createdHandler(event:FlexEvent):void
