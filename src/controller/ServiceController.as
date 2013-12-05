@@ -217,8 +217,10 @@ package controller
 			if (fighting)
 				return;
 
-			Help.instance.showHelp('采购完成后您可以去设置销售方案了\n您也可以继续采购或者去银行贷款再去采购更多的物品\n或者直接点击“准备好了”开始游戏');
+			showHelp('采购完成后您可以去设置销售方案了\n您也可以继续采购或者去银行贷款再去采购更多的物品\n或者直接点击“准备好了”开始游戏');
 		}
+
+		public var showHelp:Function;
 
 		public function connect(room:String):void
 		{
@@ -354,8 +356,8 @@ package controller
 				gameTime='第' + roundNum + '月';
 			else
 				gameTime='第' + roundNum + '关';
+
 			player1.cash-=player1.loan * config.loanRate / 100;
-//			player1.cash-=50000;
 			player1.payRentAndSalary();
 
 			dispatchEvent(new Event('moneyChanged'));
@@ -519,7 +521,7 @@ package controller
 			}
 
 			if (arr.length == 3)
-				Help.instance.showHelp('人员招聘完毕，快去批发市场采购东西吧');
+				showHelp('人员招聘完毕，快去批发市场采购东西吧');
 		}
 
 		/**
