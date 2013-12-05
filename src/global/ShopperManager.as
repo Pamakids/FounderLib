@@ -1,8 +1,11 @@
 package global
 {
+	import com.pamakids.manager.SoundManager;
+	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.geom.Point;
+	import flash.media.Sound;
 	
 	import model.ShopperVO;
 	
@@ -28,6 +31,7 @@ package global
 		public function ShopperManager()
 		{
 		}
+		private var openDoor:Sound;
 
 		private var main:MainScreen;
 		private var map:LogicalMap;
@@ -36,6 +40,7 @@ package global
 		{
 			this.map=LogicalMap.getInstance();
 			this.main=MC.instance().mainScreen;
+			this.openDoor = AssetsManager.instance().getSounds("sound_openDoor");
 		}
 
 		private var vecShopper:Vector.<Shopper>=new Vector.<Shopper>();
@@ -52,6 +57,8 @@ package global
 			shopper.addEventListener(Shopper.SHOP_FAILED, shopListener);
 			shopper.addEventListener(Shopper.SHOP_CATCHED, shopListener);
 
+			SoundManager.instance.play(openDoor);
+			
 			shopper.shopping();
 		}
 

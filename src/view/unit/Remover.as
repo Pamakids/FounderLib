@@ -1,9 +1,11 @@
 package view.unit
 {
 	import com.astar.expand.ItemTile;
+	import com.pamakids.manager.SoundManager;
 	
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.media.Sound;
 	import flash.utils.getTimer;
 	
 	import global.AssetsManager;
@@ -38,6 +40,10 @@ package view.unit
 		{
 			initAction();
 			initProbar();
+			
+			begin = AssetsManager.instance().getSounds("sound_removerStart");
+			end = AssetsManager.instance().getSounds("sound_removerEnd");
+			failed = AssetsManager.instance().getSounds("sound_shelfIsFull");
 		}
 
 		private var probar:MovieClip;
@@ -60,9 +66,11 @@ package view.unit
 		{
 			if(targetShelf.needResplenish())
 			{
+				SoundManager.instance.play(begin);
 				replenishHandler();
 			}else
 			{
+				SoundManager.instance.play(failed);
 				ShelfManager.getInstance().delFromWait(targetShelf);
 				isFree = true;
 			}
@@ -70,6 +78,10 @@ package view.unit
 
 		private var targetShelf:Shelf;
 
+		private var begin:Sound;
+		private var end:Sound;
+		private var failed:Sound;
+		
 		private function replenishHandler():void
 		{
 			probar.visible=true;
@@ -94,6 +106,8 @@ package view.unit
 				targetShelf.resplenish();
 				targetShelf=null;
 				isFree=true;
+				
+				SoundManager.instance.play(end);
 			}
 		}
 		private var start:uint;
