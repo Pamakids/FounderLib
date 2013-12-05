@@ -76,6 +76,8 @@
 				sc.saleStrategies.push(vo);
 				initData();
 
+				PAlert.show('方案保存成功');
+
 				if (sc.fighting)
 					return;
 				Help.instance.showHelp('一切准备就绪，点击“准备好了”吧！');

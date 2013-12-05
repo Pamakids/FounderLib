@@ -2,7 +2,6 @@ package controller
 {
 	import com.pamakids.events.ODataEvent;
 	import com.pamakids.manager.LoadManager;
-	import com.pamakids.manager.SoundManager;
 	import com.pamakids.models.ResultVO;
 	import com.pamakids.services.ServiceBase;
 	import com.pamakids.utils.BrowserUtil;
