@@ -389,24 +389,24 @@ package controller
 					}
 					else
 					{
-						var s:ServiceBase=new ServiceBase('user/update');
+						var s:ServiceBase=new ServiceBase('user/update', URLRequestMethod.POST);
 						s.call(function(vo:ResultVO):void
 						{
-							//						if (vo.status)
-							//						{
-							if (singleModeTarget > player1.cash - recordCash)
-								dispatchEvent(new Event('singleFailed'));
+							if (vo.status)
+							{
+								if (singleModeTarget > player1.cash - recordCash)
+									dispatchEvent(new Event('singleFailed'));
+								else
+									showRandomEvent();
+							}
 							else
-								showRandomEvent();
-							//						}
-							//						else
-							//						{
-							//							alert('抱歉，单机闯关记录失败，5秒后自动返回首页');
-							//							setTimeout(function():void
-							//							{
-							//								navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
-							//							}, 5000);
-							//						}
+							{
+								alert('抱歉，单机闯关记录保存失败，请稍后再试，5秒后自动返回首页');
+								setTimeout(function():void
+								{
+									navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
+								}, 5000);
+							}
 						}, {_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan});
 					}
 					recordCash=player1.cash;
@@ -603,7 +603,7 @@ package controller
 					s.call(function(vo:ResultVO):void
 					{
 						var infos:Array=['恭喜您，已经闯到第 ' + me.single_level + ' 关'];
-						infos.push('当前排名： ' + vo.results + ' 请再接再厉');
+						infos.push('当前排名 ' + vo.results + ' 请再接再厉');
 						alert(infos.join('\n'));
 					});
 				}

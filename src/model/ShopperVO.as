@@ -16,6 +16,13 @@ package model
 		public function ShopperVO(type:uint, list:Array)
 		{
 			this.type=type;
+
+			var m:Number=Math.random();
+			if (m > 0.5)
+				this.type=0;
+			else
+				this.type=1;
+
 			this.shopperList=list;
 			var c:GameConfigVO=ServiceController.instance.config;
 			maxQueueTime=c.getMaxQueueTime();

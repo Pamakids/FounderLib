@@ -37,7 +37,6 @@ package view.unit
 		{
 			initAction();
 			popPoint=new Point(60, 100);
-			popPoint=this.localToGlobal(popPoint);
 			initProbar();
 			sound=AssetsManager.instance().getSounds("sound_cashier");
 		}
@@ -100,7 +99,7 @@ package view.unit
 				ShopperManager.getInstance().outShop(crtShopper);
 				crtShopper=null;
 
-				Pop.show(Pop.POPID_MONEY, value, stage, popPoint);
+				Pop.show(Pop.POPID_MONEY, value, stage, new Point(290, 120));
 				SoundManager.instance.play(sound);
 			}
 		}
