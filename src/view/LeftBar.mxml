@@ -30,6 +30,11 @@
 
 			protected function talentMarket_clickHandler(event:MouseEvent):void
 			{
+				if (event.currentTarget == goodsMarket && !sc.selectedPurchaser)
+				{
+					PAlert.show('请先招聘采购员');
+					return;
+				}
 //				if (switching)
 //					return;
 //				switching=true;

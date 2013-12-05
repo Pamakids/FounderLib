@@ -14,6 +14,10 @@
 
 	<fx:Script>
 		<![CDATA[
+			import com.greensock.TweenLite;
+
+			import flash.utils.setTimeout;
+
 			import mx.events.FlexEvent;
 
 			import controller.ServiceController;
@@ -27,7 +31,13 @@
 
 			protected function textinput1_textInputHandler(event:TextEvent):void
 			{
-				data.quantity=int(quantity.text + event.text);
+				TweenLite.killDelayedCallsTo(changeQuantity);
+				TweenLite.delayedCall(0.2, changeQuantity);
+			}
+
+			private function changeQuantity():void
+			{
+				data.quantity=int(quantity.text);
 				ServiceController.instance.dispatchEvent(new Event('quantityChanged'));
 			}
 
@@ -39,9 +49,9 @@
 
 			private function focuse():void
 			{
-				quantity.text='0';
+//				quantity.text='0';
 				quantity.setFocus();
-//				quantity.selectRange(quantity.text.length - 1, quantity.text.length - 1);
+				quantity.selectRange(quantity.text.length - 1, quantity.text.length - 1);
 			}
 
 			protected function quantity_focusOutHandler(event:FocusEvent):void
@@ -65,7 +75,8 @@
 				super.data=value;
 				if (initialized && focusManager)
 				{
-					focuse();
+					if (focusManager.getFocus() != quantity)
+						focuse();
 //					quantity.setFocus();
 //					focusManager.setFocus(quantity);
 				}

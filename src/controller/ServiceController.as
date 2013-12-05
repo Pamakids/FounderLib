@@ -539,8 +539,21 @@ package controller
 			player1.shop=selectedShop;
 		}
 
+		/**
+		 * 已选择采购员
+		 */
+		public var selectedPurchaser:Boolean;
+
+		public var selectedPurchaserStaff:StaffVO;
+
 		public function selectStaff(staff:StaffVO):void
 		{
+			if (staff.type == 1)
+			{
+				selectedPurchaser=true;
+				selectedPurchaserStaff=staff;
+			}
+
 			staffs[staff.type]=staff;
 			var arr:Array=[];
 
