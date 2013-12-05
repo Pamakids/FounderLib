@@ -17,5 +17,15 @@ package global
 		public var shelfObj:Object;
 		public var mapObj:Object;
 		public var propObj:Object;
+		
+		public function getPropNameByID(id:String):String
+		{
+			for each(var obj:Object in propObj)
+			{
+				if(obj.id == id)
+					return obj.name;
+			}
+			return null;
+		}
 	}
 }

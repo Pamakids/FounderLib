@@ -1,19 +1,26 @@
 package view.unit
 {
 	import com.astar.expand.ItemTile;
-
+	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.filters.GlowFilter;
 	import flash.geom.Point;
-
+	import flash.text.TextField;
+	import flash.text.TextFormat;
+	
 	import global.AssetsManager;
+	import global.DC;
 	import global.ShelfManager;
+	import global.ShopperManager;
 	import global.StoreManager;
-
+	
 	import model.ShelfVO;
-
+	import model.ShopperVO;
+	
 	import view.component.LogicalMap;
+	import view.component.Pop;
 
 	public class Shelf extends BasicUnit
 	{
@@ -36,15 +43,70 @@ package view.unit
 			action=AssetsManager.instance().getResByName("shelf_" + vo.icon) as MovieClip;
 			this.addChild(action);
 
-			this.addEventListener(MouseEvent.CLICK, onClick);
+			this.addEventListener(MouseEvent.CLICK, onMouseEvent);
+			this.addEventListener(MouseEvent.MOUSE_OVER, onMouseEvent);
+			this.addEventListener(MouseEvent.MOUSE_OUT, onMouseEvent);
+			
+			popPoint = new Point( action.sprite_0.x +　action.sprite_0.width/2, action.sprite_0.y-10 );
+			popPoint = action.localToGlobal(popPoint);
+			
+			initTf();
 		}
-
-
-		protected function onClick(e:MouseEvent):void
+		
+		private var popPoint:Point;
+		
+		private var vecTf:Vector.<TextField>;
+		private function initTf():void
 		{
-			trace("shelf");
-			ShelfManager.getInstance().addToWait(this);
+			var max:int = vo.count;
+			vecTf = new Vector.<TextField>(max);
+			var sprite:Sprite;
+			var tf:TextField;
+			for(var i:int = 0;i<max;i++)
+			{
+				sprite = action["sprite_"+i];
+				
+				tf = new TextField();
+				tf.width = sprite.width;
+				tf.multiline = false;
+				tf.mouseEnabled = false;
+				action.addChild( tf );
+				tf.x = sprite.x;
+				tf.y = sprite.y + 10;
+				tf.defaultTextFormat = new TextFormat(null, 14, 0xffffff, null, null, null, null, null, "center");
+				tf.filters = [new GlowFilter(0x0, .8, 2, 2, 100, 1)];
+				tf.visible = false;
+				vecTf[i] = tf;
+			}
 		}
+		
+		protected function onMouseEvent(e:MouseEvent):void
+		{
+			var i:int = 0;
+			var tf:TextField;
+			switch(e.type)
+			{
+				case MouseEvent.MOUSE_OVER:
+					for(i = 0;i<props.length;i++)
+					{
+						tf = vecTf[i];
+						tf.visible = true;
+						tf.text = "剩余 " + DC.instance().getPropNameByID(props[i][0]) + ": " + props[i][1];
+					}
+					break;
+				case MouseEvent.MOUSE_OUT:
+					for(i=0;i<vo.count;i++)
+					{
+						tf = vecTf[i];
+						tf.visible = false;
+					}
+					break;
+				case MouseEvent.CLICK:
+					ShelfManager.getInstance().addToWait(this);
+					break;
+			}
+		}
+		
 
 		/**
 		 * 摆放物品
@@ -96,6 +158,8 @@ package view.unit
 //						trace("货品充足");
 						arr[1]-=num;
 						updatePropIcon(i);
+						//提示
+						Pop.show(propId, num, stage, popPoint);
 						break;
 					}
 					else
@@ -195,7 +259,9 @@ package view.unit
 		override public function dispose():void
 		{
 			vo=null;
-			this.removeEventListener(MouseEvent.CLICK, onClick);
+			this.removeEventListener(MouseEvent.CLICK, onMouseEvent);
+			this.removeEventListener(MouseEvent.MOUSE_OVER, onMouseEvent);
+			this.removeEventListener(MouseEvent.MOUSE_OUT, onMouseEvent);
 			this.removeChild(action);
 			action=null;
 			props=null;
