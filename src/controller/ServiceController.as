@@ -357,69 +357,102 @@ package controller
 			else
 				gameTime='第' + roundNum + '关';
 
-			player1.cash-=player1.loan * config.loanRate / 100;
-			player1.payRentAndSalary();
+			var confirmInfo:String='';
+			var infoArr:Array=player1.payRentAndSalary();
+			var payForLoan:int=int(player1.loan * config.loanRate / 100);
+			if (payForLoan)
+			{
+				confirmInfo='扣除支付所贷 ' + player1.loan + ' 款项利息 ' + payForLoan;
+				infoArr.push(confirmInfo);
+			}
+
+			player1.cash-=payForLoan;
 
 			dispatchEvent(new Event('moneyChanged'));
 
-			if (!isSingle)
+			StatusManager.getInstance().quitGame(function():void
 			{
-				if (other)
+				infoArr.push('\n');
+				infoArr.push('净盈利： ' + (currentCash - player1.cash));
+				infoArr.push('\n');
+				confirm(infoArr.join('\n'));
+				confirmedCallback=function():void
 				{
-					var sendData:Object={target: other.company_name, data: player1.money};
-					pomelo.request(sendGameMessage, sendData);
-				}
-
-				if (player1.money < 0 || player2.money < 0)
-				{
-					if (player2.money < 0)
+					if (!isSingle)
 					{
-						if (player1.money > player2.money)
+						if (other)
 						{
-							gameOver(new GameResult(true, '您获得了胜利，5秒后将自动返回游戏大厅'));
+							var sendData:Object={target: other.company_name, data: player1.money};
+							pomelo.request(sendGameMessage, sendData);
 						}
-						else
-						{
-							gameOver(new GameResult(false, '您失败了，5秒后将自动返回游戏大厅'));
-						}
+
+						judgeGameStatus();
 					}
 					else
 					{
-						gameOver(new GameResult(false, '您已经没有现金了，游戏失败，5秒后将自动返回游戏大厅'));
+						var s:ServiceBase=new ServiceBase('user/update');
+						s.call(function(vo:ResultVO):void
+						{
+							//						if (vo.status)
+							//						{
+							if (singleModeTarget > player1.cash - currentCash)
+								dispatchEvent(new Event('singleFailed'));
+							else
+								showRandomEvent();
+							//						}
+							//						else
+							//						{
+							//							alert('抱歉，单机闯关记录失败，5秒后自动返回首页');
+							//							setTimeout(function():void
+							//							{
+							//								navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
+							//							}, 5000);
+							//						}
+						}, {_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan});
+					}
+					currentCash=player1.cash;
+				};
+				dispatchEvent(new Event(GAME_PAUSE));
+			});
+		}
+
+		public function getBoughtGoodsNum(id:String):int
+		{
+			if (!boughtGoods)
+				return 0;
+			var n:int;
+			for each (var vo:BoughtGoodsVO in boughtGoods)
+			{
+				if (vo.id == id)
+					return vo.quantity;
+			}
+			return 0;
+		}
+
+		private function judgeGameStatus():void
+		{
+			if (player1.money < 0 || player2.money < 0)
+			{
+				if (player2.money < 0)
+				{
+					if (player1.money > player2.money)
+					{
+						gameOver(new GameResult(true, '您获得了胜利，5秒后将自动返回游戏大厅'));
+					}
+					else
+					{
+						gameOver(new GameResult(false, '您失败了，5秒后将自动返回游戏大厅'));
 					}
 				}
 				else
 				{
-					showRandomEvent();
+					gameOver(new GameResult(false, '您已经没有现金了，游戏失败，5秒后将自动返回游戏大厅'));
 				}
 			}
-
-			StatusManager.getInstance().quitGame(function():void
+			else
 			{
-				if (isSingle)
-				{
-					var s:ServiceBase=new ServiceBase('user/update');
-					s.call(function(vo:ResultVO):void
-					{
-//						if (vo.status)
-//						{
-						if (singleModeTarget > player1.cash - currentCash)
-							dispatchEvent(new Event('singleFailed'));
-						else
-							showRandomEvent();
-//						}
-//						else
-//						{
-//							alert('抱歉，单机闯关记录失败，5秒后自动返回首页');
-//							setTimeout(function():void
-//							{
-//								navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
-//							}, 5000);
-//						}
-					}, {_id: me._id, single_level: roundNum});
-				}
-				dispatchEvent(new Event(GAME_PAUSE));
-			});
+				showRandomEvent();
+			}
 		}
 
 		public function readyToStart():ResultVO
@@ -551,6 +584,16 @@ package controller
 			}
 			else
 			{
+				if (roundNum != 1 && isSingle)
+				{
+					var s:ServiceBase=getService('user/ranking', 'get');
+					s.call(function(vo:ResultVO):void
+					{
+						var infos:Array=['恭喜您，已经闯到第 ' + me.single_level + ' 关'];
+						infos.push('当前排名： ' + vo.results + ' 请再接再厉');
+						alert(infos.join('\n'));
+					});
+				}
 				dispatchEvent(new Event(ENTERED));
 			}
 		}
@@ -675,6 +718,8 @@ package controller
 			otherCash=Number(msg.data);
 
 			dispatchEvent(new Event('moneyChanged'));
+
+			judgeGameStatus();
 		}
 
 		protected function onReadyHandler(event:PomeloEvent):void
@@ -738,6 +783,13 @@ package controller
 		private function alert(text:String):void
 		{
 			dispatchEvent(new ODataEvent(text, 'alert'));
+		}
+
+		public var confirmedCallback:Function;
+
+		private function confirm(text:String):void
+		{
+			dispatchEvent(new ODataEvent(text, 'confirm'));
 		}
 
 		private function allHave(toBuy:Array, goods:Array):Boolean
@@ -813,6 +865,7 @@ package controller
 
 		private function getDefaultConfig():void
 		{
+			ServiceBase.id=me._id;
 			var s:ServiceBase=getService(GET_DEFAULT_CONFIG, URLRequestMethod.GET);
 			if (callingDic[s])
 				return;
@@ -823,6 +876,10 @@ package controller
 				{
 					config=CloneUtil.convertObject(result.results, GameConfigVO);
 					config.roundTime=30;
+
+					if (isSingle)
+						roundNum=me.single_level ? me.single_level : 1;
+
 					var pvo:Object=SO.i.getKV('player' + me.company_name);
 					if (!pvo)
 					{
@@ -842,7 +899,6 @@ package controller
 					initTimers();
 					if (isSingle)
 					{
-						roundNum=me.single_level ? me.single_level : me.single_level;
 						startGame();
 					}
 					else
@@ -903,7 +959,15 @@ package controller
 		private function initPlayer1():void
 		{
 			player1=new PlayerVO();
-			player1.cash=config.startupMoney;
+			if (!isSingle || roundNum == 1)
+			{
+				player1.cash=config.startupMoney;
+			}
+			else
+			{
+				player1.cash=me.single_cash;
+				player1.loan=me.single_loan;
+			}
 			player1.user=me;
 		}
 

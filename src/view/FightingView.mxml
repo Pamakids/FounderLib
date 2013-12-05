@@ -93,7 +93,7 @@
 	<view:Scoreboard id="sb"/>
 
 	<s:ButtonBar id="saleStrategies"
-				 toolTip="销售方案"
+				 toolTip="定价方案"
 				 skinClass="skins.DefaultButtonBarSkin"
 				 creationComplete="saleStrategies_creationCompleteHandler(event)"
 				 labelField="name"

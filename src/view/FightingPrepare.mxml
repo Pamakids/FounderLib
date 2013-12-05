@@ -26,7 +26,7 @@
 
 			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void
 			{
-				var ac:ArrayCollection=new ArrayCollection(['人才市场', '批发市场', '银行', '销售策略']);
+				var ac:ArrayCollection=new ArrayCollection(['人才市场', '批发市场', '银行', '定价策略']);
 				nvs.dataProvider=ac;
 				nvs.selectedIndex=0;
 				showBox();

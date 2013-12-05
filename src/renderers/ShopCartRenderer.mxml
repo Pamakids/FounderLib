@@ -39,8 +39,9 @@
 
 			private function focuse():void
 			{
+				quantity.text='0';
 				quantity.setFocus();
-				quantity.selectRange(quantity.text.length - 1, quantity.text.length - 1);
+//				quantity.selectRange(quantity.text.length - 1, quantity.text.length - 1);
 			}
 
 			protected function quantity_focusOutHandler(event:FocusEvent):void

@@ -95,14 +95,20 @@ package model
 		/**
 		 * 付房租和工资
 		 */
-		public function payRentAndSalary():void
+		public function payRentAndSalary():Array
 		{
+			var arr:Array=[];
 			if (shop)
 				cash-=shop.rent;
+			arr.push('扣除租金 ' + shop.rent);
+			var m:int;
 			for each (var vo:StaffVO in staffes)
 			{
-				cash-=vo.salary;
+				m+=vo.salary;
 			}
+			cash-=m;
+			arr.push('扣除员工工资 ' + m);
+			return arr;
 		}
 	}
 }

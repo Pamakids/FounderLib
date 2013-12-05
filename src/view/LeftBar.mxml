@@ -125,7 +125,7 @@
 			  buttonMode="true"/>
 
 	<s:Button id="salesStrategy"
-			  label="销售策略"
+			  label="定价策略"
 			  skinClass="skins.DefaultButtonBigSkin"
 			  click="talentMarket_clickHandler(event)"
 			  buttonMode="true"/>
