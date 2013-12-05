@@ -1,6 +1,10 @@
 package view.unit
 {
+	import com.pamakids.manager.SoundManager;
+	
 	import flash.display.MovieClip;
+	import flash.geom.Point;
+	import flash.media.Sound;
 	import flash.utils.getTimer;
 	
 	import controller.ServiceController;
@@ -11,6 +15,8 @@ package view.unit
 	import global.StoreManager;
 	
 	import model.StaffVO;
+	
+	import view.component.Pop;
 
 	/**
 	 * 收银员
@@ -29,8 +35,14 @@ package view.unit
 		private function init():void
 		{
 			initAction();
+			popPoint = new Point(0, -action.height-5);
+			popPoint = this.localToGlobal( popPoint );
 			initProbar();
+			sound = AssetsManager.instance().getSounds("sound_cashier");
 		}
+		
+		private var sound:Sound;
+		private var popPoint:Point;
 		
 		
 		private var probar:MovieClip;
@@ -79,10 +91,14 @@ package view.unit
 				probar.visible = false;
 				action.play();
 				var list:Array = crtShopper.getShoppingList();
-				ServiceController.instance.player1.cash += liquidation(list);		//现金结算
+				var value:Number = liquidation(list);
+				ServiceController.instance.player1.cash += value;		//现金结算
 				StoreManager.getInstance().delGoodsFromSource( crtShopper.getShoppingList() );
 				ShopperManager.getInstance().outShop( crtShopper );
 				crtShopper = null;
+				
+				Pop.show(Pop.POPID_MONEY, value, stage, popPoint);
+				SoundManager.instance.play(sound);
 			}
 		}
 		

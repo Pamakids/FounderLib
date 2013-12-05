@@ -30,7 +30,6 @@ package global
 
 		public function ShopperManager()
 		{
-			openDoor = AssetsManager.instance().getSounds("openDoor");
 		}
 		private var openDoor:Sound;
 
@@ -41,6 +40,7 @@ package global
 		{
 			this.map=LogicalMap.getInstance();
 			this.main=MC.instance().mainScreen;
+			this.openDoor = AssetsManager.instance().getSounds("sound_openDoor");
 		}
 
 		private var vecShopper:Vector.<Shopper>=new Vector.<Shopper>();
