@@ -332,7 +332,7 @@ package controller
 			return false;
 		}
 
-		private var currentCash:int;
+		private var recordCash:int;
 
 		/**
 		 * 暂停游戏，进入筹备阶段
@@ -350,7 +350,7 @@ package controller
 			gameTimer.stop();
 			shopperTimer.stop();
 			if (roundNum == 1)
-				currentCash=config.startupMoney;
+				recordCash=config.startupMoney;
 			roundNum++;
 			if (!isSingle)
 				gameTime='第' + roundNum + '月';
@@ -373,9 +373,8 @@ package controller
 			StatusManager.getInstance().quitGame(function():void
 			{
 				infoArr.push('\n');
-				infoArr.push('净盈利： ' + (currentCash - player1.cash));
+				infoArr.push('净盈利： ' + (player1.cash - recordCash));
 				infoArr.push('\n');
-				confirm(infoArr.join('\n'));
 				confirmedCallback=function():void
 				{
 					if (!isSingle)
@@ -395,7 +394,7 @@ package controller
 						{
 							//						if (vo.status)
 							//						{
-							if (singleModeTarget > player1.cash - currentCash)
+							if (singleModeTarget > player1.cash - recordCash)
 								dispatchEvent(new Event('singleFailed'));
 							else
 								showRandomEvent();
@@ -410,8 +409,9 @@ package controller
 							//						}
 						}, {_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan});
 					}
-					currentCash=player1.cash;
+					recordCash=player1.cash;
 				};
+				confirm(infoArr.join('\n'));
 				dispatchEvent(new Event(GAME_PAUSE));
 			});
 		}
