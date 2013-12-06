@@ -893,7 +893,8 @@ package controller
 				if (result.status)
 				{
 					config=CloneUtil.convertObject(result.results, GameConfigVO);
-					config.roundTime=30;
+					if (isDebug)
+						config.roundTime=30;
 
 					if (isSingle)
 						roundNum=me.single_level ? me.single_level : 1;
