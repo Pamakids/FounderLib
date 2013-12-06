@@ -1,7 +1,7 @@
 package global
 {
 	import controller.ServiceController;
-
+	
 	import model.BoughtGoodsVO;
 
 	/**
@@ -152,5 +152,20 @@ package global
 			return _instance;
 		}
 
+		/**
+		 * 获取物品采购价格
+		 * @return 
+		 */		
+		public static function getInPriceByID(propID:String):Number
+		{
+			var obj:Object = DC.instance().propObj;
+			for each(var o:Object in obj)
+			{
+				if(o.id == propID)
+					return o.inPrice;
+			}
+			return 0;
+		}
+		
 	}
 }
