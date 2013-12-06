@@ -93,6 +93,7 @@ package view.unit
 				var list:Array = crtShopper.getShoppingList();
 				var value:Number = liquidation(list);
 				ServiceController.instance.player1.cash += value;		//现金结算
+																			//记录该回合盈利
 				StoreManager.getInstance().delGoodsFromSource( crtShopper.getShoppingList() );
 				ShopperManager.getInstance().outShop( crtShopper );
 				crtShopper = null;
@@ -112,6 +113,20 @@ package view.unit
 			for each(var arr:Array in list)
 			{
 				num += arr[1]*arr[2];
+			}
+			return num;
+		}
+		/**
+		 * 用户所购物品总成本
+		 * @param list
+		 * @return 
+		 */		
+		private function allCost(list:Array):Number
+		{
+			var num:Number = 0;
+			for each(var arr:Array in list)
+			{
+				num += StoreManager.getInPriceByID(arr[0]) * arr[1];
 			}
 			return num;
 		}
