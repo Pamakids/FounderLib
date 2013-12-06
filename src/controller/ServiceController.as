@@ -2,6 +2,7 @@ package controller
 {
 	import com.pamakids.events.ODataEvent;
 	import com.pamakids.manager.LoadManager;
+	import com.pamakids.manager.SoundManager;
 	import com.pamakids.models.ResultVO;
 	import com.pamakids.services.ServiceBase;
 	import com.pamakids.utils.BrowserUtil;
@@ -349,32 +350,32 @@ package controller
 				messageTimer.stop();
 			gameTimer.stop();
 			shopperTimer.stop();
-			if (roundNum == 1)
-				recordCash=config.startupMoney;
-			roundNum++;
-			if (!isSingle)
-				gameTime='第' + roundNum + '月';
-			else
-				gameTime='第' + roundNum + '关';
-
-			var confirmInfo:String='';
-			var infoArr:Array=player1.payRentAndSalary();
-			var payForLoan:int=int(player1.loan * config.loanRate / 100);
-			if (payForLoan)
-			{
-				confirmInfo='扣除支付所贷 ' + player1.loan + ' 款项利息 ' + payForLoan;
-				infoArr.push(confirmInfo);
-			}
-
-			player1.cash-=payForLoan;
-
-			dispatchEvent(new Event('moneyChanged'));
 
 			StatusManager.getInstance().quitGame(function():void
 			{
-				infoArr.push('\n');
-				infoArr.push('净盈利： ' + (player1.cash - recordCash));
-				infoArr.push('\n');
+				sm.stopAll();
+				recordCash=player1.cash;
+				roundNum++;
+				if (!isSingle)
+					gameTime='第' + roundNum + '月';
+				else
+					gameTime='第' + roundNum + '关';
+
+				var confirmInfo:String='';
+				var infoArr:Array=player1.payRentAndSalary();
+				var payForLoan:int=int(player1.loan * config.loanRate / 100);
+				if (payForLoan)
+				{
+					confirmInfo='扣除支付所贷 ' + player1.loan + ' 款项利息 ' + payForLoan;
+					infoArr.push(confirmInfo);
+					player1.cash-=payForLoan;
+				}
+
+				dispatchEvent(new Event('moneyChanged'));
+				infoArr.push('销售物品共赚得： ' + earned);
+				infoArr.push('');
+				infoArr.push('净盈利： ' + (earned - Math.abs((recordCash - player1.cash))));
+				infoArr.push('');
 				confirmedCallback=function():void
 				{
 					if (!isSingle)
@@ -390,6 +391,13 @@ package controller
 					else
 					{
 						var s:ServiceBase=new ServiceBase('user/update', URLRequestMethod.POST);
+						var data:Object={_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan};
+						if (player1.cash < 0)
+						{
+							data.single_cash=config.startupMoney;
+							data.single_loan=0;
+						}
+
 						s.call(function(vo:ResultVO):void
 						{
 							if (vo.status)
@@ -407,7 +415,7 @@ package controller
 									navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
 								}, 5000);
 							}
-						}, {_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan});
+						}, data);
 					}
 					recordCash=player1.cash;
 				};
@@ -599,20 +607,34 @@ package controller
 					shopperTimer.start();
 				}
 				dispatchEvent(new Event(GAME_START));
+				sm.play('bg1');
 			}
 			else
 			{
-				if (roundNum != 1 && isSingle)
+				var infos:Array=[];
+				if (isSingle)
 				{
-					var s:ServiceBase=getService('user/ranking', 'get');
-					s.call(function(vo:ResultVO):void
+					if (roundNum != 1)
 					{
-						var infos:Array=['恭喜您，已经闯到第 ' + me.single_level + ' 关'];
-						infos.push('当前排名 ' + vo.results + ' 请再接再厉');
-						alert(infos.join('\n'));
-					});
+						var s:ServiceBase=getService('user/ranking', 'get');
+						s.call(function(vo:ResultVO):void
+						{
+							infos.push('恭喜您，已经闯到第 ' + me.single_level + ' 关');
+							infos.push('当前排名 ' + vo.results + ' 请再接再厉');
+							infos.push('');
+							infos.push('本关过关条件需盈利：' + singleModeTarget + ' 祝您好运！');
+							infos.push('');
+							confirm(infos.join('\n'));
+						});
+					}
+					else
+					{
+						infos.push('欢迎单枪匹马挑战创业实战单机模式\n本关过关条件需盈利：' + singleModeTarget + ' 祝您好运！');
+						confirm(infos.join('\n'));
+					}
 				}
 				dispatchEvent(new Event(ENTERED));
+				sm.play('bg0');
 			}
 		}
 
@@ -650,7 +672,6 @@ package controller
 			var gvo:GoodsVO=goods[index];
 			var ids:Array=[];
 			toBuy=[[gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]];
-			trace('to buy 1:', gvo.id, gvo.name);
 			if (buyTwo)
 			{
 				var index2:int;
@@ -661,17 +682,24 @@ package controller
 				num=toBuyGoodsNum;
 				gvo=goods[index2];
 				toBuy.push([gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]);
-				trace('to buy 2:', gvo.id, gvo.name);
 			}
 
 			var player1Have:Boolean=allHave(toBuy, player1.goods);
 
-			trace('user 1 have', player1Have);
-
 			if (isSingle)
 			{
 				if (player1Have)
-					addShopper(new ShopperVO(0, toBuy));
+				{
+					r=Math.random();
+					if (r < player1.shop.visit / 100)
+					{
+						addShopper(new ShopperVO(0, toBuy));
+						for each (var oo:Array in toBuy)
+						{
+							trace('to buy:', oo[1], oo[0]);
+						}
+					}
+				}
 			}
 			else
 			{
@@ -686,7 +714,6 @@ package controller
 						var a2:Number=ap1 / (ap1 + ap2);
 						var aa:Number=(a1 + a2) / 2;
 						r=Math.random();
-						trace('all have random', r);
 						if (r < aa)
 							addShopper(new ShopperVO(0, toBuy));
 					}
@@ -804,6 +831,7 @@ package controller
 		}
 
 		public var confirmedCallback:Function;
+		private var sm:SoundManager;
 
 		private function confirm(text:String):void
 		{
@@ -1068,6 +1096,10 @@ package controller
 				}
 				arr.push(vo);
 			}
+
+			sm=SoundManager.instance;
+			sm.addSound('bg0', getDefinitionByName('sound_bg_0'), 9999);
+			sm.addSound('bg1', getDefinitionByName('sound_bg_1'), 9999);
 		}
 
 		private function loadedHandler(t:String):void
@@ -1143,18 +1175,31 @@ package controller
 			});
 		}
 
-		private function get toBuyGoodsNum():int
+		public function currentRoundPurchaseAbilityRatio():int
+		{
+			var n:int=1;
+			if (isSingle)
+				n=Math.pow((1 + config.getSingleRatio()), roundNum - 1);
+			return n;
+		}
+
+		public function currentRoundMaxGoodsNum():int
 		{
 			var n:int=config.getClientMaxGoodsNum();
 			if (isSingle)
 				n=n * Math.pow((1 + config.getSingleRatio()), roundNum - 1);
-			return Math.ceil(Math.random() * n);
+			return n;
 		}
 
-		private function get singleModeTarget():int
+		public function get toBuyGoodsNum():int
+		{
+			return Math.ceil(Math.random() * currentRoundMaxGoodsNum());
+		}
+
+		public function get singleModeTarget():int
 		{
 			var n:int=config.getSingleMinRequirement();
-			return Math.ceil(n * Math.pow((1 + config.getSingleRatio()), roundNum - 1));
+			return Math.ceil(n * Math.pow((1 + config.getSingleRatio() / 100), roundNum - 1));
 		}
 	}
 }

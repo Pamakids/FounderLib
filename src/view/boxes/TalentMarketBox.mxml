@@ -38,6 +38,7 @@
 			}
 
 			private var purchaseAC:ArrayCollection;
+			private var sc:ServiceController;
 
 			protected function popupbox1_creationCompleteHandler(event:FlexEvent):void
 			{
@@ -48,10 +49,12 @@
 
 				if (!ServiceController.instance.fighting)
 					Help.instance.showHelp('请招聘采购员、收银员及理货员，签约即招聘成功');
+
 			}
 
 			private function getStaffes(type:int):ArrayCollection
 			{
+				sc=ServiceController.instance;
 				var params:Array=ServiceController.instance.config.params;
 				var q:int;
 				var s:int;
@@ -83,7 +86,7 @@
 					vo.level=i;
 					vo.salary=int(s * (1 + (i - 1) * r / 100));
 					if (type == 1)
-						vo.ability=int(q * (1 + (i - 1) * r / 100));
+						vo.ability=int(q * (1 + (i - 1) * r / 100)) * sc.currentRoundPurchaseAbilityRatio();
 					else
 						vo.ability=int((q * (1 + (4 - i - 1) * r / 100)) * 10) / 10;
 					ac.addItem(vo);

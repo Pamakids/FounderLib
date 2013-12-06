@@ -1,21 +1,21 @@
 package view.unit
 {
 	import com.pamakids.manager.SoundManager;
-	
+
 	import flash.display.MovieClip;
 	import flash.geom.Point;
 	import flash.media.Sound;
 	import flash.utils.getTimer;
-	
+
 	import controller.ServiceController;
-	
+
 	import global.AssetsManager;
 	import global.ShopperManager;
 	import global.StatusManager;
 	import global.StoreManager;
-	
+
 	import model.StaffVO;
-	
+
 	import view.component.Pop;
 
 	/**
@@ -92,16 +92,16 @@ package view.unit
 				probar.gotoAndStop(1);
 				probar.visible=false;
 				action.play();
-				var list:Array = crtShopper.getShoppingList();
-				var value:Number = liquidation(list);
-				ServiceController.instance.player1.cash += value;		//现金结算
-				value = allCost( list );
-				ServiceController.instance.earned += value;				//记录该回合盈利
-				StoreManager.getInstance().delGoodsFromSource( crtShopper.getShoppingList() );
-				ShopperManager.getInstance().outShop( crtShopper );
-				crtShopper = null;
-				
-				Pop.show(Pop.POPID_MONEY, value, stage, popPoint);
+				var list:Array=crtShopper.getShoppingList();
+				var value:Number=liquidation(list);
+				ServiceController.instance.player1.cash+=value; //现金结算
+				value=allCost(list);
+				ServiceController.instance.earned+=value; //记录该回合盈利
+				StoreManager.getInstance().delGoodsFromSource(crtShopper.getShoppingList());
+				ShopperManager.getInstance().outShop(crtShopper);
+				crtShopper=null;
+
+				Pop.show(Pop.POPID_MONEY, value, stage, new Point(290, 120));
 				SoundManager.instance.play(sound);
 			}
 		}
@@ -119,21 +119,22 @@ package view.unit
 			}
 			return num;
 		}
+
 		/**
 		 * 用户所购物品总成本
 		 * @param list
-		 * @return 
-		 */		
+		 * @return
+		 */
 		private function allCost(list:Array):Number
 		{
-			var num:Number = 0;
-			for each(var arr:Array in list)
+			var num:Number=0;
+			for each (var arr:Array in list)
 			{
-				num += StoreManager.getInPriceByID(arr[0]) * arr[1];
+				num+=StoreManager.getInPriceByID(arr[0]) * arr[1];
 			}
 			return num;
 		}
-		
+
 		public function getAbility():uint
 		{
 			return vo.ability;
