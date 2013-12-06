@@ -30,6 +30,11 @@
 
 			protected function talentMarket_clickHandler(event:MouseEvent):void
 			{
+				if (event.currentTarget == goodsMarket && (!sc.selectedPurchaser && !sc.player1.getStaff(1)))
+				{
+					PAlert.show('请先招聘采购员');
+					return;
+				}
 //				if (switching)
 //					return;
 //				switching=true;
@@ -125,7 +130,7 @@
 			  buttonMode="true"/>
 
 	<s:Button id="salesStrategy"
-			  label="销售策略"
+			  label="定价策略"
 			  skinClass="skins.DefaultButtonBigSkin"
 			  click="talentMarket_clickHandler(event)"
 			  buttonMode="true"/>

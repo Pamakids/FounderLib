@@ -21,79 +21,82 @@ package view.unit
 	/**
 	 * 收银员
 	 * @author Administrator
-	 */	
+	 */
 	public class Cashier extends BasicUnit
 	{
 		private var vo:StaffVO;
+
 		public function Cashier(vo:StaffVO)
 		{
 			super();
-			this.vo = vo;
+			this.vo=vo;
 			init();
 		}
-		
+
 		private function init():void
 		{
 			initAction();
-			popPoint = new Point(0, -action.height-5);
-			popPoint = this.localToGlobal( popPoint );
+			popPoint=new Point(60, 100);
 			initProbar();
-			sound = AssetsManager.instance().getSounds("sound_cashier");
+			sound=AssetsManager.instance().getSounds("sound_cashier");
 		}
-		
+
 		private var sound:Sound;
 		private var popPoint:Point;
-		
-		
+
+
 		private var probar:MovieClip;
+
 		private function initProbar():void
 		{
-			probar = AssetsManager.instance().getResByName("probar") as MovieClip;
-			this.addChild( probar );
-			probar.visible = false;
-			probar.x = 113;
-			probar.y = -191;
-			probar.mouseEnabled = probar.mouseChildren = false;
+			probar=AssetsManager.instance().getResByName("probar") as MovieClip;
+			this.addChild(probar);
+			probar.visible=false;
+			probar.x=113;
+			probar.y=-191;
+			probar.mouseEnabled=probar.mouseChildren=false;
 			probar.gotoAndStop(1);
 		}
-		
+
 		private function initAction():void
 		{
-			action = AssetsManager.instance().getResByName("cashier") as MovieClip;
-			this.addChild( action );
-			this.mouseEnabled = this.mouseChildren = false;
+			action=AssetsManager.instance().getResByName("cashier") as MovieClip;
+			this.addChild(action);
+			this.mouseEnabled=this.mouseChildren=false;
 		}
-		
+
 		/**
 		 * 清算
 		 * @param onComplete
-		 */		
+		 */
 		public function serviceFor(shopper:Shopper):void
 		{
-			crtShopper = shopper;
-			probar.visible = true;
+			crtShopper=shopper;
+			probar.visible=true;
 			probar.gotoAndStop(1);
 			action.play();
-			start = getTimer();
-			StatusManager.getInstance().addFunc( onTimer, 0.05 );
+			start=getTimer();
+			StatusManager.getInstance().addFunc(onTimer, 0.05);
 		}
 		private var start:uint;
 		private var crtShopper:Shopper;
+
 		private function onTimer():void
 		{
-			var time:uint = getTimer();
-			var i:int = Math.floor( Math.min( (time-start)/(vo.ability*1000) , 1)*100 );
-			probar.gotoAndStop( i );
-			if(time - start >= vo.ability*1000)
+			var time:uint=getTimer();
+			var i:int=Math.floor(Math.min((time - start) / (vo.ability * 1000), 1) * 100);
+			probar.gotoAndStop(i);
+			if (time - start >= vo.ability * 1000)
 			{
-				StatusManager.getInstance().delFunc( onTimer );
+				StatusManager.getInstance().delFunc(onTimer);
 				probar.gotoAndStop(1);
-				probar.visible = false;
+				probar.visible=false;
 				action.play();
 				var list:Array = crtShopper.getShoppingList();
 				var value:Number = liquidation(list);
 				ServiceController.instance.player1.cash += value;		//现金结算
-																			//记录该回合盈利
+				value = allCost( list );
+				ServiceController.instance.earned += value;				//记录该回合盈利
 				StoreManager.getInstance().delGoodsFromSource( crtShopper.getShoppingList() );
 				ShopperManager.getInstance().outShop( crtShopper );
 				crtShopper = null;
@@ -102,17 +105,17 @@ package view.unit
 				SoundManager.instance.play(sound);
 			}
 		}
-		
+
 		/**
 		 * 用户所购物品总花销
-		 * @return 
-		 */		
+		 * @return
+		 */
 		private function liquidation(list:Array):Number
 		{
-			var num:Number = 0;
-			for each(var arr:Array in list)
+			var num:Number=0;
+			for each (var arr:Array in list)
 			{
-				num += arr[1]*arr[2];
+				num+=arr[1] * arr[2];
 			}
 			return num;
 		}
@@ -135,15 +138,15 @@ package view.unit
 		{
 			return vo.ability;
 		}
-		
+
 		override public function dispose():void
 		{
-			StatusManager.getInstance().delFunc( onTimer );
-			this.removeChild( probar );
-			probar = null;
-			this.removeChild( action );
-			action = null;
-			vo = null;
+			StatusManager.getInstance().delFunc(onTimer);
+			this.removeChild(probar);
+			probar=null;
+			this.removeChild(action);
+			action=null;
+			vo=null;
 			super.dispose();
 		}
 	}

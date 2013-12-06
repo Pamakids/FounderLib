@@ -22,6 +22,7 @@
 			import controller.ServiceController;
 
 			import model.BoughtGoodsVO;
+			import model.StaffVO;
 
 			private var purchaseAC:ArrayCollection;
 			private var sc:ServiceController;
@@ -112,11 +113,12 @@
 
 			protected function buy_clickHandler(event:MouseEvent):void
 			{
+				var svo:StaffVO=sc.player1.getStaff(1) ? sc.player1.getStaff(1) : sc.selectedPurchaserStaff;
 				if (shopCartTotal > sc.player1.money)
 				{
 					PAlert.show('现金不足');
 				}
-				else if (sc.fighting && totalNum + sc.purchaseNumEachRound > sc.player1.getStaff(1).ability)
+				else if (totalNum + sc.purchaseNumEachRound > svo.ability)
 				{
 					PAlert.show('采购数量超出采购员每月最大采购的数量，请调整');
 				}
@@ -148,7 +150,7 @@
 				height="240"
 				dataProvider="{goods}"/>
 		<s:VGroup horizontalAlign="center"
-				  width="300">
+				  width="280">
 			<s:Label text="购物车"
 					 fontSize="18"
 					 color="0x975c25"/>

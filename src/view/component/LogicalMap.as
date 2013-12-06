@@ -154,7 +154,7 @@ package view.component
 		public static const POSITION_INTO_SHOP:Point=new Point(3, 5);
 		public static const POSITION_OUT_SHOP:Point=new Point(4, 5);
 		public static const POSITION_PAY:Point=new Point(8, 7);
-		public static const POSITION_QUEUE:Point=new Point(8, 12);
+		public static const POSITION_QUEUE:Point=new Point(8, 9);
 
 		public function get TITLE_INTO_SHOP():ItemTile
 		{

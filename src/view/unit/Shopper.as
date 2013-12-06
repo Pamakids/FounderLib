@@ -2,21 +2,21 @@ package view.unit
 {
 	import com.astar.expand.ItemTile;
 	import com.greensock.TweenLite;
-	
+
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.utils.getTimer;
-	
+
 	import global.AssetsManager;
 	import global.ShelfManager;
 	import global.ShopperManager;
 	import global.StatusManager;
 	import global.StoreManager;
 	import global.WorkerManager;
-	
+
 	import model.ShopperVO;
-	
+
 	import view.component.LogicalMap;
 	import view.unit.w.Walker;
 
@@ -214,7 +214,10 @@ package view.unit
 			action=AssetsManager.instance().getResByName("shopper_" + vo.type) as MovieClip;
 			action.gotoAndStop(ACTION_STAY_RIGHT);
 			this.addChild(action);
-			action.scaleX=action.scaleY=.4;
+			if (vo.type == 0)
+				action.scaleX=action.scaleY=.4;
+			else if (vo.type == 1)
+				action.scaleX=action.scaleY=.8;
 		}
 		private const gap:uint=40;
 
@@ -263,15 +266,15 @@ package view.unit
 			addFailedIcon();
 			LogicalMap.getInstance().moveBody(this, LogicalMap.getInstance().TITLE_OUT_SHOP);
 		}
-		
+
 		private function addFailedIcon():void
 		{
-			var icon:MovieClip = AssetsManager.instance().getResByName("mc_angry") as MovieClip;
-			icon.y =  - action.height - 5;
-			this.addChild( icon );
-			icon.mouseEnabled = false;
+			var icon:MovieClip=AssetsManager.instance().getResByName("mc_angry") as MovieClip;
+			icon.y=-action.height - 5;
+			this.addChild(icon);
+			icon.mouseEnabled=false;
 		}
-		
+
 		private function clearIcon():void
 		{
 			var s:Sprite;

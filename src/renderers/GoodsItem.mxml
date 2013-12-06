@@ -36,6 +36,9 @@
 					goodsUI.addChild(s);
 					s.x=bi.width / 2 - 1;
 					s.y=bi.height / 2 - 5;
+					var n:int=sc.getBoughtGoodsNum(vo.id);
+					if (n)
+						num.text='(库存 ' + n + ' )';
 				}
 			}
 
@@ -62,9 +65,15 @@
 		<s:VGroup gap="8"
 				  paddingTop="5"
 				  paddingBottom="5">
-			<s:Label text="{vo.name}"
-					 fontSize="14"
-					 color="0x975c25"/>
+			<s:HGroup verticalAlign="middle"
+					  gap="10">
+				<s:Label text="{vo.name}"
+						 fontSize="14"
+						 color="0x975c25"/>
+				<s:Label id="num"
+						 fontSize="12"
+						 color="0x975c25"/>
+			</s:HGroup>
 			<!--<s:HGroup verticalAlign="middle">
 				<s:Label fontSize="14"
 						 color="0x975c25"

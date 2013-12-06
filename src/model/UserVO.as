@@ -18,6 +18,8 @@ package model
 		public var win_times:int;
 		public var company_name:String;
 		public var single_level:int;
+		public var single_cash:int;
+		public var single_loan:int;
 		public var password:String='123456';
 		public var portrait:String;
 		public var signed_in_times:int;
