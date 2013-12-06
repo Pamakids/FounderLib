@@ -151,7 +151,10 @@ package controller
 			var s:ServiceBase=getService(USER_SIGN_UP, URLRequestMethod.POST);
 			if (callingDic[s])
 				return;
+			var p:Object=SO.i.getKV('pic');
 			var o:Object={username: account, password: password, company_name: cname};
+			if (p)
+				o.portrait=p;
 //			if (account.indexOf('@') != -1)
 //			{
 //				o.email=account;

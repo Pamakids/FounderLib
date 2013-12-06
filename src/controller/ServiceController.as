@@ -571,6 +571,11 @@ package controller
 		}
 
 		/**
+		 * 当前回合盈利
+		 */
+		public var earned:int;
+
+		/**
 		 * 开始游戏，自动计时，同步现金数
 		 */
 		public function startGame():void

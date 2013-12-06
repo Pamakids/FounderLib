@@ -91,7 +91,7 @@ package view.unit
 					{
 						tf = vecTf[i];
 						tf.visible = true;
-						tf.text = "剩余 " + DC.instance().getPropNameByID(props[i][0]) + ": " + props[i][1];
+						tf.text =DC.instance().getPropNameByID(props[i][0]) + " " + props[i][1];
 					}
 					break;
 				case MouseEvent.MOUSE_OUT:
