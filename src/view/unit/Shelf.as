@@ -13,11 +13,9 @@ package view.unit
 	import global.AssetsManager;
 	import global.DC;
 	import global.ShelfManager;
-	import global.ShopperManager;
 	import global.StoreManager;
 	
 	import model.ShelfVO;
-	import model.ShopperVO;
 	
 	import view.component.LogicalMap;
 	import view.component.Pop;
@@ -281,7 +279,7 @@ package view.unit
 		/**
 		 * @return 
 		 * {
-		 * 		reason:	
+		 * 		state:	
 		 * 			-1	货架未启用
 		 * 			0	货架已满 /
 		 * 			1	库存不足，无法补货
@@ -300,7 +298,7 @@ package view.unit
 			var crtNum:uint;
 			if (props.length == 0)
 			{
-				obj.reason == -1;
+				obj.state = -1;
 				return obj;
 			}
 			
@@ -315,7 +313,7 @@ package view.unit
 				if( crtNum < vo.volume )
 				{
 					if( StoreManager.getInstance().getPropNumByID(id) > 0 )
-						obj.reason = 2;
+						obj.state = 2;
 					else		//库存不足
 						arr.push( id );
 				}else
@@ -328,9 +326,9 @@ package view.unit
 			}
 			obj.pop = arr;
 			if(count >= props.length)		//货架已满，无需补货
-				obj.reason == 0;
+				obj.state = 0;
 			else if( arr.length + count >= props.length )		//库存不足，无需补货
-				obj.reason == 1;
+				obj.state = 1;
 			return obj;
 		}
 	}

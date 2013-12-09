@@ -60,7 +60,7 @@ package global
 			remover.setCrtTile(map.getTileByPosition(new Point(28,6)));
 			main.addUnit( remover );
 			
-			StatusManager.getInstance().addFunc( onTimer );
+			StatusManager.getInstance().addFunc( onTimer, 0.1 );
 		}
 		
 		public function getFreeRomover():Remover

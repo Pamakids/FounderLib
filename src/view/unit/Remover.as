@@ -74,9 +74,9 @@ package view.unit
 			popPoint=new Point(0, -action.height - 10);
 			popPoint=this.localToGlobal(popPoint);
 			var txt:String;
-			var obj:Object=targetShelf.needResplenish();
-			pops=obj.pop;
-			switch (obj.reason)
+			var obj:Object = targetShelf.needResplenish();
+			pops = obj.pop;
+			switch(obj.state)
 			{
 				case -1: //货架未启用
 					SoundManager.instance.play(failed);
