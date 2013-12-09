@@ -2,20 +2,105 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 xmlns:components="view.components.*">
+		 xmlns:components="view.components.*"
+		 creationComplete="group1_creationCompleteHandler(event)">
 
 	<fx:Script>
 		<![CDATA[
+			import com.pamakids.models.ResultVO;
+			import com.pamakids.services.ServiceBase;
+
+			import mx.events.FlexEvent;
+
+			import controller.SO;
+			import controller.ServiceController;
+			private var sc:ServiceController;
 			[Bindable]
 			public var source:String='assets/boxes/defaultP.jpg';
+
+			[Bindable]
+			public var myself:Boolean;
+
+			private var _staff:int;
+
+			public function get staff():int
+			{
+				return _staff;
+			}
+
+			public function set staff(value:int):void
+			{
+				_staff=value;
+				if (!portrait)
+					return;
+				if (staff == 1)
+					portrait.source='assets/boxes/defaultP.jpg';
+				else
+					portrait.source='assets/boxes/p' + staff + '.jpg';
+			}
+
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sc=ServiceController.instance;
+
+				if (staff)
+				{
+					if (staff == 1)
+						portrait.source='assets/boxes/defaultP.jpg';
+					else
+						portrait.source='assets/boxes/p' + staff + '.jpg';
+					return;
+				}
+
+				var cn:String=sc.me.company_name;
+				if (!myself)
+				{
+					if (sc.isSingle)
+						return;
+					else
+						cn=sc.other.company_name;
+				}
+				var p:Object=SO.i.getKV(cn + 'p');
+				if (!p)
+				{
+					var s:ServiceBase=new ServiceBase('user/portrait');
+					s.call(function(vo:ResultVO):void
+					{
+						if (vo.status)
+						{
+							if (vo.results)
+							{
+								portrait.source=vo.results;
+								SO.i.setKV(cn + 'p', vo.results);
+							}
+							else
+							{
+								portrait.source='assets/boxes/defaultP.jpg';
+							}
+						}
+						else
+						{
+							portrait.source='assets/boxes/defaultP.jpg';
+						}
+					}, {cn: cn});
+				}
+				else
+				{
+					portrait.source=p;
+				}
+			}
 		]]>
 	</fx:Script>
 
 	<s:BitmapImage source="@Embed('/assets/boxes/portraitBG.png')"
 				   smooth="true"/>
 
-	<s:Image source="{source}"
+	<s:Image id="portrait"
 			 x="9"
+			 width="88"
+			 smooth="true"
+			 smoothingQuality="high"
+			 height="88"
 			 mask="{m}"
 			 y="8"/>
 

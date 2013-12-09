@@ -9,7 +9,7 @@ package controller
 	import com.pamakids.utils.CloneUtil;
 	import com.pamakids.utils.MathUtil;
 	import com.pamakids.utils.Singleton;
-	
+
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
@@ -20,10 +20,10 @@ package controller
 	import flash.utils.Timer;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.setTimeout;
-	
+
 	import global.DC;
 	import global.StatusManager;
-	
+
 	import model.BoughtGoodsVO;
 	import model.EventsVO;
 	import model.GameConfigVO;
@@ -35,7 +35,7 @@ package controller
 	import model.ShopperVO;
 	import model.StaffVO;
 	import model.UserVO;
-	
+
 	import org.idream.pomelo.Pomelo;
 	import org.idream.pomelo.PomeloEvent;
 
@@ -53,6 +53,23 @@ package controller
 		public static const USER_READY:String="USER_READY";
 
 		public static const USER_SIGN_IN:String="user/signIn";
+
+		/**
+		 * 当前回合盈利
+		 */
+		public function get earned():int
+		{
+			return _earned;
+		}
+
+		/**
+		 * @private
+		 */
+		public function set earned(value:int):void
+		{
+			_earned=value;
+			dispatchEvent(new Event('moneyChanged'));
+		}
 
 		public static function get instance():ServiceController
 		{
@@ -355,7 +372,6 @@ package controller
 			{
 				sm.stopAll();
 				recordCash=player1.cash;
-				roundNum++;
 				if (!isSingle)
 					gameTime='第' + roundNum + '月';
 				else
@@ -380,6 +396,7 @@ package controller
 				{
 					if (!isSingle)
 					{
+						roundNum++;
 						if (other)
 						{
 							var sendData:Object={target: other.company_name, data: player1.money};
@@ -392,7 +409,7 @@ package controller
 					{
 						var s:ServiceBase=new ServiceBase('user/update', URLRequestMethod.POST);
 						var data:Object={_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan};
-						if (player1.cash < 0)
+						if (player1.cash < config.startupMoney)
 						{
 							data.single_cash=config.startupMoney;
 							data.single_loan=0;
@@ -415,6 +432,7 @@ package controller
 									navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
 								}, 5000);
 							}
+							roundNum++;
 						}, data);
 					}
 					recordCash=player1.cash;
@@ -578,10 +596,7 @@ package controller
 				showHelp('人员招聘完毕，快去批发市场采购东西吧');
 		}
 
-		/**
-		 * 当前回合盈利
-		 */
-		public var earned:int;
+		private var _earned:int;
 
 		/**
 		 * 开始游戏，自动计时，同步现金数
@@ -620,7 +635,7 @@ package controller
 						s.call(function(vo:ResultVO):void
 						{
 							infos.push('恭喜您，已经闯到第 ' + me.single_level + ' 关');
-							infos.push('当前排名 ' + vo.results + ' 请再接再厉');
+							infos.push('当前排名第 ' + vo.results + ' 请再接再厉');
 							infos.push('');
 							infos.push('本关过关条件需盈利：' + singleModeTarget + ' 祝您好运！');
 							infos.push('');
@@ -636,6 +651,8 @@ package controller
 				dispatchEvent(new Event(ENTERED));
 				sm.play('bg0');
 			}
+			if (isSingle)
+				otherCash=singleModeTarget;
 		}
 
 		/**
@@ -664,7 +681,7 @@ package controller
 
 		protected function addShopperHandler(event:TimerEvent):void
 		{
-			var type:uint = Math.floor( Math.random()*3 );
+			var type:uint=Math.floor(Math.random() * 3);
 			var r:Number=Math.random();
 			var num:int=toBuyGoodsNum;
 			var buyTwo:Boolean=r > 0.5;
@@ -695,10 +712,10 @@ package controller
 					if (r < player1.shop.visit / 100)
 					{
 						addShopper(new ShopperVO(type, toBuy));
-						for each (var oo:Array in toBuy)
-						{
-							trace('to buy:', oo[1], oo[0]);
-						}
+//						for each (var oo:Array in toBuy)
+//						{
+//							trace('to buy:', oo[1], oo[0]);
+//						}
 					}
 				}
 			}
@@ -1180,8 +1197,7 @@ package controller
 		{
 			var n:int=1;
 			if (isSingle)
-				n=Math.pow((1 + config.getSingleRatio()), roundNum - 1);
-			trace('Ability Ratio:' + n);
+				n=Math.pow((1 + config.getSingleRatio() / 100), roundNum - 1);
 			return n;
 		}
 
@@ -1189,7 +1205,7 @@ package controller
 		{
 			var n:int=config.getClientMaxGoodsNum();
 			if (isSingle)
-				n=n * Math.pow((1 + config.getSingleRatio()), roundNum - 1);
+				n=n * Math.pow((1 + config.getSingleRatio() / 100), roundNum - 1);
 			return n;
 		}
 

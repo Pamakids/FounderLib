@@ -99,8 +99,10 @@ package model
 		{
 			var arr:Array=[];
 			if (shop)
+			{
 				cash-=shop.rent;
-			arr.push('扣除租金 ' + shop.rent);
+				arr.push('扣除租金 ' + shop.rent);
+			}
 			var m:int;
 			for each (var vo:StaffVO in staffes)
 			{

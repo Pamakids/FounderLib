@@ -95,6 +95,7 @@
 			  gap="36">
 		<s:ButtonBar skinClass="skins.DefaultButtonBarSkin"
 					 horizontalCenter="0"
+					 requireSelection="true"
 					 change="nvs_changeHandler(event)"
 					 y="35	"
 					 id="nvs"/>
