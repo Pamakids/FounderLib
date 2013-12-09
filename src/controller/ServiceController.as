@@ -9,7 +9,7 @@ package controller
 	import com.pamakids.utils.CloneUtil;
 	import com.pamakids.utils.MathUtil;
 	import com.pamakids.utils.Singleton;
-
+	
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
@@ -20,10 +20,10 @@ package controller
 	import flash.utils.Timer;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.setTimeout;
-
+	
 	import global.DC;
 	import global.StatusManager;
-
+	
 	import model.BoughtGoodsVO;
 	import model.EventsVO;
 	import model.GameConfigVO;
@@ -35,7 +35,7 @@ package controller
 	import model.ShopperVO;
 	import model.StaffVO;
 	import model.UserVO;
-
+	
 	import org.idream.pomelo.Pomelo;
 	import org.idream.pomelo.PomeloEvent;
 
@@ -664,6 +664,7 @@ package controller
 
 		protected function addShopperHandler(event:TimerEvent):void
 		{
+			var type:uint = Math.floor( Math.random()*3 );
 			var r:Number=Math.random();
 			var num:int=toBuyGoodsNum;
 			var buyTwo:Boolean=r > 0.5;
@@ -693,7 +694,7 @@ package controller
 					r=Math.random();
 					if (r < player1.shop.visit / 100)
 					{
-						addShopper(new ShopperVO(0, toBuy));
+						addShopper(new ShopperVO(type, toBuy));
 						for each (var oo:Array in toBuy)
 						{
 							trace('to buy:', oo[1], oo[0]);
@@ -715,11 +716,11 @@ package controller
 						var aa:Number=(a1 + a2) / 2;
 						r=Math.random();
 						if (r < aa)
-							addShopper(new ShopperVO(0, toBuy));
+							addShopper(new ShopperVO(type, toBuy));
 					}
 					else
 					{
-						addShopper(new ShopperVO(0, toBuy));
+						addShopper(new ShopperVO(type, toBuy));
 					}
 				}
 			}
