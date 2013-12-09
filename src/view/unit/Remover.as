@@ -5,16 +5,20 @@ package view.unit
 	
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.geom.Point;
 	import flash.media.Sound;
 	import flash.utils.getTimer;
 	
 	import global.AssetsManager;
+	import global.DC;
 	import global.ShelfManager;
 	import global.StatusManager;
+	import global.StoreManager;
 	
 	import model.StaffVO;
 	
 	import view.component.LogicalMap;
+	import view.component.Pop;
 	import view.unit.w.Walker;
 
 	/**
@@ -62,17 +66,48 @@ package view.unit
 			return 8;
 		}
 
+		private var pops:Array;
+		private var popPoint:Point;
 		override protected function onArrived(e:Event):void
 		{
-			if(targetShelf.needResplenish())
+			popPoint = new Point( action.sprite_0.x +　action.sprite_0.width/2, action.sprite_0.y-10 );
+			popPoint = action.localToGlobal(popPoint);
+			var txt:String;
+			var obj:Object = targetShelf.needResplenish();
+			pops = obj.pop;
+			switch(obj.reason)
 			{
-				SoundManager.instance.play(begin);
-				replenishHandler();
-			}else
-			{
-				SoundManager.instance.play(failed);
-				ShelfManager.getInstance().delFromWait(targetShelf);
-				isFree = true;
+				case -1:		//货架未启用
+					SoundManager.instance.play(failed);
+					ShelfManager.getInstance().delFromWait(targetShelf);
+					isFree = true;
+					break;
+				case 0:			//货架已满
+					txt = "货架是满的";
+					Pop.show(Pop.POPID_ALERT, txt, stage, popPoint);
+					SoundManager.instance.play(failed);
+					ShelfManager.getInstance().delFromWait(targetShelf);
+					isFree = true;
+					break;
+				case 1:			//库存不足，提示不足信息
+					txt = "";
+					for(var i:int = 0;i<pops.length;i++)
+					{
+						txt += DC.instance().getPropNameByID(pops[i]);
+						if(i < pops.length-1)
+							txt += ",";
+					}
+					txt += "  库存不足！";
+					Pop.show(Pop.POPID_ALERT, txt, stage, popPoint);
+					SoundManager.instance.play(failed);
+					ShelfManager.getInstance().delFromWait(targetShelf);
+					isFree = true;
+					pops = null;
+					break;
+				case 2:			//需要补货，补货完成后提示不足信息
+					SoundManager.instance.play(begin);
+					replenishHandler();
+					break;
 			}
 		}
 
@@ -108,6 +143,20 @@ package view.unit
 				isFree=true;
 				
 				SoundManager.instance.play(end);
+				
+				var txt:String = "补货完成！";
+				if(pops && pops.length > 0)
+				{
+					txt += "其中： ";
+					for(var j:int = 0;j<pops.length;j++)
+					{
+						txt += DC.instance().getPropNameByID(pops[j]);
+						if(j < pops.length-1)
+							txt += ",";
+					}
+					txt += " 库存不足！";
+				}
+				Pop.show(Pop.POPID_ALERT, txt, stage, popPoint);
 			}
 		}
 		private var start:uint;
