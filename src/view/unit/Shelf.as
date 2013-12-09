@@ -159,7 +159,7 @@ package view.unit
 						arr[1]-=num;
 						updatePropIcon(i);
 						//提示
-						Pop.show(propId, num, stage, popPoint);
+						Pop.show(propId, num.toString(), stage, popPoint);
 						break;
 					}
 					else
@@ -278,21 +278,60 @@ package view.unit
 			}
 		}
 
-		public function needResplenish():Boolean
+		/**
+		 * @return 
+		 * {
+		 * 		reason:	
+		 * 			-1	货架未启用
+		 * 			0	货架已满 /
+		 * 			1	库存不足，无法补货
+		 * 			2	需要补货
+		 * 		pop:[				//当reason == 2时，补货完成后提示
+		 * 			缺少库存物品的id，
+		 * 			缺少库存物品的id
+		 * 		]
+		 * }
+		 */		
+		public function needResplenish():Object
 		{
+			var obj:Object = {};
+			
 			var id:String;
 			var crtNum:uint;
 			if (props.length == 0)
-				return false;
+			{
+				obj.reason == -1;
+				return obj;
+			}
+			
+			var arr:Array = [];			//库存不足的物品id集合
+			var count:uint = 0;			//已满货架数量
+			
 			for (var i:int=props.length - 1; i >= 0; i--)
 			{
 				id=props[i][0];
 				crtNum=props[i][1];
+				
+				if( crtNum < vo.volume )
+				{
+					if( StoreManager.getInstance().getPropNumByID(id) > 0 )
+						obj.reason = 2;
+					else		//库存不足
+						arr.push( id );
+				}else
+				{
+					count ++;
+				}
 				//缺少货品且仓库内尚有存货，此时满足补货条件
-				if (crtNum < vo.volume && StoreManager.getInstance().getPropNumByID(id) > 0)
-					return true;
+//				if (crtNum < vo.volume && StoreManager.getInstance().getPropNumByID(id) > 0)
+//					return true;
 			}
-			return false;
+			obj.pop = arr;
+			if(count >= props.length)		//货架已满，无需补货
+				obj.reason == 0;
+			else if( arr.length + count >= props.length )		//库存不足，无需补货
+				obj.reason == 1;
+			return obj;
 		}
 	}
 }

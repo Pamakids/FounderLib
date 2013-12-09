@@ -101,7 +101,7 @@ package view.unit
 				ShopperManager.getInstance().outShop(crtShopper);
 				crtShopper=null;
 
-				Pop.show(Pop.POPID_MONEY, value, stage, new Point(290, 120));
+				Pop.show(Pop.POPID_MONEY, value.toString(), stage, new Point(290, 120));
 				SoundManager.instance.play(sound);
 			}
 		}
