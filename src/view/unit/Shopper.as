@@ -170,6 +170,7 @@ package view.unit
 				StatusManager.getInstance().delFunc(onTimer);
 				targetShelf.delProp(id, num);
 				vo.shopperList[crtIndex][3]=true;
+				updateIcon();
 				dispatchEvent(new Event(SHOP_CATCHED));
 			}
 		}
