@@ -44,7 +44,7 @@
 
 				if (sc.fighting)
 					return;
-				Help.instance.showHelp('采购的物品可以直接在购物车修改数量\n物品种类越多越容易销售成功\n如果数量不足以满足顾客所需会导致交易失败');
+				Help.instance.showHelp('采购的物品可以直接在购物车修改数量\n物品种类越多越容易销售成功，但不可超出23种\n如果数量不足以满足顾客所需会导致交易失败');
 			}
 
 			[Bindable]
@@ -124,6 +124,34 @@
 				}
 				else
 				{
+					var typeNum:int;
+					if (sc.boughtGoods)
+					{
+						typeNum=sc.boughtGoods.length;
+						for each (var bg:BoughtGoodsVO in boughtGoods)
+						{
+							var has:Boolean;
+							for each (var bg2:BoughtGoodsVO in sc.boughtGoods)
+							{
+								if (bg2.id == bg.id)
+								{
+									has=true;
+									break;
+								}
+							}
+							if (!has)
+								typeNum++;
+						}
+					}
+					else
+					{
+						typeNum=boughtGoods.length;
+					}
+					if (typeNum > 23)
+					{
+						PAlert.show('抱歉，您所购买的物品不能超出23类，请删除' + (typeNum - 23) + '种物品');
+						return;
+					}
 					sc.purchaseNumEachRound+=totalNum;
 					sc.checkOut(boughtGoods.source, shopCartTotal);
 					closeHandler(null);

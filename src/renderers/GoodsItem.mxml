@@ -39,6 +39,8 @@
 					var n:int=sc.getBoughtGoodsNum(vo.id);
 					if (n)
 						num.text='(库存 ' + n + ' )';
+					else
+						num.text='';
 				}
 			}
 

@@ -4,7 +4,7 @@
 					 xmlns:mx="library://ns.adobe.com/flex/mx"
 					 xmlns:components="com.pamakids.components.*"
 					 skinClass="skins.GMPopupBoxSkin"
-					 title="销售方案"
+					 title="定价策略"
 					 creationComplete="popupbox1_creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[

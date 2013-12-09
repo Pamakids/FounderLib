@@ -60,6 +60,8 @@
 
 					salary.text='工资： ' + vo.salary + ' /月';
 					sign.selected=ServiceController.instance.isSeletected(vo);
+
+					gp.staff=vo.type;
 				}
 			}
 
@@ -94,7 +96,7 @@
 		]]>
 	</fx:Script>
 
-	<components:GPortrait/>
+	<components:GPortrait id="gp"/>
 	<s:HGroup id="starGroup">
 	</s:HGroup>
 

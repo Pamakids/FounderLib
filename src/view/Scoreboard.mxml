@@ -29,8 +29,8 @@
 				this.width=width;
 				if (sc.isSingle)
 				{
-					horizontalCenter=0;
-					leftGroup.visible=rightGroup.visible=false;
+					currentState='s2';
+					rightPortrait.visible=false;
 				}
 			}
 
@@ -46,11 +46,15 @@
 			{
 				scaleX=scaleY=.6;
 				if (!sc.isSingle)
+				{
 					x=574;
+				}
 				else
 				{
-					x=parent.width / 2 - width / 2;
-					leftGroup.visible=rightGroup.visible=false;
+					x=666;
+//					x=parent.width / 2 - width / 2;
+					rightPortrait.visible=false;
+//					leftGroup.visible=rightGroup.visible=false;
 				}
 			}
 
@@ -62,10 +66,16 @@
 		]]>
 	</fx:Script>
 
+	<s:states>
+		<s:State name="s1"/>
+		<s:State name="s2"/>
+	</s:states>
+
 	<s:HGroup gap="-20"
 			  id="leftGroup"
 			  verticalAlign="middle">
-		<components:GPortrait depth="1"/>
+		<components:GPortrait depth="1"
+							  myself="true"/>
 		<s:Group>
 			<s:BitmapImage source="@Embed('/assets/boxes/rightArrow.png')"
 						   smooth="true"/>
@@ -94,13 +104,14 @@
 		<s:Group>
 			<s:BitmapImage source="@Embed('/assets/boxes/leftArrow.png')"
 						   smooth="true"/>
-			<components1:LabelWidthShadow text="{'资金：'+sc.otherCash}"
+			<components1:LabelWidthShadow text.s1="{'资金：'+sc.otherCash}"
+										  text.s2="{'目标：'+sc.otherCash}"
 										  fontSize="18"
 										  color="0x724815"
 										  verticalCenter="-2"
 										  horizontalCenter="0"/>
 		</s:Group>
-		<components:GPortrait/>
+		<components:GPortrait id="rightPortrait"/>
 	</s:HGroup>
 
 </s:HGroup>

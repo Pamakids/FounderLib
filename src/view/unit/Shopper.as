@@ -216,7 +216,7 @@ package view.unit
 			this.addChild(action);
 			if (vo.type == 0)
 				action.scaleX=action.scaleY=.4;
-			else if (vo.type == 1)
+			else if (vo.type == 1 || vo.type == 2)
 				action.scaleX=action.scaleY=.8;
 		}
 		private const gap:uint=40;

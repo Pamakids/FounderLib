@@ -2,21 +2,21 @@ package view.unit
 {
 	import com.astar.expand.ItemTile;
 	import com.pamakids.manager.SoundManager;
-	
+
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.media.Sound;
 	import flash.utils.getTimer;
-	
+
 	import global.AssetsManager;
 	import global.DC;
 	import global.ShelfManager;
 	import global.StatusManager;
 	import global.StoreManager;
-	
+
 	import model.StaffVO;
-	
+
 	import view.component.LogicalMap;
 	import view.component.Pop;
 	import view.unit.w.Walker;
@@ -44,10 +44,10 @@ package view.unit
 		{
 			initAction();
 			initProbar();
-			
-			begin = AssetsManager.instance().getSounds("sound_removerStart");
-			end = AssetsManager.instance().getSounds("sound_removerEnd");
-			failed = AssetsManager.instance().getSounds("sound_shelfIsFull");
+
+			begin=AssetsManager.instance().getSounds("sound_removerStart");
+			end=AssetsManager.instance().getSounds("sound_removerEnd");
+			failed=AssetsManager.instance().getSounds("sound_shelfIsFull");
 		}
 
 		private var probar:MovieClip;
@@ -68,43 +68,44 @@ package view.unit
 
 		private var pops:Array;
 		private var popPoint:Point;
+
 		override protected function onArrived(e:Event):void
 		{
-			popPoint = new Point( 0, -action.height-10 );
-			popPoint = this.localToGlobal(popPoint);
+			popPoint=new Point(0, -action.height - 10);
+			popPoint=this.localToGlobal(popPoint);
 			var txt:String;
 			var obj:Object = targetShelf.needResplenish();
 			pops = obj.pop;
 			switch(obj.state)
 			{
-				case -1:		//货架未启用
+				case -1: //货架未启用
 					SoundManager.instance.play(failed);
 					ShelfManager.getInstance().delFromWait(targetShelf);
-					isFree = true;
+					isFree=true;
 					break;
-				case 0:			//货架已满
-					txt = "货架是满的";
+				case 0: //货架已满
+					txt="货架是满的";
 					Pop.show(Pop.POPID_ALERT, txt, stage, popPoint);
 					SoundManager.instance.play(failed);
 					ShelfManager.getInstance().delFromWait(targetShelf);
-					isFree = true;
+					isFree=true;
 					break;
-				case 1:			//库存不足，提示不足信息
-					txt = "";
-					for(var i:int = 0;i<pops.length;i++)
+				case 1: //库存不足，提示不足信息
+					txt="";
+					for (var i:int=0; i < pops.length; i++)
 					{
-						txt += DC.instance().getPropNameByID(pops[i]);
-						if(i < pops.length-1)
-							txt += ",";
+						txt+=DC.instance().getPropNameByID(pops[i]);
+						if (i < pops.length - 1)
+							txt+=",";
 					}
-					txt += "  库存不足！";
+					txt+="  库存不足！";
 					Pop.show(Pop.POPID_ALERT, txt, stage, popPoint);
 					SoundManager.instance.play(failed);
 					ShelfManager.getInstance().delFromWait(targetShelf);
-					isFree = true;
-					pops = null;
+					isFree=true;
+					pops=null;
 					break;
-				case 2:			//需要补货，补货完成后提示不足信息
+				case 2: //需要补货，补货完成后提示不足信息
 					SoundManager.instance.play(begin);
 					replenishHandler();
 					break;
@@ -116,7 +117,7 @@ package view.unit
 		private var begin:Sound;
 		private var end:Sound;
 		private var failed:Sound;
-		
+
 		private function replenishHandler():void
 		{
 			probar.visible=true;
@@ -141,20 +142,20 @@ package view.unit
 				targetShelf.resplenish();
 				targetShelf=null;
 				isFree=true;
-				
+
 				SoundManager.instance.play(end);
-				
-				var txt:String = "补货完成！";
-				if(pops && pops.length > 0)
+
+				var txt:String="补货完成！";
+				if (pops && pops.length > 0)
 				{
-					txt += "其中： ";
-					for(var j:int = 0;j<pops.length;j++)
+					txt+="其中： ";
+					for (var j:int=0; j < pops.length; j++)
 					{
-						txt += DC.instance().getPropNameByID(pops[j]);
-						if(j < pops.length-1)
-							txt += ",";
+						txt+=DC.instance().getPropNameByID(pops[j]);
+						if (j < pops.length - 1)
+							txt+=",";
 					}
-					txt += " 库存不足！";
+					txt+=" 库存不足！";
 				}
 				Pop.show(Pop.POPID_ALERT, txt, stage, popPoint);
 			}
