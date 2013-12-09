@@ -318,7 +318,7 @@ package controller
 			SO.i.setKV('player' + me.company_name, player1);
 			if (!isSingle)
 				SO.i.setKV('fightRoom', users[0].user + 'vs' + users[1].user);
-			navigateToURL(new URLRequest(http + '/FounderFighting.html'), '_self');
+			navigateToURL(new URLRequest(http + 'FounderFighting.html'), '_self');
 		}
 
 		public function init():void
@@ -1181,6 +1181,7 @@ package controller
 			var n:int=1;
 			if (isSingle)
 				n=Math.pow((1 + config.getSingleRatio()), roundNum - 1);
+			trace('Ability Ratio:' + n);
 			return n;
 		}
 
