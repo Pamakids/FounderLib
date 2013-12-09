@@ -75,7 +75,7 @@ package view.unit
 			var txt:String;
 			var obj:Object = targetShelf.needResplenish();
 			pops = obj.pop;
-			switch(obj.reason)
+			switch(obj.state)
 			{
 				case -1:		//货架未启用
 					SoundManager.instance.play(failed);
