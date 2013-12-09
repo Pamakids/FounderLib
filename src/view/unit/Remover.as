@@ -70,8 +70,8 @@ package view.unit
 		private var popPoint:Point;
 		override protected function onArrived(e:Event):void
 		{
-			popPoint = new Point( action.sprite_0.x +　action.sprite_0.width/2, action.sprite_0.y-10 );
-			popPoint = action.localToGlobal(popPoint);
+			popPoint = new Point( 0, -action.height-10 );
+			popPoint = this.localToGlobal(popPoint);
 			var txt:String;
 			var obj:Object = targetShelf.needResplenish();
 			pops = obj.pop;
