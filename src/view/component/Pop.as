@@ -4,7 +4,6 @@ package view.component
 	import com.greensock.easing.Cubic;
 	
 	import flash.display.DisplayObjectContainer;
-	import flash.display.Sprite;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	import flash.text.TextField;

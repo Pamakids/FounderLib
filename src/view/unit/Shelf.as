@@ -116,10 +116,12 @@ package view.unit
 		{
 			var arr:Array;
 			arr=props[place];
+			var count:uint;
 			if (!arr) //货架为空
 			{
-				props[place]=[propId, (vo.volume > num) ? num : vo.volume];
-				StoreManager.getInstance().delPropByID(propId, props[place][1]);
+				count = Math.min( vo.volume, num );
+				props[place]=[propId, count];
+				StoreManager.getInstance().delPropByID(propId, count);
 			}
 			else
 			{
@@ -127,14 +129,16 @@ package view.unit
 				{
 					//将货架原有物品退回仓库
 					StoreManager.getInstance().addPropByID(arr[0], arr[1]);
-					props[place]=[propId, (vo.volume > num) ? num : vo.volume];
-					StoreManager.getInstance().delPropByID(propId, props[place][1]);
+					count = Math.min( vo.volume, num );
+					props[place]=[propId, count];
+					StoreManager.getInstance().delPropByID(propId, count);
 				}
 				else //货物补全
 				{
 					var n:uint=arr[1];
-					arr[1]=(vo.volume > n + num) ? n + num : vo.volume;
-					StoreManager.getInstance().delPropByID(propId, arr[1] - n);
+					count = Math.min( n + num, vo.volume );
+					arr[1]=count;
+					StoreManager.getInstance().delPropByID(propId, count - n);
 				}
 
 			}

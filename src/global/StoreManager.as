@@ -12,7 +12,7 @@ package global
 	{
 		public function StoreManager()
 		{
-			reCatchGoods();
+//			reCatchGoods();
 		}
 
 		public function reCatchGoods():void
@@ -73,6 +73,8 @@ package global
 				dic[id]+=num;
 			else
 				dic[id]=num;
+			
+			traceDic();
 		}
 
 		/**
@@ -85,6 +87,17 @@ package global
 			dic[id]-=num;
 			if (dic[id] <= 0)
 				delete dic[id];
+			
+			traceDic();
+		}
+		
+		private function traceDic():void
+		{
+			trace("--------------------------------------------");
+			for(var id:String in dic)
+			{
+				trace(DC.instance().getPropNameByID(id), dic[id]);
+			}
 		}
 
 		/**
@@ -92,7 +105,7 @@ package global
 		 */
 		public function getPropNumByID(id:String):uint
 		{
-			return dic[id];
+			return uint(dic[id]);
 		}
 		private var dic:Object={};
 

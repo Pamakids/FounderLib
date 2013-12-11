@@ -2,21 +2,21 @@ package view.unit
 {
 	import com.astar.expand.ItemTile;
 	import com.greensock.TweenLite;
-
+	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.utils.getTimer;
-
+	
 	import global.AssetsManager;
 	import global.ShelfManager;
 	import global.ShopperManager;
 	import global.StatusManager;
 	import global.StoreManager;
 	import global.WorkerManager;
-
+	
 	import model.ShopperVO;
-
+	
 	import view.component.LogicalMap;
 	import view.unit.w.Walker;
 
@@ -266,6 +266,12 @@ package view.unit
 			clearIcon();
 			addFailedIcon();
 			LogicalMap.getInstance().moveBody(this, LogicalMap.getInstance().TITLE_OUT_SHOP);
+			//将已购买的物品扔回仓库
+			for each(var arr:Array in vo.shopperList)
+			{
+				if(arr[3])
+					StoreManager.getInstance().addPropByID(arr[0], arr[1]);
+			}
 		}
 
 		private function addFailedIcon():void
