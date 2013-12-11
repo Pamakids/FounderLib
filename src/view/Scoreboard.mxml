@@ -32,6 +32,7 @@
 					currentState='s2';
 					rightPortrait.visible=false;
 				}
+				initThis();
 			}
 
 			protected function gamePausedHandler(event:Event):void
@@ -40,9 +41,25 @@
 				x=parent.width / 2 - width / 2;
 				if (sc.isSingle)
 					leftGroup.visible=true;
+				if (currentState == 's2')
+					lw.text='资金：' + sc.player1.money.toString();
 			}
 
 			protected function gameStartHandler(event:Event):void
+			{
+				initThis();
+			}
+
+			protected function changedHandler(event:Event):void
+			{
+				trace(sc.player1.money);
+				if (currentState == 's1')
+					lw.text='资金：' + sc.player1.money.toString();
+				else
+					lw.text='收入：' + sc.earned;
+			}
+
+			private function initThis():void
 			{
 				scaleX=scaleY=.6;
 				if (!sc.isSingle)
@@ -51,17 +68,11 @@
 				}
 				else
 				{
-					x=666;
-//					x=parent.width / 2 - width / 2;
+					x=650;
+					//					x=parent.width / 2 - width / 2;
 					rightPortrait.visible=false;
-//					leftGroup.visible=rightGroup.visible=false;
+						//					leftGroup.visible=rightGroup.visible=false;
 				}
-			}
-
-			protected function changedHandler(event:Event):void
-			{
-				trace(sc.player1.money);
-				lw.text='资金：' + sc.player1.money.toString();
 			}
 		]]>
 	</fx:Script>
@@ -79,7 +90,9 @@
 		<s:Group>
 			<s:BitmapImage source="@Embed('/assets/boxes/rightArrow.png')"
 						   smooth="true"/>
-			<components1:LabelWidthShadow text="{'资金：'+sc.player1.money}"
+			<components1:LabelWidthShadow text.s1="{'资金：'+sc.player1.money}"
+										  text.s2="{'收入：'+sc.earned}"
+										  toolTip.s2="本月收入情况"
 										  fontSize="18"
 										  color="0x724815"
 										  verticalCenter="-2"
@@ -106,6 +119,7 @@
 						   smooth="true"/>
 			<components1:LabelWidthShadow text.s1="{'资金：'+sc.otherCash}"
 										  text.s2="{'目标：'+sc.otherCash}"
+										  toolTip.s2="收入需达到的目标"
 										  fontSize="18"
 										  color="0x724815"
 										  verticalCenter="-2"

@@ -2,13 +2,17 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 width="100%"
+		 width="1024"
 		 height="100%"
 		 creationComplete="group1_creationCompleteHandler(event)"
 		 xmlns:boxes="view.boxes.*"
 		 xmlns:view="view.*">
 	<fx:Script>
 		<![CDATA[
+			import com.greensock.TweenLite;
+
+			import flash.utils.setTimeout;
+
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 
@@ -70,9 +74,36 @@
 				{
 					var svo:SaleStrategyVO=new SaleStrategyVO();
 					svo.name='默认方案';
-					sc.saleStrategies=[svo, svo];
+					sc.saleStrategies=[svo];
 				}
 				saleStrategies.dataProvider=new ArrayCollection(sc.saleStrategies);
+
+				setTimeout(function():void
+				{
+					if (ssTip)
+						hideTip();
+				}, 5000);
+			}
+
+			protected function saleStrategies_rollOverHandler(event:MouseEvent):void
+			{
+				saleStrategies.alpha=1;
+				if (ssTip)
+					hideTip();
+			}
+
+			private function hideTip():void
+			{
+				TweenLite.to(ssTip, 0.5, {alpha: 0, onComplete: function():void
+				{
+					if (ssTip)
+						ssTip.visible=false;
+				}});
+				if (!ssTip.visible)
+				{
+					removeElement(ssTip);
+					ssTip=null;
+				}
 			}
 		]]>
 	</fx:Script>
@@ -100,7 +131,7 @@
 				 right="10"
 				 y="115"
 				 alpha="0.7"
-				 rollOver="saleStrategies.alpha = 1"
+				 rollOver="saleStrategies_rollOverHandler(event)"
 				 rollOut="saleStrategies.alpha = 0.5"
 				 includeIn="normal"
 				 change="saleStrategies_changeHandler(event)"
@@ -109,6 +140,11 @@
 			<s:VerticalLayout gap="8"/>
 		</s:layout>
 	</s:ButtonBar>
+
+	<s:BitmapImage id="ssTip"
+				   source="@Embed('/assets/boxes/ssBG.png')"
+				   y="115"
+				   right="{saleStrategies.width+18}"/>
 
 	<!--<view:FightingPrepare y="190"
 						  includeIn="prepare"/>-->

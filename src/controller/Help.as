@@ -1,14 +1,11 @@
 package controller
 {
-	import com.pamakids.components.NiceToolTip;
-	import com.pamakids.managers.NiceToolTipManagerImpl;
 	import com.pamakids.utils.Singleton;
 
 	import flash.utils.setTimeout;
 
 	import mx.controls.ToolTip;
 	import mx.core.IToolTip;
-	import mx.events.FlexEvent;
 	import mx.managers.ToolTipManager;
 
 	public class Help extends Singleton

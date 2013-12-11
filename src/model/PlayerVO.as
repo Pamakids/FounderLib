@@ -46,11 +46,11 @@ package model
 		 */
 		public function set cash(value:Number):void
 		{
-			if (value < 0 && value + loan > 0)
-			{
-				value=0;
-				loan+=value;
-			}
+//			if (value < 0 && value + loan > 0)
+//			{
+//				loan+=value;
+//				value=0;
+//			}
 			_cash=value;
 		}
 
@@ -90,6 +90,26 @@ package model
 		public function set money(value:int):void
 		{
 			_money=value;
+		}
+
+		/**
+		 * 获得所有需要支付的成本
+		 */
+		public function getAllNeedPay():int
+		{
+			var all:int;
+			if (shop)
+				all+=shop.rent;
+			if (staffes)
+			{
+				var m:int;
+				for each (var vo:StaffVO in staffes)
+				{
+					m+=vo.salary;
+				}
+				all+=m;
+			}
+			return all;
 		}
 
 		/**

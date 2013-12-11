@@ -390,7 +390,8 @@ package controller
 				dispatchEvent(new Event('moneyChanged'));
 				infoArr.push('销售物品共赚得： ' + earned);
 				infoArr.push('');
-				infoArr.push('净盈利： ' + (earned - Math.abs((recordCash - player1.cash))));
+				var allEarned:int=earned - Math.abs((recordCash - player1.cash));
+				infoArr.push('净盈利： ' + allEarned);
 				infoArr.push('');
 				confirmedCallback=function():void
 				{
@@ -407,6 +408,7 @@ package controller
 					}
 					else
 					{
+						earned=0; //清空盈利
 						var s:ServiceBase=new ServiceBase('user/update', URLRequestMethod.POST);
 						var data:Object={_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan};
 						if (player1.cash < config.startupMoney)
@@ -419,7 +421,7 @@ package controller
 						{
 							if (vo.status)
 							{
-								if (singleModeTarget > player1.cash - recordCash)
+								if (singleModeTarget > allEarned)
 									dispatchEvent(new Event('singleFailed'));
 								else
 									showRandomEvent();
@@ -432,13 +434,12 @@ package controller
 									navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
 								}, 5000);
 							}
-							roundNum++;
 						}, data);
 					}
 					recordCash=player1.cash;
+					dispatchEvent(new Event(GAME_PAUSE));
 				};
 				confirm(infoArr.join('\n'));
-				dispatchEvent(new Event(GAME_PAUSE));
 			});
 		}
 
@@ -593,7 +594,10 @@ package controller
 			}
 
 			if (arr.length == 3)
+			{
 				showHelp('人员招聘完毕，快去批发市场采购东西吧');
+				confirm('人员招聘完毕，快去批发市场采购东西吧');
+			}
 		}
 
 		private var _earned:int;
@@ -651,8 +655,11 @@ package controller
 				dispatchEvent(new Event(ENTERED));
 				sm.play('bg0');
 			}
-			if (isSingle)
-				otherCash=singleModeTarget;
+			if (isSingle && fighting)
+			{
+				var payForLoan:int=int(player1.loan * config.loanRate / 100);
+				otherCash=singleModeTarget + player1.getAllNeedPay() + payForLoan;
+			}
 		}
 
 		/**
@@ -689,6 +696,10 @@ package controller
 			var index:int=Math.floor(MathUtil.getRandomBetween(0, goods.length));
 			var gvo:GoodsVO=goods[index];
 			var ids:Array=[];
+			var currentPrice:int;
+			var defaultPrice:int;
+			currentPrice=getCurrentPrice(gvo.id, currentSaleStrategy);
+			defaultPrice=getDefaultPrice(gvo.id);
 			toBuy=[[gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]];
 			if (buyTwo)
 			{
@@ -699,7 +710,9 @@ package controller
 				} while (index2 == index);
 				num=toBuyGoodsNum;
 				gvo=goods[index2];
-				toBuy.push([gvo.id, num, getCurrentPrice(gvo.id, currentSaleStrategy), false]);
+				currentPrice=getCurrentPrice(gvo.id, currentSaleStrategy);
+				defaultPrice=getDefaultPrice(gvo.id);
+				toBuy.push([gvo.id, num, currentPrice, false]);
 			}
 
 			var player1Have:Boolean=allHave(toBuy, player1.goods);
@@ -708,14 +721,21 @@ package controller
 			{
 				if (player1Have)
 				{
+					var p2:Number=currentPrice / defaultPrice; //售价超出的倍数，倍数越高就会降低用户进入的几率
+					var max:int=config.goodsSaleMax / 100;
+
+					var p3:Number=(p2 - 1) * 0.5 / max;
+
+					trace('SinglePrice Ratio:', p3, p2, currentPrice, defaultPrice);
+
+					for each (var oo:Array in toBuy)
+					{
+						trace('to buy:', oo[1], oo[0]);
+					}
 					r=Math.random();
-					if (r < player1.shop.visit / 100)
+					if (r < (player1.shop.visit / 100) * (1 - p3))
 					{
 						addShopper(new ShopperVO(type, toBuy));
-//						for each (var oo:Array in toBuy)
-//						{
-//							trace('to buy:', oo[1], oo[0]);
-//						}
 					}
 				}
 			}
@@ -907,6 +927,20 @@ package controller
 			for each (var arr:Array in toBuy)
 			{
 				p+=getCurrentPrice(arr[0], svo);
+			}
+			return p;
+		}
+
+		private function getDefaultPrice(id:String):int
+		{
+			var p:int;
+			for each (var gvo:GoodsVO in goods)
+			{
+				if (gvo.id == id)
+				{
+					p=gvo.outPrice;
+					break;
+				}
 			}
 			return p;
 		}
@@ -1190,6 +1224,7 @@ package controller
 					alert(evo.content);
 					player1.cash+=evo.money;
 				}
+				roundNum++;
 			});
 		}
 
@@ -1211,7 +1246,10 @@ package controller
 
 		public function get toBuyGoodsNum():int
 		{
-			return Math.ceil(Math.random() * currentRoundMaxGoodsNum());
+			var m:Number=Math.random();
+			if (m < 0.2)
+				m=0.2;
+			return Math.ceil(m * currentRoundMaxGoodsNum());
 		}
 
 		public function get singleModeTarget():int

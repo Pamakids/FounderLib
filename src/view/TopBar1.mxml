@@ -44,14 +44,14 @@
 			 width="{bi.width/2}"
 			 textAlign="center"
 			 verticalCenter="0"
-			 text="{'现金： '+player.cash}"
+			 text="{'现金： '+(player.cash > 0 ? player.cash : 0)}"
 			 id="cash"/>
 
 	<s:Label fontSize="24"
 			 color="0x8b331f"
 			 width="{bi.width/2}"
 			 textAlign="center"
-			 text="{'贷款： '+player.loan}"
+			 text="{'贷款： '+(player.cash > 0 ?  player.loan : player.loan + player.cash)}"
 			 x="{bi.width/2}"
 			 verticalCenter="0"
 			 id="loan"/>
