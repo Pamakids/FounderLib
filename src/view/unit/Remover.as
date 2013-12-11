@@ -2,21 +2,20 @@ package view.unit
 {
 	import com.astar.expand.ItemTile;
 	import com.pamakids.manager.SoundManager;
-
+	
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.media.Sound;
 	import flash.utils.getTimer;
-
+	
 	import global.AssetsManager;
 	import global.DC;
 	import global.ShelfManager;
 	import global.StatusManager;
-	import global.StoreManager;
-
+	
 	import model.StaffVO;
-
+	
 	import view.component.LogicalMap;
 	import view.component.Pop;
 	import view.unit.w.Walker;
@@ -148,7 +147,7 @@ package view.unit
 				var txt:String="补货完成！";
 				if (pops && pops.length > 0)
 				{
-					txt+="其中： ";
+					txt = "";
 					for (var j:int=0; j < pops.length; j++)
 					{
 						txt+=DC.instance().getPropNameByID(pops[j]);
