@@ -68,7 +68,7 @@ package view.unit
 		private var pops:Array;
 		private var popPoint:Point;
 
-		override protected function onArrived(e:Event):void
+		override protected function onArrived(e:Event=null):void
 		{
 			popPoint=new Point(0, -action.height - 10);
 			popPoint=this.localToGlobal(popPoint);
@@ -180,9 +180,13 @@ package view.unit
 			targetShelf=shelf;
 			var tile:ItemTile=targetShelf.getTargetTile();
 			if (tile == crtTile)
-				replenishHandler();
+			{
+				onArrived();
+			}
 			else
+			{
 				LogicalMap.getInstance().moveBody(this, tile);
+			}
 		}
 
 		override public function dispose():void

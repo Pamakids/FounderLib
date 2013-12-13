@@ -1,7 +1,7 @@
 package model
 {
 	import flash.geom.Point;
-
+	
 	import controller.ServiceController;
 
 	/**
@@ -36,14 +36,19 @@ package model
 		 * 单个搁板容量
 		 */
 		public var volume:uint;
-
+		/**
+		 * 货架容量倍数
+		 */		
+		public var param:uint;
+		
 		public function parseByXmlContent(str:String):void
 		{
 			//搁板数量（可放种类数量）|单搁板容量系数|资源索引|货架位置数据|响应位置集合
 			//1|30|2|2,11|3,12●4,12●5,12
 			var arr:Array=str.split("|");
 			this.count=arr[0];
-			this.volume=int(arr[1]) * ServiceController.instance.currentRoundMaxGoodsNum();
+			this.param = int(arr[1]);
+			this.volume=param * ServiceController.instance.currentRoundMaxGoodsNum();
 			this.icon=arr[2];
 
 			var arr_1:Array=arr[3].split(",");
