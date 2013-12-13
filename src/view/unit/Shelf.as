@@ -10,6 +10,8 @@ package view.unit
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	
+	import controller.ServiceController;
+	
 	import global.AssetsManager;
 	import global.DC;
 	import global.ShelfManager;
@@ -89,7 +91,7 @@ package view.unit
 					{
 						tf = vecTf[i];
 						tf.visible = true;
-						tf.text =DC.instance().getPropNameByID(props[i][0]) + " " + props[i][1];
+						tf.text =DC.instance().getPropNameByID(props[i][0]) + " " + props[i][1]/* + " / " + vo.volume*/;
 					}
 					break;
 				case MouseEvent.MOUSE_OUT:
@@ -273,6 +275,7 @@ package view.unit
 		public function clear():void
 		{
 			this.visible=true;
+			this.vo.volume = vo.param * ServiceController.instance.currentRoundMaxGoodsNum();
 			props=[];
 			for (var i:int=0; i < vo.count; i++)
 			{
