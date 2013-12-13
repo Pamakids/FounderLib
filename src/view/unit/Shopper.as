@@ -85,7 +85,7 @@ package view.unit
 		private var crtIndex:int;
 		private var targetShelf:Shelf;
 
-		override protected function onArrived(e:Event):void
+		override protected function onArrived(e:Event=null):void
 		{
 			if (isFinish)
 			{

@@ -39,7 +39,7 @@ package view.unit.w
 			this.addEventListener(Walker.ARRIVED, onArrived);
 		}
 		
-		protected function onArrived(e:Event):void
+		protected function onArrived(e:Event=null):void
 		{
 		}
 		
