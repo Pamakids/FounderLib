@@ -84,6 +84,7 @@ package model
 
 		public function get money():int
 		{
+			trace('Money:', cash + loan);
 			return cash + loan;
 		}
 

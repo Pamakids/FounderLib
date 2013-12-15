@@ -24,7 +24,7 @@
 		<s:State name="disabled"/>
 	</s:states>
 
-	<s:BitmapImage source="@Embed('/assets/3d/button2Up.png', 
+	<s:BitmapImage source="@Embed('/assets/3d/2.png', 
 				   scaleGridTop=5,  
 				   scaleGridLeft=5,  
 				   scaleGridBottom=6,  
@@ -34,7 +34,7 @@
 				   smooth="true"
 				   left="0"
 				   right="0"/>
-	<s:BitmapImage source="@Embed('/assets/3d/button2Over.png', 
+	<s:BitmapImage source="@Embed('/assets/3d/1.png', 
 				   scaleGridTop=5,  
 				   scaleGridLeft=5,  
 				   scaleGridBottom=6,  
@@ -47,12 +47,12 @@
 	<s:Label id="labelDisplay"
 			 textAlign="center"
 			 maxDisplayedLines="1"
-			 fontSize="15"
+			 fontSize="12"
 			 horizontalCenter="0"
 			 color="0x8b331f"
 			 verticalAlign="middle"
-			 left="13"
-			 right="13"
+			 left="9"
+			 right="9"
 			 top="0"
 			 bottom="0">
 	</s:Label>

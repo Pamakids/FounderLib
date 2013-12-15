@@ -68,7 +68,8 @@ package controller
 		public function set earned(value:int):void
 		{
 			_earned=value;
-			dispatchEvent(new Event('moneyChanged'));
+			if (value)
+				dispatchEvent(new Event('moneyChanged'));
 		}
 
 		public static function get instance():ServiceController
@@ -232,6 +233,7 @@ package controller
 				}
 			}
 
+			dispatchEvent(new Event('moneyChanged'));
 			if (fighting)
 				return;
 
@@ -398,29 +400,40 @@ package controller
 					if (!isSingle)
 					{
 						roundNum++;
+						earned=0;
 						if (other)
 						{
 							var sendData:Object={target: other.company_name, data: player1.money};
 							pomelo.request(sendGameMessage, sendData);
 						}
 
+						readyToRandom=true;
 						judgeGameStatus();
 					}
 					else
 					{
-						earned=0; //清空盈利
 						var s:ServiceBase=new ServiceBase('user/update', URLRequestMethod.POST);
-						var data:Object={_id: me._id, single_level: roundNum, single_cash: player1.cash, single_loan: player1.loan};
-						if (player1.cash < config.startupMoney)
+						var data:Object={_id: me._id, single_level: roundNum + 1, single_cash: player1.cash, single_loan: player1.loan};
+						if (player1.cash < 0)
 						{
 							data.single_cash=config.startupMoney;
 							data.single_loan=0;
+							player1.cash=config.startupMoney;
+							player1.loan=0;
 						}
-
 						s.call(function(vo:ResultVO):void
 						{
+							earned=0;
 							if (vo.status)
 							{
+								me=CloneUtil.convertObject(vo.results, UserVO);
+								SO.i.setKV('user', me);
+								SO.i.setKV('player' + me.company_name, player1);
+								if (isDebug && roundNum < 4)
+								{
+									showRandomEvent();
+									return;
+								}
 								if (singleModeTarget > allEarned)
 									dispatchEvent(new Event('singleFailed'));
 								else
@@ -431,7 +444,7 @@ package controller
 								alert('抱歉，单机闯关记录保存失败，请稍后再试，5秒后自动返回首页');
 								setTimeout(function():void
 								{
-									navigateToURL(new URLRequest(http + 'FounderTraining.html'), '_self');
+									backToHome();
 								}, 5000);
 							}
 						}, data);
@@ -441,6 +454,29 @@ package controller
 				};
 				confirm(infoArr.join('\n'));
 			});
+		}
+
+		public function backToHome():void
+		{
+			var so:SO=SO.i;
+			var uinfo:String='u=' + so.getKV('u') + '&p=' + so.getKV('p');
+			navigateToURL(new URLRequest(http + 'FounderTraining.html?' + encodeURI(uinfo)), '_self');
+		}
+
+		public function clearProduct(id:String):void
+		{
+			if (!boughtGoods)
+				return;
+			var n:int;
+			for each (var vo:BoughtGoodsVO in boughtGoods)
+			{
+				if (vo.id == id)
+				{
+					player1.cash+=vo.quantity * vo.inPrice;
+					boughtGoods.splice(boughtGoods.indexOf(vo), 1);
+					break;
+				}
+			}
 		}
 
 		public function getBoughtGoodsNum(id:String):int
@@ -455,6 +491,8 @@ package controller
 			}
 			return 0;
 		}
+
+		private var readyToRandom:Boolean;
 
 		private function judgeGameStatus():void
 		{
@@ -476,7 +514,7 @@ package controller
 					gameOver(new GameResult(false, '您已经没有现金了，游戏失败，5秒后将自动返回游戏大厅'));
 				}
 			}
-			else
+			else if (readyToRandom)
 			{
 				showRandomEvent();
 			}
@@ -573,6 +611,8 @@ package controller
 
 		public var selectedPurchaserStaff:StaffVO;
 
+		public var hintToPurchase:Boolean;
+
 		public function selectStaff(staff:StaffVO):void
 		{
 			if (staff.type == 1)
@@ -593,9 +633,14 @@ package controller
 				arr.push(vo);
 			}
 
-			if (arr.length == 3)
+			if (arr.length == 3 && !hintToPurchase)
 			{
+				hintToPurchase=true;
 				showHelp('人员招聘完毕，快去批发市场采购东西吧');
+				confirmedCallback=function():void
+				{
+					dispatchEvent(new Event('toPurchase'));
+				};
 				confirm('人员招聘完毕，快去批发市场采购东西吧');
 			}
 		}
@@ -607,6 +652,7 @@ package controller
 		 */
 		public function startGame():void
 		{
+			readyToRandom=false;
 			if (fighting)
 			{
 				if (!isSingle)
@@ -686,9 +732,22 @@ package controller
 			}, {account: account, password: password});
 		}
 
+		private var shopperTypes:Array=[];
+
+		private function getShopperType():int
+		{
+			if (!shopperTypes.length)
+				shopperTypes=[1, 2, 3];
+			var ti:int=Math.floor(Math.random() * shopperTypes.length);
+			var type:uint=shopperTypes[ti];
+			shopperTypes.splice(ti, 1)
+			return type;
+		}
+
 		protected function addShopperHandler(event:TimerEvent):void
 		{
-			var type:uint=Math.floor(Math.random() * 3);
+			trace('st', shopperTypes.length);
+			var type:int=getShopperType();
 			var r:Number=Math.random();
 			var num:int=toBuyGoodsNum;
 			var buyTwo:Boolean=r > 0.5;
@@ -724,7 +783,7 @@ package controller
 					var p2:Number=currentPrice / defaultPrice; //售价超出的倍数，倍数越高就会降低用户进入的几率
 					var max:int=config.goodsSaleMax / 100;
 
-					var p3:Number=(p2 - 1) * 0.5 / max;
+					var p3:Number=(p2 - 1) / max;
 
 					trace('SinglePrice Ratio:', p3, p2, currentPrice, defaultPrice);
 
@@ -753,7 +812,14 @@ package controller
 						var aa:Number=(a1 + a2) / 2;
 						r=Math.random();
 						if (r < aa)
+						{
 							addShopper(new ShopperVO(type, toBuy));
+						}
+						else
+						{
+							var sendData:Object={target: other.company_name, toBuy: JSON.stringify(toBuy)};
+							pomelo.request(sendGameMessage, sendData);
+						}
 					}
 					else
 					{
@@ -800,6 +866,12 @@ package controller
 				otherSO=CloneUtil.convertObject(msg.svo, SaleStrategyVO);
 			otherCash=Number(msg.data);
 
+			if (msg.toBuy)
+			{
+				var arr:Array=JSON.parse(msg.toBuy) as Array;
+				addShopper(new ShopperVO(getShopperType(), arr));
+			}
+
 			dispatchEvent(new Event('moneyChanged'));
 
 			judgeGameStatus();
@@ -837,8 +909,8 @@ package controller
 
 		protected function removeUserHandler(event:PomeloEvent):void
 		{
-			if (isReading)
-				return;
+//			if (isReading)
+//				return;
 			if (fighting)
 			{
 				gameOver(new GameResult(true, '您赢得了游戏，5秒后将自动返回游戏大厅'));
@@ -998,6 +1070,8 @@ package controller
 					initTimers();
 					if (isSingle)
 					{
+//						if(!fighting)
+//							boughtGoods = CloneUtil
 						startGame();
 					}
 					else
@@ -1215,6 +1289,7 @@ package controller
 
 		private function showRandomEvent():void
 		{
+			readyToRandom=false;
 			var s:ServiceBase=new ServiceBase('event');
 			s.call(function(vo:ResultVO):void
 			{
@@ -1223,8 +1298,17 @@ package controller
 					var evo:EventsVO=CloneUtil.convertObject(vo.results, EventsVO);
 					alert(evo.content);
 					player1.cash+=evo.money;
+					dispatchEvent(new Event('moneyChanged'));
 				}
-				roundNum++;
+				if (isSingle)
+				{
+					roundNum++;
+				}
+				else
+				{
+					var sendData:Object={target: other.company_name, data: player1.money, player: player1, svo: currentSaleStrategy};
+					pomelo.request(sendGameMessage, sendData);
+				}
 			});
 		}
 

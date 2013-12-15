@@ -23,6 +23,7 @@ package model
 		public var password:String='123456';
 		public var portrait:String;
 		public var signed_in_times:int;
+		public var boughtGoods:String;
 
 		public var birthday:String;
 		public var come_from:String;

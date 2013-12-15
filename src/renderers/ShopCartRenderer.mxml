@@ -31,8 +31,7 @@
 
 			protected function textinput1_textInputHandler(event:TextEvent):void
 			{
-				TweenLite.killDelayedCallsTo(changeQuantity);
-				TweenLite.delayedCall(0.2, changeQuantity);
+
 			}
 
 			private function changeQuantity():void
@@ -81,6 +80,12 @@
 //					focusManager.setFocus(quantity);
 				}
 			}
+
+			protected function quantity_keyUpHandler(event:KeyboardEvent):void
+			{
+				TweenLite.killDelayedCallsTo(changeQuantity);
+				TweenLite.delayedCall(0.2, changeQuantity);
+			}
 		]]>
 	</fx:Script>
 
@@ -94,7 +99,7 @@
 				 restrict="0-9"
 				 maxChars="4"
 				 focusOut="quantity_focusOutHandler(event)"
-				 textInput="textinput1_textInputHandler(event)"
+				 keyUp="quantity_keyUpHandler(event)"
 				 color="0xfe840c"
 				 text="{data.quantity}"/>
 

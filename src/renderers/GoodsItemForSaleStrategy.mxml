@@ -77,7 +77,7 @@
 					{
 						ti.text=vo.outPrice.toString();
 					});
-					PAlert.show('售价不能超出进货价的 ' + sc.config.goodsSaleMax + '%');
+					PAlert.show('售价不能超出进货价的 ' + sc.config.goodsSaleMax / 100 + ' 倍');
 				}
 				else
 				{

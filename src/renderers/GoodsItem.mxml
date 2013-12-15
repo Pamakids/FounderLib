@@ -14,6 +14,8 @@
 			import controller.ServiceController;
 
 			import model.GoodsVO;
+
+			import skins.GMCloseButtonSkin;
 			private var sc:ServiceController;
 
 			[Bindable]
@@ -36,11 +38,22 @@
 					goodsUI.addChild(s);
 					s.x=bi.width / 2 - 1;
 					s.y=bi.height / 2 - 5;
-					var n:int=sc.getBoughtGoodsNum(vo.id);
-					if (n)
-						num.text='(库存 ' + n + ' )';
-					else
-						num.text='';
+					updateNum();
+				}
+			}
+
+			private function updateNum():void
+			{
+				var n:int=sc.getBoughtGoodsNum(vo.id);
+				if (n)
+				{
+					num.text='(库存 ' + n + ' )';
+					clearProduct.visible=true;
+				}
+				else
+				{
+					num.text='';
+					clearProduct.visible=false;
 				}
 			}
 
@@ -53,6 +66,13 @@
 			protected function itemrenderer1_clickHandler(event:MouseEvent):void
 			{
 				sc.selectGoods(vo);
+			}
+
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				event.stopImmediatePropagation();
+				sc.clearProduct(vo.id);
+				updateNum();
 			}
 		]]>
 	</fx:Script>
@@ -75,6 +95,13 @@
 				<s:Label id="num"
 						 fontSize="12"
 						 color="0x975c25"/>
+				<s:Button skinClass="skins.GMCloseButtonSkin"
+						  buttonMode="true"
+						  id="clearProduct"
+						  toolTip="清空库存"
+						  click="button2_clickHandler(event)"
+						  scaleX=".6"
+						  scaleY=".6"/>
 			</s:HGroup>
 			<!--<s:HGroup verticalAlign="middle">
 				<s:Label fontSize="14"

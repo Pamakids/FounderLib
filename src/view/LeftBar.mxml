@@ -8,7 +8,6 @@
 		<![CDATA[
 			import com.pamakids.components.PAlert;
 			import com.pamakids.components.PopupBox;
-			import com.pamakids.managers.PopupBoxManager;
 			import com.pamakids.models.ResultVO;
 
 			import mx.events.FlexEvent;
@@ -20,7 +19,6 @@
 
 			import view.boxes.BankBox;
 			import view.boxes.GoodsMarketBox;
-			import view.boxes.ReadyBox;
 			import view.boxes.SaleStrategyBox;
 			import view.boxes.TalentMarketBox;
 
@@ -38,13 +36,56 @@
 //				if (switching)
 //					return;
 //				switching=true;
+				nav(event.currentTarget);
+			}
+
+			protected function ok_clickHandler(event:MouseEvent):void
+			{
+				if (sc.isReading)
+					return;
+				var result:ResultVO=sc.readyToStart();
+				if (!result.status)
+				{
+					PAlert.show(result.errorResult);
+					return;
+				}
+				else if (sc.isSingle)
+				{
+					sc.gotoFighting();
+				}
+
+				Help.instance.hideAll();
+			}
+
+			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void
+			{
+				sc=ServiceController.instance;
+				if (sc.isSingle)
+					ok.label='开始游戏';
+				sc.addEventListener('toPurchase', showPHandler);
+			}
+
+			protected function createdHandler(event:FlexEvent):void
+			{
+				currentBox.removeEventListener(FlexEvent.CREATION_COMPLETE, createdHandler);
+				currentBox.x=parent.width / 2 - currentBox.width / 2;
+				currentBox.y=parent.height / 2 - currentBox.height / 2;
+			}
+
+			protected function showPHandler(event:Event):void
+			{
+				nav(goodsMarket);
+			}
+
+			private function nav(target:Object):void
+			{
 				if (currentBox && currentBox.parent)
 				{
 					(currentBox.parent as Group).removeElement(currentBox);
 					currentBox=null;
 				}
 				var id:String;
-				switch (event.currentTarget)
+				switch (target)
 				{
 					case talentMarket:
 						id='rencaishichang';
@@ -74,38 +115,6 @@
 					currentBox.addEventListener(FlexEvent.CREATION_COMPLETE, createdHandler);
 					(parent as Group).addElement(currentBox);
 				}
-			}
-
-			protected function ok_clickHandler(event:MouseEvent):void
-			{
-				if (sc.isReading)
-					return;
-				var result:ResultVO=sc.readyToStart();
-				if (!result.status)
-				{
-					PAlert.show(result.errorResult);
-					return;
-				}
-				else if (sc.isSingle)
-				{
-					sc.gotoFighting();
-				}
-
-				Help.instance.hideAll();
-			}
-
-			protected function vgroup1_creationCompleteHandler(event:FlexEvent):void
-			{
-				sc=ServiceController.instance;
-				if (sc.isSingle)
-					ok.label='开始游戏';
-			}
-
-			protected function createdHandler(event:FlexEvent):void
-			{
-				currentBox.removeEventListener(FlexEvent.CREATION_COMPLETE, createdHandler);
-				currentBox.x=parent.width / 2 - currentBox.width / 2;
-				currentBox.y=parent.height / 2 - currentBox.height / 2;
 			}
 		]]>
 	</fx:Script>

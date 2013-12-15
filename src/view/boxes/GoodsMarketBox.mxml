@@ -13,6 +13,7 @@
 			import com.pamakids.utils.CloneUtil;
 
 			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 
 			import spark.components.Group;
@@ -29,7 +30,7 @@
 
 			protected function popupbox1_creationCompleteHandler(event:FlexEvent):void
 			{
-				addEventListener('close', closeHandler);
+//				addEventListener('close', closeHandler);
 				sc=ServiceController.instance;
 
 				var ac:ArrayCollection=new ArrayCollection(['水果', '饮料', '蔬菜', '日用品']);
@@ -50,11 +51,10 @@
 			[Bindable]
 			private var goods:ArrayCollection;
 
-			protected function closeHandler(event:Event):void
-			{
-				if (parent)
-					(parent as Group).removeElement(this);
-			}
+//			protected function closeHandler(event:Event):void
+//			{
+//				close();
+//			}
 
 			protected function goodsTypes_changeHandler(event:IndexChangeEvent):void
 			{
@@ -120,7 +120,7 @@
 				}
 				else if (totalNum + sc.purchaseNumEachRound > svo.ability)
 				{
-					PAlert.show('采购数量超出采购员每月最大采购的数量，请调整');
+					PAlert.show('采购数量超出采购员每月最大采购的数量，请减少本次购买数\n本月最大购买数：' + svo.ability + ' 本月最多可再购买：' + (svo.ability - sc.purchaseNumEachRound));
 				}
 				else
 				{
@@ -154,7 +154,8 @@
 					}
 					sc.purchaseNumEachRound+=totalNum;
 					sc.checkOut(boughtGoods.source, shopCartTotal);
-					closeHandler(null);
+					close();
+//					closeHandler(null);
 				}
 			}
 		]]>

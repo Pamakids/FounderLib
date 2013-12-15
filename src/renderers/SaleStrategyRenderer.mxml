@@ -12,21 +12,46 @@
 
 	<fx:Script>
 		<![CDATA[
+			import com.pamakids.components.PAlert;
+
 			import controller.ServiceController;
 
 			import model.SaleStrategyVO;
+
+			import skins.DefaultButtonBigSkin;
 
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
 				ServiceController.instance.remoteSaleStrategy(data as SaleStrategyVO);
 			}
+
+			protected function update_clickHandler(event:MouseEvent):void
+			{
+				if (!sn.text)
+				{
+					PAlert.show('方案名称不能为空');
+					return;
+				}
+				data.name=sn.text;
+				PAlert.show('方案名称更新成功!');
+			}
 		]]>
 	</fx:Script>
 
-	<s:Label fontSize="14"
-			 color="0x975c25"
-			 width="100%"
-			 text="{data.name}"/>
+	<s:TextInput fontSize="14"
+				 id="sn"
+				 width="100"
+				 maxChars="6"
+				 color="0x975c25"
+				 text="{data.name}"
+				 enabled="{data.name != '默认方案'}"/>
+
+	<s:Button skinClass="skins.MinButtonSkin"
+			  id="update"
+			  click="update_clickHandler(event)"
+			  label="更新名称"/>
+	<s:Spacer width="100%"/>
+
 	<s:Button skinClass="skins.GMCloseButtonSkin"
 			  buttonMode="true"
 			  visible="{data.name != '默认方案'}"

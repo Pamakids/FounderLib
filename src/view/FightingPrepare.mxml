@@ -34,6 +34,9 @@
 
 			protected function nvs_changeHandler(event:IndexChangeEvent):void
 			{
+				if (event.newIndex == -1)
+					return;
+				nvs.requireSelection=true;
 				showBox();
 //				currentState='s' + nvs.selectedIndex;
 			}
@@ -79,7 +82,13 @@
 
 			protected function closedHandler(event:Event):void
 			{
+				nvs.requireSelection=false;
 				nvs.selectedIndex=-1;
+			}
+
+			protected function backHome_clickHandler(event:MouseEvent):void
+			{
+				ServiceController.instance.backToHome();
 			}
 		]]>
 	</fx:Script>
@@ -99,10 +108,16 @@
 					 change="nvs_changeHandler(event)"
 					 y="35	"
 					 id="nvs"/>
-		<s:Button skinClass="skins.DefaultButtonBigSkin"
-				  id="ready"
-				  label="准备好了"
-				  click="ready_clickHandler(event)"/>
+		<s:HGroup>
+			<s:Button skinClass="skins.DefaultButtonBigSkin"
+					  id="ready"
+					  label="{ServiceController.instance.isSingle ? '继续游戏': '准备好了'}"
+					  click="ready_clickHandler(event)"/>
+			<s:Button skinClass="skins.DefaultButtonBigSkin"
+					  id="backHome"
+					  label="返回首页"
+					  click="backHome_clickHandler(event)"/>
+		</s:HGroup>
 	</s:HGroup>
 
 	<!--<boxes:TalentMarketBox includeIn="s0"/>

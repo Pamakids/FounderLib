@@ -41,22 +41,24 @@
 				x=parent.width / 2 - width / 2;
 				if (sc.isSingle)
 					leftGroup.visible=true;
-				if (currentState == 's2')
-					lw.text='资金：' + sc.player1.money.toString();
+//				if (currentState == 's2')
+				lw.text='资金：' + sc.player1.money.toString();
+				paused=true;
 			}
+
+			private var paused:Boolean;
 
 			protected function gameStartHandler(event:Event):void
 			{
 				initThis();
+				paused=false;
+				moneyChangedHandler();
 			}
 
 			protected function changedHandler(event:Event):void
 			{
 				trace(sc.player1.money);
-				if (currentState == 's1')
-					lw.text='资金：' + sc.player1.money.toString();
-				else
-					lw.text='收入：' + sc.earned;
+				moneyChangedHandler();
 			}
 
 			private function initThis():void
@@ -74,6 +76,14 @@
 						//					leftGroup.visible=rightGroup.visible=false;
 				}
 			}
+
+			private function moneyChangedHandler():void
+			{
+				if (currentState == 's1' || paused)
+					lw.text='资金：' + sc.player1.money.toString();
+				else
+					lw.text='收入：' + sc.earned;
+			}
 		]]>
 	</fx:Script>
 
@@ -84,6 +94,8 @@
 
 	<s:HGroup gap="-20"
 			  id="leftGroup"
+			  toolTip.s1="{sc.me.company_name + ' 所有资金'}"
+			  toolTip.s2="本月收入情况"
 			  verticalAlign="middle">
 		<components:GPortrait depth="1"
 							  myself="true"/>
@@ -92,7 +104,6 @@
 						   smooth="true"/>
 			<components1:LabelWidthShadow text.s1="{'资金：'+sc.player1.money}"
 										  text.s2="{'收入：'+sc.earned}"
-										  toolTip.s2="本月收入情况"
 										  fontSize="18"
 										  color="0x724815"
 										  verticalCenter="-2"
@@ -113,13 +124,14 @@
 
 	<s:HGroup gap="-20"
 			  id="rightGroup"
+			  toolTip.s1="{sc.other.company_name + ' 所有资金'}"
+			  toolTip.s2="收入需达到的目标"
 			  verticalAlign="middle">
 		<s:Group>
 			<s:BitmapImage source="@Embed('/assets/boxes/leftArrow.png')"
 						   smooth="true"/>
 			<components1:LabelWidthShadow text.s1="{'资金：'+sc.otherCash}"
 										  text.s2="{'目标：'+sc.otherCash}"
-										  toolTip.s2="收入需达到的目标"
 										  fontSize="18"
 										  color="0x724815"
 										  verticalCenter="-2"
