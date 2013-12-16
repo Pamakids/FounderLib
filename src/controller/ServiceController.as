@@ -68,6 +68,7 @@ package controller
 		public function set earned(value:int):void
 		{
 			_earned=value;
+			trace('Earned: ' + value);
 			if (value)
 				dispatchEvent(new Event('moneyChanged'));
 		}
@@ -212,7 +213,7 @@ package controller
 			player1.cash-=total;
 			if (!boughtGoods)
 			{
-				boughtGoods=goods;
+				boughtGoods=CloneUtil.cloneArray(goods);
 			}
 			else
 			{
@@ -287,6 +288,7 @@ package controller
 											{
 
 											}
+											trace('User:' + o);
 											users.push(uo);
 										}
 										catch (error:Error)
@@ -828,7 +830,8 @@ package controller
 						}
 						else
 						{
-							var sendData:Object={target: other.company_name, toBuy: JSON.stringify(toBuy)};
+							trace('add other shopper');
+							var sendData:Object={target: other.company_name, data: player1.cash, toBuy: JSON.stringify(toBuy)};
 							pomelo.request(sendGameMessage, sendData);
 						}
 					}
@@ -870,6 +873,7 @@ package controller
 
 		protected function onGameHandler(event:PomeloEvent):void
 		{
+			trace('On Game');
 			var msg:Object=event.message;
 			if (msg.player)
 				player2=getPlayer(msg.player);
@@ -877,10 +881,15 @@ package controller
 				otherSO=CloneUtil.convertObject(msg.svo, SaleStrategyVO);
 			otherCash=Number(msg.data);
 
-			if (msg.toBuy)
+			if (msg.target == me.company_name && msg.toBuy)
 			{
 				var arr:Array=JSON.parse(msg.toBuy) as Array;
-				addShopper(new ShopperVO(getShopperType(), arr));
+				var player1Have:Boolean=allHave(arr, player1.goods);
+				if (player1Have)
+				{
+					addShopper(new ShopperVO(getShopperType(), arr));
+					trace('Shopper from other one');
+				}
 			}
 
 			dispatchEvent(new Event('moneyChanged'));
