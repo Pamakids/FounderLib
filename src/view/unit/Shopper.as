@@ -140,10 +140,10 @@ package view.unit
 			else
 			{
 				var countStore:uint=StoreManager.getInstance().getPropNumByID(id);
-				if (countShelf + countStore >= num)
+//				if (countShelf + countStore >= num)
 					waitForReplenish();
-				else
-					dispatchEvent(new Event(SHOP_FAILED));
+//				else
+//					dispatchEvent(new Event(SHOP_FAILED));
 			}
 		}
 
