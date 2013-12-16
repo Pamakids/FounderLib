@@ -21,6 +21,7 @@ package global
 
 		public function reCatchGoods():void
 		{
+			clear();
 			var goods:Array=ServiceController.instance.boughtGoods;
 			if (!goods)
 			{
@@ -57,10 +58,10 @@ package global
 		 */
 		public function addPropByID(id:String, num:int):void
 		{
-//			if (dic[id])
-//				dic[id]+=num;
-//			else
-			dic[id]=num;
+			if (dic[id])
+				dic[id]+=num;
+			else
+				dic[id]=num;
 
 			test();
 		}
