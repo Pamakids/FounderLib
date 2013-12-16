@@ -1,5 +1,9 @@
 package global
 {
+	import flash.display.Stage;
+	import flash.filters.GlowFilter;
+	import flash.text.TextField;
+	
 	import controller.ServiceController;
 	
 	import model.BoughtGoodsVO;
@@ -37,25 +41,10 @@ package global
 			}
 		}
 
-		/**
-		 * 批量添加
-		 * [
-		 * 		[id, num],
-		 * 		[id, num]
-		 * ]
-		 */
-		public function addPropBatch(obj:Array):void
-		{
-			for each (var arr:Array in obj)
-			{
-				addPropByID(arr[0], arr[1]);
-			}
-		}
-
 		public function delPropBatch(list:Array):void
 		{
 			var id:String;
-			var num:uint;
+			var num:int;
 			for each (var arr:Array in list)
 			{
 				id=arr[0];
@@ -74,7 +63,7 @@ package global
 			else
 				dic[id]=num;
 			
-			traceDic();
+			test();
 		}
 
 		/**
@@ -85,21 +74,12 @@ package global
 			if (!dic[id])
 				return;
 			dic[id]-=num;
-			if (dic[id] <= 0)
-				delete dic[id];
+//			if (dic[id] <= 0)
+//				delete dic[id];
 			
-			traceDic();
+			test();
 		}
 		
-		private function traceDic():void
-		{
-			trace("--------------------------------------------");
-			for(var id:String in dic)
-			{
-				trace(DC.instance().getPropNameByID(id), dic[id]);
-			}
-		}
-
 		/**
 		 * 查找数量
 		 */
@@ -178,6 +158,27 @@ package global
 					return o.inPrice;
 			}
 			return 0;
+		}
+		
+		private var tf:TextField;
+		private function test():void
+		{
+			if(!tf)
+			{
+				tf = new TextField();
+				tf.width = 500;
+				tf.height = 768;
+				MC.instance().mainScreen.addChild( tf );
+				tf.mouseEnabled = false;
+				tf.textColor = 0xffffff;
+				tf.filters = [new GlowFilter(0x0, .8, 2, 2, 100, 1)];
+			}
+			var txt:String = "";
+			for(var id:String in _instance.dic)
+			{
+				txt += ( DC.instance().getPropNameByID(id) + " : " + dic[id] + "\n" );
+			}
+			tf.text = txt;
 		}
 		
 	}
