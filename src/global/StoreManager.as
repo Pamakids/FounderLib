@@ -3,9 +3,9 @@ package global
 	import flash.display.Stage;
 	import flash.filters.GlowFilter;
 	import flash.text.TextField;
-	
+
 	import controller.ServiceController;
-	
+
 	import model.BoughtGoodsVO;
 
 	/**
@@ -33,7 +33,6 @@ package global
 					boughtGoodsVO.quantity=a[i][1];
 					goods.push(boughtGoodsVO);
 				}
-				;
 			}
 			for each (var vo:BoughtGoodsVO in goods)
 			{
@@ -56,36 +55,36 @@ package global
 		/**
 		 * 添加
 		 */
-		public function addPropByID(id:String, num:uint):void
+		public function addPropByID(id:String, num:int):void
 		{
-			if (dic[id])
-				dic[id]+=num;
-			else
-				dic[id]=num;
-			
+//			if (dic[id])
+//				dic[id]+=num;
+//			else
+			dic[id]=num;
+
 			test();
 		}
 
 		/**
 		 * 删除
 		 */
-		public function delPropByID(id:String, num:uint):void
+		public function delPropByID(id:String, num:int):void
 		{
 			if (!dic[id])
 				return;
 			dic[id]-=num;
 //			if (dic[id] <= 0)
 //				delete dic[id];
-			
+
 			test();
 		}
-		
+
 		/**
 		 * 查找数量
 		 */
-		public function getPropNumByID(id:String):uint
+		public function getPropNumByID(id:String):int
 		{
-			return uint(dic[id]);
+			return int(dic[id]);
 		}
 		private var dic:Object={};
 
@@ -119,7 +118,7 @@ package global
 			if (goods)
 			{
 				var id:String;
-				var count:uint;
+				var count:int;
 				parent: for (var i:int=0; i < list.length; i++)
 				{
 					id=list[i][0];
@@ -147,39 +146,41 @@ package global
 
 		/**
 		 * 获取物品采购价格
-		 * @return 
-		 */		
+		 * @return
+		 */
 		public static function getInPriceByID(propID:String):Number
 		{
-			var obj:Object = DC.instance().propObj;
-			for each(var o:Object in obj)
+			var obj:Object=DC.instance().propObj;
+			for each (var o:Object in obj)
 			{
-				if(o.id == propID)
+				if (o.id == propID)
 					return o.inPrice;
 			}
 			return 0;
 		}
-		
+
 		private var tf:TextField;
+
 		private function test():void
 		{
-			if(!tf)
+			return;
+			if (!tf)
 			{
-				tf = new TextField();
-				tf.width = 500;
-				tf.height = 768;
-				MC.instance().mainScreen.addChild( tf );
-				tf.mouseEnabled = false;
-				tf.textColor = 0xffffff;
-				tf.filters = [new GlowFilter(0x0, .8, 2, 2, 100, 1)];
+				tf=new TextField();
+				tf.width=500;
+				tf.height=768;
+				MC.instance().mainScreen.addChild(tf);
+				tf.mouseEnabled=false;
+				tf.textColor=0xffffff;
+				tf.filters=[new GlowFilter(0x0, .8, 2, 2, 100, 1)];
 			}
-			var txt:String = "";
-			for(var id:String in _instance.dic)
+			var txt:String="";
+			for (var id:String in _instance.dic)
 			{
-				txt += ( DC.instance().getPropNameByID(id) + " : " + dic[id] + "\n" );
+				txt+=(DC.instance().getPropNameByID(id) + " : " + dic[id] + "\n");
 			}
-			tf.text = txt;
+			tf.text=txt;
 		}
-		
+
 	}
 }

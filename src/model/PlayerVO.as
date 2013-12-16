@@ -41,6 +41,21 @@ package model
 			return _cash;
 		}
 
+		public function getProperty():int
+		{
+			var pv:int;
+
+			if (goods)
+			{
+				for each (var vo:BoughtGoodsVO in goods)
+				{
+					pv+=vo.quantity * vo.inPrice;
+				}
+			}
+
+			return pv + _cash;
+		}
+
 		/**
 		 * @private
 		 */

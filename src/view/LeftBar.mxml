@@ -116,6 +116,11 @@
 					(parent as Group).addElement(currentBox);
 				}
 			}
+
+			protected function backHome_clickHandler(event:MouseEvent):void
+			{
+				sc.backToHome();
+			}
 		]]>
 	</fx:Script>
 
@@ -148,6 +153,11 @@
 	<s:Button label="准备好了"
 			  id="ok"
 			  click="ok_clickHandler(event)"
+			  skinClass="skins.DefaultButtonBigSkin"
+			  buttonMode="true"/>
+	<s:Button label="返回首页"
+			  id="backHome"
+			  click="backHome_clickHandler(event)"
 			  skinClass="skins.DefaultButtonBigSkin"
 			  buttonMode="true"/>
 

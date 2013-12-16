@@ -48,6 +48,7 @@
 
 	<s:Button skinClass="skins.MinButtonSkin"
 			  id="update"
+			  visible="{data.name != '默认方案'}"
 			  click="update_clickHandler(event)"
 			  label="更新名称"/>
 	<s:Spacer width="100%"/>

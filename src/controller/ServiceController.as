@@ -413,13 +413,24 @@ package controller
 					else
 					{
 						var s:ServiceBase=new ServiceBase('user/update', URLRequestMethod.POST);
-						var data:Object={_id: me._id, single_level: roundNum + 1, single_cash: player1.cash, single_loan: player1.loan};
-						if (player1.cash < 0)
+						var sl:int=singleModeTarget > allEarned ? roundNum : roundNum + 1;
+						var data:Object={_id: me._id, single_level: sl, single_cash: player1.cash, single_loan: player1.loan};
+						var bga:Array=[];
+						for each (var bgo:Object in boughtGoods)
+						{
+							var o:Object={};
+							CloneUtil.copyValue(bgo, o, true);
+							bga.push(o);
+						}
+						data.boughtGoods=JSON.stringify(bga);
+						if (player1.getProperty() < config.startupMoney)
 						{
 							data.single_cash=config.startupMoney;
 							data.single_loan=0;
+							data.boughtGoods='';
 							player1.cash=config.startupMoney;
 							player1.loan=0;
+							player1.goods=null;
 						}
 						s.call(function(vo:ResultVO):void
 						{
@@ -737,7 +748,7 @@ package controller
 		private function getShopperType():int
 		{
 			if (!shopperTypes.length)
-				shopperTypes=[1, 2, 3];
+				shopperTypes=[0, 1, 2];
 			var ti:int=Math.floor(Math.random() * shopperTypes.length);
 			var type:uint=shopperTypes[ti];
 			shopperTypes.splice(ti, 1)
@@ -1070,8 +1081,20 @@ package controller
 					initTimers();
 					if (isSingle)
 					{
-//						if(!fighting)
-//							boughtGoods = CloneUtil
+						if (!fighting)
+						{
+							if (me.boughtGoods)
+							{
+								boughtGoods=CloneUtil.convertArrayObjects(JSON.parse(me.boughtGoods) as Array, BoughtGoodsVO);
+								player1.goods=boughtGoods;
+							}
+							if (player1.getProperty() < config.startupMoney)
+							{
+								player1.cash=config.startupMoney;
+								player1.goods=null;
+								player1.loan=0;
+							}
+						}
 						startGame();
 					}
 					else
