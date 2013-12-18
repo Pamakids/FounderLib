@@ -53,7 +53,7 @@ package model
 				}
 			}
 
-			return pv + _cash;
+			return pv + money;
 		}
 
 		/**

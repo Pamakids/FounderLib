@@ -222,7 +222,7 @@ package controller
 					var has:Boolean;
 					for each (var bg2:BoughtGoodsVO in boughtGoods)
 					{
-						if (bg2.id == bg.id)
+						if (bg2.id == bg.id && bg.quantity)
 						{
 							bg2.quantity+=bg.quantity;
 							has=true;
@@ -375,6 +375,9 @@ package controller
 			StatusManager.getInstance().quitGame(function():void
 			{
 				sm.stopAll();
+
+				clearEmptyProduct();
+
 				recordCash=player1.cash;
 				if (!isSingle)
 					gameTime='第' + roundNum + '月';
@@ -469,6 +472,15 @@ package controller
 			});
 		}
 
+		private function clearEmptyProduct():void
+		{
+			for each (var bvo:BoughtGoodsVO in boughtGoods)
+			{
+				if (!bvo.quantity)
+					boughtGoods.splice(boughtGoods.indexOf(bvo, 1));
+			}
+		}
+
 		public function backToHome():void
 		{
 			var so:SO=SO.i;
@@ -487,10 +499,14 @@ package controller
 				{
 					player1.cash+=vo.quantity * vo.inPrice;
 					boughtGoods.splice(boughtGoods.indexOf(vo), 1);
+					dispatchEvent(new Event(CLEAR_PRODUCT));
+					dispatchEvent(new Event('moneyChanged'));
 					break;
 				}
 			}
 		}
+
+		public static const CLEAR_PRODUCT:String="CLEAR_PRODUCT";
 
 		public function getBoughtGoodsNum(id:String):int
 		{
@@ -798,12 +814,13 @@ package controller
 
 					var p3:Number=(p2 - 1) / max;
 
-					trace('SinglePrice Ratio:', p3, p2, currentPrice, defaultPrice);
-
-					for each (var oo:Array in toBuy)
-					{
-						trace('to buy:', oo[1], oo[0]);
-					}
+//					trace('SinglePrice Ratio:', p3, p2, currentPrice, defaultPrice);
+//
+//					for each (var oo:Array in toBuy)
+//					{
+//						trace('to buy:', oo[1], oo[0]);
+//					}
+					trace('Add Ratio: ', (player1.shop.visit / 100) * (1 - p3));
 					r=Math.random();
 					if (r < (player1.shop.visit / 100) * (1 - p3))
 					{
@@ -821,7 +838,7 @@ package controller
 						var a1:Number=player1.shop.visit / (player1.shop.visit + player2.shop.visit);
 						var ap1:int=getAllPrice(toBuy, currentSaleStrategy);
 						var ap2:int=getAllPrice(toBuy, otherSO);
-						var a2:Number=ap1 / (ap1 + ap2);
+						var a2:Number=ap2 / (ap1 + ap2);
 						var aa:Number=(a1 + a2) / 2;
 						r=Math.random();
 						if (r < aa)
@@ -1050,6 +1067,17 @@ package controller
 					break;
 				}
 			}
+			if (!p)
+			{
+				for each (var o:Object in goods)
+				{
+					if (o.id == id)
+					{
+						p=o.outPrice;
+						break;
+					}
+				}
+			}
 			return p;
 		}
 
@@ -1200,8 +1228,6 @@ package controller
 			{
 				if (!u.ready)
 					b=false;
-				else
-					isReading=true;
 			}
 
 			if (b)
@@ -1356,7 +1382,8 @@ package controller
 		{
 			var n:int=config.getClientMaxGoodsNum();
 			if (isSingle)
-				n=n * Math.pow((1 + config.getSingleRatio() / 100), roundNum - 1);
+				n=n * (1 + roundNum * config.getSingleRatio() / 100)
+//				n=n * Math.pow((1 + config.getSingleRatio() / 100), roundNum - 1);
 			return n;
 		}
 

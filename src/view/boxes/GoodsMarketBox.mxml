@@ -5,6 +5,7 @@
 					 xmlns:components="com.pamakids.components.*"
 					 skinClass="skins.GMPopupBoxSkin"
 					 title="批发市场"
+					 removedFromStage="popupbox1_removedFromStageHandler(event)"
 					 creationComplete="popupbox1_creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
@@ -40,12 +41,15 @@
 				sc.addEventListener('selectedGoods', selectedHandler);
 				sc.addEventListener('removeGoods', removeHandler);
 				sc.addEventListener('quantityChanged', changedHandler);
+				sc.addEventListener('CLEAR_PRODUCT', clearHandler);
 
 				boughtGoods=new ArrayCollection();
-
+				updateHasBought();
 				if (sc.fighting)
 					return;
 				Help.instance.showHelp('采购的物品可以直接在购物车修改数量\n物品种类越多越容易销售成功，但不可超出23种\n如果数量不足以满足顾客所需会导致交易失败');
+
+//				{'购物车 已购('+sc.boughtGoods.length+')'}
 			}
 
 			[Bindable]
@@ -74,9 +78,17 @@
 					}
 				}
 				if (!added)
-					boughtGoods.addItemAt(bo, 0);
+				{
+					checkTypeNum();
+					if (typeNum < 23)
+						boughtGoods.addItemAt(bo, 0);
+					else
+						PAlert.show('物品种类不可超出23种，无法再添加物品到购物车，请清除库存物品或删除购物车物品后再试');
+				}
 				else
+				{
 					vo.quantity++;
+				}
 				caculate();
 			}
 
@@ -84,6 +96,9 @@
 			public var shopCartTotal:int;
 
 			private var totalNum:int;
+
+			[Bindable]
+			private var typeNum:int;
 
 			private function caculate():void
 			{
@@ -124,29 +139,7 @@
 				}
 				else
 				{
-					var typeNum:int;
-					if (sc.boughtGoods)
-					{
-						typeNum=sc.boughtGoods.length;
-						for each (var bg:BoughtGoodsVO in boughtGoods)
-						{
-							var has:Boolean;
-							for each (var bg2:BoughtGoodsVO in sc.boughtGoods)
-							{
-								if (bg2.id == bg.id)
-								{
-									has=true;
-									break;
-								}
-							}
-							if (!has)
-								typeNum++;
-						}
-					}
-					else
-					{
-						typeNum=boughtGoods.length;
-					}
+					checkTypeNum();
 					if (typeNum > 23)
 					{
 						PAlert.show('抱歉，您所购买的物品不能超出23类，请删除' + (typeNum - 23) + '种物品');
@@ -157,6 +150,55 @@
 					close();
 //					closeHandler(null);
 				}
+			}
+
+			protected function clearHandler(event:Event):void
+			{
+				updateHasBought();
+			}
+
+			private function updateHasBought():void
+			{
+				if (sc.boughtGoods)
+				{
+					checkTypeNum();
+					carTitle.text='购物车 货品种类(' + typeNum + ')';
+				}
+			}
+
+			private function checkTypeNum():void
+			{
+				if (sc.boughtGoods)
+				{
+					typeNum=sc.boughtGoods.length;
+					for each (var bg:BoughtGoodsVO in boughtGoods)
+					{
+						var has:Boolean;
+						for each (var bg2:BoughtGoodsVO in sc.boughtGoods)
+						{
+							if (bg2.id == bg.id)
+							{
+								has=true;
+								break;
+							}
+						}
+						if (!has)
+							typeNum++;
+					}
+				}
+				else
+				{
+					typeNum=boughtGoods.length;
+				}
+			}
+
+			protected function popupbox1_removedFromStageHandler(event:Event):void
+			{
+				sc.removeEventListener('selectedGoods', selectedHandler);
+				sc.removeEventListener('removeGoods', removeHandler);
+				sc.removeEventListener('quantityChanged', changedHandler);
+				sc.removeEventListener('CLEAR_PRODUCT', clearHandler);
+				sc=null;
 			}
 		]]>
 	</fx:Script>
@@ -181,6 +223,7 @@
 		<s:VGroup horizontalAlign="center"
 				  width="280">
 			<s:Label text="购物车"
+					 id="carTitle"
 					 fontSize="18"
 					 color="0x975c25"/>
 			<s:List id="shopCart"

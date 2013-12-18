@@ -16,8 +16,6 @@
 		<![CDATA[
 			import com.greensock.TweenLite;
 
-			import flash.utils.setTimeout;
-
 			import mx.events.FlexEvent;
 
 			import controller.ServiceController;

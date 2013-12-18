@@ -95,8 +95,8 @@ package view.unit
 				var list:Array=crtShopper.getShoppingList();
 				var value:Number=liquidation(list);
 				ServiceController.instance.player1.cash+=value; //现金结算
-				value=allCost(list);
-				ServiceController.instance.earned+=value; //记录该回合盈利
+				var cost:int=allCost(list);
+				ServiceController.instance.earned+=(value - cost); //记录该回合盈利
 				StoreManager.getInstance().delGoodsFromSource(crtShopper.getShoppingList());
 				ShopperManager.getInstance().outShop(crtShopper);
 				crtShopper=null;

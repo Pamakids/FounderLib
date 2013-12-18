@@ -71,13 +71,13 @@
 					PAlert.show('售价不能为0');
 					ti.text=vo.outPrice.toString();
 				}
-				else if (p > vo.inPrice * sc.config.goodsSaleMax / 100)
+				else if (p > vo.outPrice * sc.config.goodsSaleMax / 100)
 				{
 					TweenLite.delayedCall(.3, function():void
 					{
 						ti.text=vo.outPrice.toString();
 					});
-					PAlert.show('售价不能超出进货价的 ' + sc.config.goodsSaleMax / 100 + ' 倍');
+					PAlert.show('售价不能超出市场价的 ' + sc.config.goodsSaleMax / 100 + ' 倍');
 				}
 				else
 				{
