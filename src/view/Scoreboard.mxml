@@ -125,7 +125,7 @@
 	<s:HGroup gap="-20"
 			  id="rightGroup"
 			  toolTip.s1="{sc.other.company_name + ' 所有资金'}"
-			  toolTip.s2="净利需达到的目标"
+			  toolTip.s2="毛利需达到的目标"
 			  verticalAlign="middle">
 		<s:Group>
 			<s:BitmapImage source="@Embed('/assets/boxes/leftArrow.png')"

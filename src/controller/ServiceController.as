@@ -219,7 +219,7 @@ package controller
 			{
 				for each (var bg:BoughtGoodsVO in goods)
 				{
-					var has:Boolean;
+					var has:Boolean=false;
 					for each (var bg2:BoughtGoodsVO in boughtGoods)
 					{
 						if (bg2.id == bg.id && bg.quantity)
@@ -1040,7 +1040,7 @@ package controller
 			return p;
 		}
 
-		private function getDefaultPrice(id:String):int
+		public function getDefaultPrice(id:String):int
 		{
 			var p:int;
 			for each (var gvo:GoodsVO in goods)
@@ -1374,7 +1374,7 @@ package controller
 		{
 			var n:int=1;
 			if (isSingle)
-				n=Math.pow((1 + config.getSingleRatio() / 100), roundNum - 1);
+				n=n * (1 + roundNum * config.getSingleRatio() / 100);
 			return n;
 		}
 
@@ -1398,7 +1398,7 @@ package controller
 		public function get singleModeTarget():int
 		{
 			var n:int=config.getSingleMinRequirement();
-			return Math.ceil(n * Math.pow((1 + config.getSingleRatio() / 100), roundNum - 1));
+			return n * (1 + (roundNum - 1) * config.getSingleRatio() / 100);
 		}
 	}
 }

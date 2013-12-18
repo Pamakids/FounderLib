@@ -79,8 +79,20 @@
 				}
 				if (!added)
 				{
-					checkTypeNum();
-					if (typeNum < 23)
+					updateHasBought();
+					var haveBought:Boolean;
+					if (sc.boughtGoods)
+					{
+						for each (var bvo:BoughtGoodsVO in sc.boughtGoods)
+						{
+							if (bvo.id == bo.id)
+							{
+								haveBought=true;
+								break;
+							}
+						}
+					}
+					if (typeNum < 23 || haveBought)
 						boughtGoods.addItemAt(bo, 0);
 					else
 						PAlert.show('物品种类不可超出23种，无法再添加物品到购物车，请清除库存物品或删除购物车物品后再试');
@@ -90,6 +102,7 @@
 					vo.quantity++;
 				}
 				caculate();
+				updateHasBought();
 			}
 
 			[Bindable]
@@ -116,6 +129,7 @@
 			{
 				boughtGoods.removeItem(event.data);
 				caculate();
+				updateHasBought();
 			}
 
 			[Bindable]
@@ -159,11 +173,14 @@
 
 			private function updateHasBought():void
 			{
-				if (sc.boughtGoods)
-				{
-					checkTypeNum();
+//				if (sc.boughtGoods)
+//				{
+				checkTypeNum();
+				if (typeNum)
 					carTitle.text='购物车 货品种类(' + typeNum + ')';
-				}
+				else
+					carTitle.text='购物车';
+//				}
 			}
 
 			private function checkTypeNum():void
@@ -173,7 +190,7 @@
 					typeNum=sc.boughtGoods.length;
 					for each (var bg:BoughtGoodsVO in boughtGoods)
 					{
-						var has:Boolean;
+						var has:Boolean=false;
 						for each (var bg2:BoughtGoodsVO in sc.boughtGoods)
 						{
 							if (bg2.id == bg.id)
@@ -186,9 +203,13 @@
 							typeNum++;
 					}
 				}
-				else
+				else if (boughtGoods)
 				{
 					typeNum=boughtGoods.length;
+				}
+				else
+				{
+					typeNum=0;
 				}
 			}
 

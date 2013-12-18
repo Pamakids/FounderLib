@@ -5,7 +5,8 @@
 					 xmlns:components="com.pamakids.components.*"
 					 skinClass="skins.GMPopupBoxSkin"
 					 title="定价策略"
-					 creationComplete="popupbox1_creationCompleteHandler(event)">
+					 creationComplete="popupbox1_creationCompleteHandler(event)"
+					 removedFromStage="popupbox1_removedFromStageHandler(event)">
 	<fx:Script>
 		<![CDATA[
 			import com.pamakids.components.PAlert;
@@ -114,6 +115,14 @@
 			protected function removeSSHandler(event:ODataEvent):void
 			{
 				saleStrategy.removeItemAt(saleStrategy.getItemIndex(event.data));
+//				sc.saleStrategies.splice(sc.saleStrategies.indexOf(event.data), 1);
+//				sc.saleStrategies.removeItemAt(sc.saleStrategies.getItemIndex(event.data));
+			}
+
+			protected function popupbox1_removedFromStageHandler(event:Event):void
+			{
+				sc.removeEventListener('removeSS', removeSSHandler);
+				sc=null;
 			}
 		]]>
 	</fx:Script>

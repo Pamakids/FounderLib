@@ -5,6 +5,7 @@
 				autoDrawBackground="false"
 				buttonMode="true"
 				click="itemrenderer1_clickHandler(event)"
+				removedFromStage="itemrenderer1_removedFromStageHandler(event)"
 				creationComplete="itemrenderer1_creationCompleteHandler(event)">
 
 	<fx:Script>
@@ -65,24 +66,38 @@
 
 			private function checkValue():void
 			{
+				var max:int=sc.config.goodsSaleMax / 100;
 				var p:int=int(ti.text);
 				if (p == 0)
 				{
 					PAlert.show('售价不能为0');
-					ti.text=vo.outPrice.toString();
+					ti.text=sc.getDefaultPrice(vo.id).toString();
 				}
-				else if (p > vo.outPrice * sc.config.goodsSaleMax / 100)
+				else if (p > sc.getDefaultPrice(vo.id) * max)
 				{
 					TweenLite.delayedCall(.3, function():void
 					{
-						ti.text=vo.outPrice.toString();
+						ti.text=sc.getDefaultPrice(vo.id).toString();
 					});
-					PAlert.show('售价不能超出市场价的 ' + sc.config.goodsSaleMax / 100 + ' 倍');
+					PAlert.show('售价不能超出市场价（默认售价）的 ' + max + ' 倍：' + (sc.getDefaultPrice(vo.id) * max));
 				}
 				else
 				{
 					vo.outPrice=p;
 				}
+			}
+
+			protected function ti_keyUpHandler(event:KeyboardEvent):void
+			{
+				if (PopupBoxManager.hasPopupBox)
+					return;
+				TweenLite.killDelayedCallsTo(checkValue);
+				TweenLite.delayedCall(0.3, checkValue);
+			}
+
+			protected function itemrenderer1_removedFromStageHandler(event:Event):void
+			{
+				sc=null;
 			}
 		]]>
 	</fx:Script>
@@ -112,7 +127,7 @@
 							 width="60"
 							 id="ti"
 							 restrict="0-9"
-							 textInput="ti_textInputHandler(event)"
+							 keyUp="ti_keyUpHandler(event)"
 							 text="{vo.outPrice}"/>
 			</s:HGroup>
 		</s:VGroup>
