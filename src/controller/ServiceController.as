@@ -444,7 +444,7 @@ package controller
 								me=CloneUtil.convertObject(vo.results, UserVO);
 								SO.i.setKV('user', me);
 								SO.i.setKV('player' + me.company_name, player1);
-								if (isDebug && roundNum < 4)
+								if (isDebug && roundNum < 6)
 								{
 									showRandomEvent();
 									return;
@@ -476,7 +476,7 @@ package controller
 			for each (var bvo:BoughtGoodsVO in boughtGoods)
 			{
 				if (!bvo.quantity)
-					boughtGoods.splice(boughtGoods.indexOf(bvo, 1));
+					boughtGoods.splice(boughtGoods.indexOf(bvo, 1), 1);
 			}
 		}
 
@@ -703,6 +703,8 @@ package controller
 					shopperTimer.reset();
 					shopperTimer.start();
 				}
+				if (isDebug && boughtGoods.length)
+					(boughtGoods[0] as BoughtGoodsVO).quantity=0;
 				dispatchEvent(new Event(GAME_START));
 				sm.play('bg1');
 			}
