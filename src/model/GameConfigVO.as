@@ -132,6 +132,17 @@ package model
 			return parseFloat(params[10]);
 		}
 
+		/**
+		 * 对战时最大回合数
+		 */
+		public function getMaxRound():int
+		{
+			var r:int=params.length == 14 ? int(params[13]) : 0;
+			if (!r)
+				r=1000;
+			return r;
+		}
+
 
 		/**
 		 * 物品售价最大倍数

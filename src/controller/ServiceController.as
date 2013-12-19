@@ -411,7 +411,6 @@ package controller
 							var sendData:Object={target: other.company_name, data: player1.money};
 							pomelo.request(sendGameMessage, sendData);
 						}
-
 						readyToRandom=true;
 						judgeGameStatus();
 					}
@@ -530,22 +529,26 @@ package controller
 				if (player2.money < 0)
 				{
 					if (player1.money > player2.money)
-					{
-						gameOver(new GameResult(true, '您获得了胜利，5秒后将自动返回游戏大厅'));
-					}
+						gameOver(new GameResult(true, '恭喜您，获得了胜利， ' + other.company_name + ' 剩余资金：' + player2.money + ' 已经破产啦\n5秒后将自动返回游戏大厅'));
 					else
-					{
-						gameOver(new GameResult(false, '您失败了，5秒后将自动返回游戏大厅'));
-					}
+						gameOver(new GameResult(false, '很遗憾，您已破产，' + other.company_name + ' 获得了胜利\n5秒后将自动返回游戏大厅'));
 				}
 				else
 				{
-					gameOver(new GameResult(false, '您已经没有现金了，游戏失败，5秒后将自动返回游戏大厅'));
+					gameOver(new GameResult(false, '很遗憾，您已破产，' + other.company_name + ' 获得了胜利\n5秒后将自动返回游戏大厅'));
 				}
 			}
 			else if (readyToRandom)
 			{
 				showRandomEvent();
+			}
+			else if (readyToCompareCash && roundNum > config.getMaxRound())
+			{
+				var vc:int=player1.cash - player2.cash;
+				if (vc > 0)
+					gameOver(new GameResult(true, '受系统设置的最大对战回合限制，游戏结束\n恭喜您，以超出 ' + other.company_name + ' 现金 ' + vc + ' 的优势获得最终胜利\n5秒后将自动返回游戏大厅'));
+				else
+					gameOver(new GameResult(false, '受系统设置的最大对战回合限制，游戏结束\n很遗憾，您因现金比' + other.company_name + ' 少 ' + Math.abs(vc) + ' 而惜败，请再接再厉\n5秒后将自动返回游戏大厅'));
 			}
 		}
 
@@ -1345,6 +1348,8 @@ package controller
 			LoadManager.instance.loadText('goods/data.json', loadGoodsHandler);
 		}
 
+		private var readyToCompareCash:Boolean;
+
 		private function showRandomEvent():void
 		{
 			readyToRandom=false;
@@ -1364,6 +1369,8 @@ package controller
 				}
 				else
 				{
+					readyToCompareCash=true;
+					judgeGameStatus();
 					var sendData:Object={target: other.company_name, data: player1.money, player: player1, svo: currentSaleStrategy};
 					pomelo.request(sendGameMessage, sendData);
 				}
