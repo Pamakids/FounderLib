@@ -476,7 +476,7 @@ package controller
 			for each (var bvo:BoughtGoodsVO in boughtGoods)
 			{
 				if (!bvo.quantity)
-					boughtGoods.splice(boughtGoods.indexOf(bvo, 1), 1);
+					boughtGoods.splice(boughtGoods.indexOf(bvo), 1);
 			}
 		}
 
